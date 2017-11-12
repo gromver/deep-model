@@ -1,5 +1,6 @@
 import { Map, fromJS } from 'immutable';
 import { Subject } from 'rxjs/Subject';
+import ValueContext from './ValueContext';
 import PrimitiveType from './types/PrimitiveType';
 import Event from './events/Event';
 import SetValueEvent from './events/SetValueEvent';
@@ -45,10 +46,10 @@ export default class Model {
    * @param {[(string | number)] | string} path
    * @param value
    */
-  set(path: [string|number]|never[]|string, value: any) {
-    const pathNormalized = typeof path === 'string' ? <[string|number]>[path] : path;
+  set(path: (string|number)[] | string, value: any) {
+    const pathNormalized = typeof path === 'string' ? [path] : path;
 
-    this.model.set(pathNormalized, value);
+    this.model.set(new ValueContext(this, pathNormalized, value));
   }
 
   /**
@@ -56,7 +57,7 @@ export default class Model {
    * @param {[(string | number)] | string} path
    * @returns {any}
    */
-  get(path: [string|number]|string) {
+  get(path: (string|number)[] | string) {
     const pathNormalized = typeof path === 'string' ? [path] : path;
 
     return this.attributes.getIn(pathNormalized);

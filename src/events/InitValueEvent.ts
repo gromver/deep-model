@@ -1,5 +1,5 @@
-export default class SetValueEvent {
-  type: string = 'setValue';
+export default class InitValueEvent {
+  type: string = 'presetValue';
   path: (string|number)[];
   value: any;
 

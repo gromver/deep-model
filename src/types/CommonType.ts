@@ -2,6 +2,7 @@ import ValueContext from '../ValueContext';
 import MultipleFilter from '../filters/MultipleFilter';
 import MultiplePermission from '../permissions/MultiplePermission';
 import TypeConfigPrimitive from '../interfaces/TypeConfigPrimitive';
+import SetValueEvent from '../events/SetValueEvent';
 
 export default class CommonType {
   protected permission?: (context: ValueContext) => boolean;
@@ -18,36 +19,56 @@ export default class CommonType {
       : config.filter;
   }
 
-  set(path: [string|number]|never[], context: ValueContext) {
-    // const { value, path, model } = context;
+  set(context: ValueContext) {
+    const { currentPath, targetPath } = context;
+    if (this.permissionCheck(context)) {
+      const traversePath = targetPath.slice(currentPath.length);
 
-    if (this.setCheck(path, context) && this.permissionCheck(context)) {
-      // trigger set event
+      const [nestedAttribute, ...nestedPath] = traversePath;
+      if (nestedAttribute) {  // deep setting
+        if (this.canSetNestedValue(nestedAttribute)) {
+          this.presetValue(context);
+
+          context.currentPath.push(nestedAttribute);
+          this.setDeepValue(nestedAttribute, context);
+        } else {
+          console.warn('Deep value setting is unsupported.');
+        }
+      } else {
+        if (this.canSetValue(context)) {
+          this.setValue(context);
+        }
+      }
     }
   }
 
-  validate(context: ValueContext) {
-
+  isTypeApplicable(context: ValueContext) {
+    return this.typeCheck(context) && this.permissionCheck(context);
   }
 
-  protected applyValue(path: [string|number]|never[], context: ValueContext) {
-    const { model } = context;
-    model.dispatch('test');
+  protected canSetValue(context: ValueContext): boolean {
+    return true;
   }
 
-  /**
-   * Проверяем - можно ли установить данное знаечение в указанное место
-   * @param {[(string | number)]} path
-   * @param {Context} context
-   * @returns {boolean}
-   */
-  protected setCheck(path: [string|number]|never[], context: ValueContext) {
-    if (path.length) {
-      console.warn('You try to set a value by the deep way to the simple typed value');
+  protected canSetNestedValue(nestedAttribute: string|number): boolean {
+    return false;
+  }
 
-      return false;
+  protected setValue(context: ValueContext) {
+    const { model, currentPath } = context;
+
+    if (this.filter) {
+      model.dispatch(new SetValueEvent(currentPath, this.filter(context.value)));
+    } else {
+      model.dispatch(new SetValueEvent(currentPath, context.value));
     }
+  }
 
+  protected setDeepValue(nestedAttribute: string|number, context: ValueContext) {}
+
+  protected presetValue(context: ValueContext) {}
+
+  protected typeCheck(context: ValueContext) {
     return true;
   }
 
@@ -66,5 +87,9 @@ export default class CommonType {
     }
 
     return true;
+  }
+
+  validate(context: ValueContext) {
+
   }
 }

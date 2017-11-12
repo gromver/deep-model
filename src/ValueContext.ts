@@ -2,12 +2,14 @@ import Model from './Model';
 
 export default class Context {
   public model: Model;
-  public path: [string|number] | never[];
+  public targetPath: (string|number)[];
+  public currentPath: (string|number)[];
   public value: any;
 
-  constructor(model: Model, path: [string|number] | never[], value: any) {
+  constructor(model: Model, targetPath: (string|number)[], value: any) {
     this.model = model;
-    this.path = path;
+    this.targetPath = targetPath;
+    this.currentPath = [];
     this.value = value;
   }
 }

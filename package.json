@@ -54,6 +54,7 @@
     "node": ">=4.5"
   },
   "devDependencies": {
+    "@types/jest": "^21.1.6",
     "@types/node": "^8.0.4",
     "ava": "^0.21.0",
     "browserify": "^14.1.0",
@@ -62,6 +63,7 @@
     "cpx": "^1.5.0",
     "gh-pages": "^1.0.0",
     "hash.js": "^1.0.3",
+    "jest": "^21.2.1",
     "mkdirp": "^0.5.1",
     "npm-scripts-info": "^0.3.6",
     "nyc": "^11.0.3",
@@ -75,11 +77,13 @@
     "sorcery": "^0.10.0",
     "standard-version": "^4.0.0",
     "trash-cli": "^1.4.0",
+    "ts-jest": "^21.2.1",
     "tslint": "^5.4.3",
     "tslint-config-airbnb": "^5.3.0",
     "tslint-config-standard": "^6.0.1",
     "typedoc": "^0.8.0",
-    "typescript": "^2.4.1"
+    "typescript": "^2.4.1",
+    "typescript-starter": "^1.4.1"
   },
   "keywords": [
     "model",
@@ -99,8 +103,22 @@
       "!build/**/*.spec.js"
     ]
   },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json"
+    ]
+  },
   "dependencies": {
-    "tslib": "^1.6.0",
-    "typescript-starter": "^1.4.1"
+    "immutable": "^3.8.2",
+    "rxjs": "^5.5.2",
+    "tslib": "^1.6.0"
   }
 }

@@ -1,3 +1,3 @@
-import CommonType from './CommonType';
+import AnyType from './AnyType';
 
-export default class PrimitiveType extends CommonType {}
+export default class PrimitiveType extends AnyType {}

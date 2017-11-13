@@ -5,18 +5,18 @@ declare const expect;
 declare const require;
 
 import MultiplePermission from './MultiplePermission';
-import ValueContext from '../ValueContext';
+import ModelContext from '../ModelContext';
 
 describe('MultiplePermission', () => {
   it('Should return composed permission.', () => {
     const permission = MultiplePermission(
       [
-        (context: ValueContext) => context.value > 5,
-        (context: ValueContext) => context.value < 10,
+        (context: ModelContext) => context.value > 5,
+        (context: ModelContext) => context.value < 10,
       ],
     );
 
-    const context = new ValueContext(null as any, [], 6);
+    const context = new ModelContext(null as any, [], 6);
     expect(permission(context)).toBe(true);
     context.value = 5;
     expect(permission(context)).toBe(false);

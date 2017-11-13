@@ -1,6 +1,6 @@
-import CommonType from '../types/CommonType';
+import AnyType from '../types/AnyType';
 import TypeConfigPrimitive from './TypeConfigPrimitive';
 
 export default interface TypeConfigObject extends TypeConfigPrimitive {
-  rules: { [key: string]: CommonType };
+  rules: { [key: string]: AnyType };
 }

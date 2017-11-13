@@ -1,15 +1,16 @@
 import Model from './Model';
+import ValueContextInterface from './ValueContextInterface';
 
-export default class Context {
+export default class ValueContext implements ValueContextInterface {
   public model: Model;
-  public targetPath: (string|number)[];
-  public currentPath: (string|number)[];
+  public path: (string|number)[];
+  public attribute: string|number;
   public value: any;
 
-  constructor(model: Model, targetPath: (string|number)[], value: any) {
-    this.model = model;
-    this.targetPath = targetPath;
-    this.currentPath = [];
-    this.value = value;
+  constructor(config: ValueContextInterface) {
+    this.model = config.model;
+    this.path = config.path;
+    this.value = config.value;
+    this.attribute = config.attribute;
   }
 }

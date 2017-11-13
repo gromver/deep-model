@@ -1,6 +1,6 @@
 import { Map, fromJS } from 'immutable';
 import { Subject } from 'rxjs/Subject';
-import ValueContext from './ValueContext';
+import ModelContext from './ModelContext';
 import PrimitiveType from './types/PrimitiveType';
 import Event from './events/Event';
 import SetValueEvent from './events/SetValueEvent';
@@ -49,7 +49,7 @@ export default class Model {
   set(path: (string|number)[] | string, value: any) {
     const pathNormalized = typeof path === 'string' ? [path] : path;
 
-    this.model.set(new ValueContext(this, pathNormalized, value));
+    this.model.set(new ModelContext(this, pathNormalized), value);
   }
 
   /**

@@ -1,4 +1,4 @@
-import { Map, fromJS } from 'immutable';
+import * as _ from 'lodash';
 import { Subject } from 'rxjs/Subject';
 import ModelContext from './ModelContext';
 import PrimitiveType from './types/PrimitiveType';
@@ -9,14 +9,14 @@ export default class Model {
   static SCENARIO_DEFAULT = 'default';
 
   private model: PrimitiveType;
-  private scenarios: [string];
-  private attributes: Map<string, any>;
-  private initialAttributes: Map<string, any>;
+  private scenarios: string[];
+  private attributes: {};
+  private initialAttributes: {};
   private context: {};
   private observable: Subject<any>;
 
   constructor(model: PrimitiveType, attributes: {} = {}) {
-    this.attributes = this.initialAttributes = fromJS(attributes);
+    this.attributes = this.initialAttributes = attributes;
     this.model = model;
     this.handleEvents = this.handleEvents.bind(this);
     this.observable = new Subject();
@@ -29,7 +29,7 @@ export default class Model {
     // console.log('EVENT', event);
     switch (event.type) {
       case 'setValue':
-        this.attributes.setIn((<SetValueEvent>event).path, (<SetValueEvent>event).value);
+        _.set(this.attributes, (<SetValueEvent>event).path, (<SetValueEvent>event).value);
         break;
 
       default:
@@ -60,7 +60,7 @@ export default class Model {
   get(path: (string|number)[] | string) {
     const pathNormalized = typeof path === 'string' ? [path] : path;
 
-    return this.attributes.getIn(pathNormalized);
+    return _.get(this.attributes, pathNormalized);
   }
 
   /**
@@ -76,7 +76,7 @@ export default class Model {
   }
 
   getAttributes() {
-    return this.attributes.toJS();
+    return this.attributes;
   }
 
   setScenario(scenario) {

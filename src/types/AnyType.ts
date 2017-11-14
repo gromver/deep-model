@@ -32,10 +32,14 @@ export default class AnyType {
     this.permissionCheck(currentContext);
 
     if (currentContext.value !== value) {
-      this.setValue(new ValueContext({
-        ...currentContext,
-        value,
-      }));
+      // this.setValue(new ValueContext({
+      //   ...currentContext,
+      //   value,
+      // }));
+
+      currentContext.value = value;
+
+      this.setValue(currentContext);
     }
 
     if (nextContext) {
@@ -65,13 +69,30 @@ export default class AnyType {
     // }
   }
 
-  // isTypeApplicable(context: ModelContext) {
-  //   return this.typeCheck(context) && this.permissionCheck(context);
-  // }
+  protected canSet(modelContext: ModelContext): boolean {
+    const [currentContext, nextContext] = modelContext.get();
 
-  // protected canSetValue(context: ModelContext): boolean {
-  //   return true;
-  // }
+    if (this.filter) {
+      currentContext.value = this.filter(currentContext.value);
+    }
+
+    try {
+      this.typeCheck(currentContext.value);
+
+      this.permissionCheck(currentContext);
+
+      if (nextContext) {
+        this.deepAttributeCheck(nextContext.attribute);
+        modelContext.shift();
+
+        return this.canSet(modelContext);
+      }
+
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
 
   protected setValue(context: ValueContext) {
     const { model, path } = context;
@@ -80,8 +101,6 @@ export default class AnyType {
   }
 
   protected setDeepValue(modelContext: ModelContext) {}
-
-  // protected presetValue(context: ModelContext) {}
 
   /** Checks **/
 

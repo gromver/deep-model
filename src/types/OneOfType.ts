@@ -1,22 +1,20 @@
 import AnyType, { AnyTypeConfig } from './AnyType';
-import OneOfType from './OneOfType';
 import SetContext from '../SetContext';
 import ValueContext from '../ValueContext';
 import SetValueEvent from '../events/SetValueEvent';
 import InitValueEvent from '../events/InitValueEvent';
 
-export interface ObjectTypeConfig extends AnyTypeConfig {
-  rules: { [key: string]: AnyType };
+export interface OneOfTypeConfig extends AnyTypeConfig {
+  rules: AnyType[];
 }
 
-export default class ObjectType extends AnyType {
-  protected rules: { [key: string]: AnyType };
+export default class OneOfType extends AnyType {
+  protected rules: AnyType[];
 
-  constructor(config: ObjectTypeConfig) {
+  constructor(config: OneOfTypeConfig) {
     super(config);
 
     this.rules = config.rules;
-    this.normalizeRule = this.normalizeRule.bind(this);
   }
 
   // protected canSetValue(context: SetContext): boolean {
@@ -30,38 +28,14 @@ export default class ObjectType extends AnyType {
   // }
 
   private getRules() {
-
+    return this.rules;
   }
 
-  private normalizeRule(rule: AnyType | AnyType[] | (() => AnyType)): AnyType {
-    if (typeof rule === 'function') {
-      return this.normalizeRule(rule());
-    } else if (Array.isArray(rule)) {
-      const rules = [...rule].map(this.normalizeRule);
-
-      return new OneOfType({ rules });
-    } else if (rule instanceof AnyType) {
-      return rule;
-    }
-
-    throw new Error('ObjectType:normalizeRule - Invalid rule description.');
-  }
-
-  protected setValue(valueContext: ValueContext) {
+  protected setValue(context: ValueContext) {
     // this.presetValue(context);
     // смотрим правила и записываем по полям
-    const rules = this.getRules();
-    const { curValue } = valueContext;
 
-    for (let k in curValue) {
-      const v = curValue[k];
-      const rule = rules[k];
-
-      if (rule) {
-
-      }
-    }
-
+    // const { model } = context;
     // const [attribute] = path;
     //
     // if (path.length && typeof attribute !== 'string') {

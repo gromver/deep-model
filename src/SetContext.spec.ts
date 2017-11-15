@@ -4,14 +4,14 @@ declare const it;
 declare const expect;
 declare const require;
 
-import ModelContext from './ModelContext';
+import SetContext from './SetContext';
 import Model from './Model';
 import PrimitiveType from './types/PrimitiveType';
 
-describe('ModelContext', () => {
+describe('SetContext', () => {
   it('Should iterate.', () => {
     const model = new Model(new PrimitiveType({}));
-    const context = new ModelContext(model,[1,2,3]);
+    const context = new SetContext(model,[1,2,3]);
 
     // const iter = context[Symbol.iterator]();
     // // iter.next();

@@ -1,16 +1,22 @@
-import ModelContext from '../ModelContext';
+import SetContext from '../SetContext';
 import ValueContext from '../ValueContext';
 import MultipleFilter from '../filters/MultipleFilter';
 import MultiplePermission from '../permissions/MultiplePermission';
-import TypeConfigPrimitive from '../interfaces/TypeConfigPrimitive';
+// import AnyTypeConfig from './AnyTypeConfig';
 import SetValueEvent from '../events/SetValueEvent';
+
+export interface AnyTypeConfig {
+  permission?: ((context: ValueContext) => void) | [(context: ValueContext) => void];
+  validator?: [any];
+  filter?: ((value: any) => any) | [(value: any) => any];
+}
 
 export default class AnyType {
   protected permission?: (context: ValueContext) => void;
   protected validator?: [any];
   protected filter?: (value: any) => any;
 
-  constructor(config: TypeConfigPrimitive) {
+  constructor(config: AnyTypeConfig) {
     this.permission = Array.isArray(config.permission)
       ? MultiplePermission(config.permission)
       : config.permission;
@@ -20,73 +26,105 @@ export default class AnyType {
       : config.filter;
   }
 
-  set(modelContext: ModelContext, value: any) {
-    const [currentContext, nextContext] = modelContext.get();
+  set(setContext: SetContext) {
+    const valueContext = setContext.get();
 
-    if (this.filter) {
-      value = this.filter(value);
+    this.permissionCheck(valueContext);
+
+    const next = setContext.shift();
+
+    if (next) {
+      // forward
+      const nestedValueContext = next.get();
+
+      this.typeCheckNested(nestedValueContext);
+
+      this.setValueNested(next);
+    } else {
+      if (this.filter) {
+        valueContext.newValue = this.filter(valueContext.newValue);
+      }
+
+      this.typeCheck(valueContext);
+
+      this.setValue(valueContext);
     }
 
-    this.typeCheck(value);
 
-    this.permissionCheck(currentContext);
 
-    if (currentContext.value !== value) {
-      // this.setValue(new ValueContext({
-      //   ...currentContext,
-      //   value,
-      // }));
+    // if (currentContext.value !== value) {
+    //   // this.setValue(new ValueContext({
+    //   //   ...currentContext,
+    //   //   value,
+    //   // }));
+    //
+    //   currentContext.value = value;
+    //
+    //   this.setValue(currentContext);
+    // }
 
-      currentContext.value = value;
+    // if (nextContext) {
+    //   this.deepAttributeCheck(nextContext.attribute);
+    //   setContext.shift();
+    //   this.setValueNested(setContext);
+    // }
 
-      this.setValue(currentContext);
-    }
-
-    if (nextContext) {
-      this.deepAttributeCheck(nextContext.attribute);
-      modelContext.shift();
-      this.setDeepValue(modelContext);
-    }
-
-    // if (this.permissionCheck(modelContext)) {
+    // if (this.permissionCheck(setContext)) {
     //   const traversePath = targetPath.slice(currentPath.length);
     //
     //   const [nestedAttribute, ...nestedPath] = traversePath;
     //   if (nestedAttribute) {  // deep setting
     //     if (this.canSetNestedValue(nestedAttribute)) {
-    //       this.presetValue(modelContext);
+    //       this.presetValue(setContext);
     //
-    //       modelContext.currentPath.push(nestedAttribute);
-    //       this.setDeepValue(nestedAttribute, modelContext);
+    //       setContext.currentPath.push(nestedAttribute);
+    //       this.setDeepValue(nestedAttribute, setContext);
     //     } else {
     //       console.warn('Deep value setting is unsupported.');
     //     }
     //   } else {
-    //     if (this.canSetValue(modelContext)) {
-    //       this.setValue(modelContext);
+    //     if (this.canSetValue(setContext)) {
+    //       this.setValue(setContext);
     //     }
     //   }
     // }
   }
 
-  protected canSet(modelContext: ModelContext): boolean {
-    const [currentContext, nextContext] = modelContext.get();
+  protected canSet(setContext: SetContext): boolean {
+    // const [currentContext, nextContext] = setContext.get();
 
-    if (this.filter) {
-      currentContext.value = this.filter(currentContext.value);
-    }
+    // if (this.filter) {
+    //   currentContext.value = this.filter(currentContext.value);
+    // }
 
     try {
-      this.typeCheck(currentContext.value);
+      const valueContext = setContext.get();
 
-      this.permissionCheck(currentContext);
+      this.permissionCheck(valueContext);
 
-      if (nextContext) {
-        this.deepAttributeCheck(nextContext.attribute);
-        modelContext.shift();
+      const next = setContext.shift();
 
-        return this.canSet(modelContext);
+      if (next) {
+        // forward
+        const nestedValueContext = next.get();
+
+        this.typeCheckNested(nestedValueContext);
+
+        return this.canSetNested(next);
+      } else {
+        this.typeCheck(valueContext);
       }
+
+      // this.typeCheck(currentContext.value);
+      //
+      // this.permissionCheck(currentContext);
+      //
+      // if (nextContext) {
+      //   this.deepAttributeCheck(nextContext.attribute);
+      //   setContext.shift();
+      //
+      //   return this.canDeepSet(setContext);
+      // }
 
       return true;
     } catch (error) {
@@ -94,48 +132,65 @@ export default class AnyType {
     }
   }
 
-  protected setValue(context: ValueContext) {
-    const { model, path } = context;
-
-    model.dispatch(new SetValueEvent(path, context.value));
+  protected canSetNested(setContext: SetContext): boolean {
+    return false;
   }
 
-  protected setDeepValue(modelContext: ModelContext) {}
+  protected setValue(valueContext: ValueContext) {
+    const { model, path } = valueContext;
+
+    model.dispatch(new SetValueEvent(path, valueContext.curValue));
+  }
+
+  protected setValueNested(setContext: SetContext) {}
 
   /** Checks **/
 
-  /**
-   * Можно ли записать вложенное значение
-   * @param {string | number} attribute
-   * @throws Error
-   */
-  protected deepAttributeCheck(attribute: string|number) {}
+  // /**
+  //  * Можно ли записать вложенное значение
+  //  * @param {string | number} attribute
+  //  * @throws Error
+  //  */
+  // protected deepAttributeCheck(attribute: string|number) {}
 
   /**
    * Проверка типа
-   * @param value
+   * @param valueContext ValueContext
    * @throws {Error}
    */
-  protected typeCheck(value: any) {}
+  protected typeCheck(valueContext: ValueContext) {}
+
+  /**
+   * Проверка типа для вложенного значения
+   * @param valueContext ValueContext
+   * @throws {Error}
+   */
+  protected typeCheckNested(valueContext: ValueContext) {
+    throw new Error('This value type can\'t set nested values.');
+  }
 
   /**
    * Запускаем кастомные проверки
-   * @param {Context} context
+   * @param {Context} valueContext
    * @throws {Error}
    */
-  protected permissionCheck(context: ValueContext) {
+  protected permissionCheck(valueContext: ValueContext) {
     if (this.permission) {
-      if (!this.permission(context)) {
+      if (!this.permission(valueContext)) {
         throw new Error('You try to set a value without having permissions for that');
       }
     }
   }
 
-  validate(context: ModelContext) {
+  getFilter() {
+    return this.filter;
+  }
+
+  validate(setContext: SetContext) {
 
   }
 
-  getValidator(context: ModelContext) {
+  getValidator(setContext: SetContext) {
     //
   }
 }

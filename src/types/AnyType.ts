@@ -2,7 +2,6 @@ import SetContext from '../SetContext';
 import ValueContext from '../ValueContext';
 import MultipleFilter from '../filters/MultipleFilter';
 import MultiplePermission from '../permissions/MultiplePermission';
-// import AnyTypeConfig from './AnyTypeConfig';
 import SetValueEvent from '../events/SetValueEvent';
 
 export interface AnyTypeConfig {
@@ -47,7 +46,7 @@ export default class AnyType {
 
       this.typeCheck(valueContext);
 
-      this.setValue(valueContext);
+      this.setValue(setContext);
     }
 
 
@@ -90,7 +89,7 @@ export default class AnyType {
     // }
   }
 
-  protected canSet(setContext: SetContext): boolean {
+  canSet(setContext: SetContext): boolean {
     // const [currentContext, nextContext] = setContext.get();
 
     // if (this.filter) {
@@ -136,13 +135,15 @@ export default class AnyType {
     return false;
   }
 
-  protected setValue(valueContext: ValueContext) {
-    const { model, path } = valueContext;
+  protected setValue(setContext: SetContext) {
+    const { model, path, newValue } = setContext.get();
 
-    model.dispatch(new SetValueEvent(path, valueContext.curValue));
+    model.dispatch(new SetValueEvent(path, newValue));
   }
 
-  protected setValueNested(setContext: SetContext) {}
+  protected setValueNested(setContext: SetContext) {
+    throw new Error('This value type don\'t support nested value setting.');
+  }
 
   /** Checks **/
 
@@ -176,9 +177,10 @@ export default class AnyType {
    */
   protected permissionCheck(valueContext: ValueContext) {
     if (this.permission) {
-      if (!this.permission(valueContext)) {
-        throw new Error('You try to set a value without having permissions for that');
-      }
+      // if (!this.permission(valueContext)) {
+      //   throw new Error('You try to set a value without having permissions for that');
+      // }
+      this.permission(valueContext);
     }
   }
 

@@ -5,7 +5,7 @@ declare const expect;
 declare const require;
 
 import Model from './Model';
-import PrimitiveType from './types/PrimitiveType';
+import PrimitiveType from './types/StringType';
 
 describe('Dispatch', () => {
   it('Should receive dispatched value.', () => {

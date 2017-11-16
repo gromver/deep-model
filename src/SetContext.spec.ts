@@ -6,7 +6,7 @@ declare const require;
 
 import SetContext from './SetContext';
 import Model from './Model';
-import PrimitiveType from './types/PrimitiveType';
+import PrimitiveType from './types/StringType';
 
 describe('SetContext', () => {
   it('Should iterate.', () => {

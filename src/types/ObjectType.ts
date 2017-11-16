@@ -6,11 +6,11 @@ import SetValueEvent from '../events/SetValueEvent';
 import InitValueEvent from '../events/InitValueEvent';
 
 export interface ObjectTypeConfig extends AnyTypeConfig {
-  rules: { [key: string]: AnyType };
+  rules: { [key: string]: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType) };
 }
 
 export default class ObjectType extends AnyType {
-  protected rules: { [key: string]: AnyType };
+  protected rules: { [key: string]: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType) };
 
   constructor(config: ObjectTypeConfig) {
     super(config);
@@ -29,11 +29,17 @@ export default class ObjectType extends AnyType {
   //   return false;
   // }
 
-  private getRules() {
+  private getRules(): { [key: string]: AnyType } {
+    const rules = {};
 
+    for (const k in this.rules) {
+      rules[k] = this.normalizeRule(this.rules[k]);
+    }
+
+    return rules;
   }
 
-  private normalizeRule(rule: AnyType | AnyType[] | (() => AnyType)): AnyType {
+  private normalizeRule(rule: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType)): AnyType {
     if (typeof rule === 'function') {
       return this.normalizeRule(rule());
     } else if (Array.isArray(rule)) {
@@ -47,18 +53,18 @@ export default class ObjectType extends AnyType {
     throw new Error('ObjectType:normalizeRule - Invalid rule description.');
   }
 
-  protected setValue(valueContext: ValueContext) {
-    // this.presetValue(context);
+  protected setValue(setContext: SetContext) {
     // смотрим правила и записываем по полям
     const rules = this.getRules();
-    const { curValue } = valueContext;
+    const { newValue } = setContext.get();
 
-    for (let k in curValue) {
-      const v = curValue[k];
+    for (const k in newValue) {
+      const v = newValue[k];
       const rule = rules[k];
 
       if (rule) {
-
+        const nestedContext = setContext.push(k, v);
+        rule.set(nestedContext);
       }
     }
 
@@ -85,26 +91,38 @@ export default class ObjectType extends AnyType {
 
   protected setValueNested(setContext: SetContext) {
     // смотрим правила и делаем сет
-    // const { model, currentPath } = context;
-    //
-    // model.dispatch(new InitValueEvent(currentPath, {}));
+    const { attribute } = setContext.get();
+    const rules = this.getRules();
+
+    rules[attribute].set(setContext);
   }
 
   /** Checks **/
 
   /**
-   * Можно ли записать вложенное значение
-   * @param {string | number} attribute
-   * @throws Error
+   * Проверка типа
+   * @param valueContext ValueContext
+   * @throws {Error}
    */
-  protected deepAttributeCheck(attribute: string|number) {
+  protected typeCheck(valueContext: ValueContext) {
+    const value = valueContext.newValue;
 
+    if (value !== undefined && (value.constructor !== Object)) {
+      throw new Error('ObjectType:typeCheck - the value must be an instance of object');
+    }
   }
 
   /**
-   * Проверка типа
-   * @param value
+   * Проверка типа для вложенного значения
+   * @param valueContext ValueContext
    * @throws {Error}
    */
-  protected typeCheck(value: any) {}
+  protected typeCheckNested(valueContext: ValueContext) {
+    const { attribute } = valueContext;
+    const rules = this.getRules();
+
+    if (!this.rules[attribute]) {
+      throw new Error(`ObjectType:typeCheckNested - unknown attribute "${attribute}"`);
+    }
+  }
 }

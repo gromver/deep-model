@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import { Subject } from 'rxjs/Subject';
 import SetContext from './SetContext';
-import PrimitiveType from './types/PrimitiveType';
+import PrimitiveType from './types/StringType';
 import Event from './events/Event';
 import SetValueEvent from './events/SetValueEvent';
 

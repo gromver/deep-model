@@ -15,7 +15,7 @@ export default class AnyType {
   protected validator?: [any];
   protected filter?: (value: any) => any;
 
-  constructor(config: AnyTypeConfig) {
+  constructor(config: AnyTypeConfig = {}) {
     this.permission = Array.isArray(config.permission)
       ? MultiplePermission(config.permission)
       : config.permission;
@@ -48,54 +48,9 @@ export default class AnyType {
 
       this.setValue(setContext);
     }
-
-
-
-    // if (currentContext.value !== value) {
-    //   // this.setValue(new ValueContext({
-    //   //   ...currentContext,
-    //   //   value,
-    //   // }));
-    //
-    //   currentContext.value = value;
-    //
-    //   this.setValue(currentContext);
-    // }
-
-    // if (nextContext) {
-    //   this.deepAttributeCheck(nextContext.attribute);
-    //   setContext.shift();
-    //   this.setValueNested(setContext);
-    // }
-
-    // if (this.permissionCheck(setContext)) {
-    //   const traversePath = targetPath.slice(currentPath.length);
-    //
-    //   const [nestedAttribute, ...nestedPath] = traversePath;
-    //   if (nestedAttribute) {  // deep setting
-    //     if (this.canSetNestedValue(nestedAttribute)) {
-    //       this.presetValue(setContext);
-    //
-    //       setContext.currentPath.push(nestedAttribute);
-    //       this.setDeepValue(nestedAttribute, setContext);
-    //     } else {
-    //       console.warn('Deep value setting is unsupported.');
-    //     }
-    //   } else {
-    //     if (this.canSetValue(setContext)) {
-    //       this.setValue(setContext);
-    //     }
-    //   }
-    // }
   }
 
   canSet(setContext: SetContext): boolean {
-    // const [currentContext, nextContext] = setContext.get();
-
-    // if (this.filter) {
-    //   currentContext.value = this.filter(currentContext.value);
-    // }
-
     try {
       const valueContext = setContext.get();
 
@@ -113,18 +68,6 @@ export default class AnyType {
       } else {
         this.typeCheck(valueContext);
       }
-
-      // this.typeCheck(currentContext.value);
-      //
-      // this.permissionCheck(currentContext);
-      //
-      // if (nextContext) {
-      //   this.deepAttributeCheck(nextContext.attribute);
-      //   setContext.shift();
-      //
-      //   return this.canDeepSet(setContext);
-      // }
-
       return true;
     } catch (error) {
       return false;
@@ -146,13 +89,6 @@ export default class AnyType {
   }
 
   /** Checks **/
-
-  // /**
-  //  * Можно ли записать вложенное значение
-  //  * @param {string | number} attribute
-  //  * @throws Error
-  //  */
-  // protected deepAttributeCheck(attribute: string|number) {}
 
   /**
    * Проверка типа

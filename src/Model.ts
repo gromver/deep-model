@@ -1,21 +1,21 @@
 import * as _ from 'lodash';
 import { Subject } from 'rxjs/Subject';
 import SetContext from './SetContext';
-import PrimitiveType from './types/StringType';
+import AnyType from './types/AnyType';
 import Event from './events/Event';
 import SetValueEvent from './events/SetValueEvent';
 
 export default class Model {
   static SCENARIO_DEFAULT = 'default';
 
-  private model: PrimitiveType;
+  private model: AnyType;
   private scenarios: string[];
   private attributes: {};
   private initialAttributes: {};
   private context: {};
   private observable: Subject<any>;
 
-  constructor(model: PrimitiveType, attributes: {} = {}) {
+  constructor(model: AnyType, attributes: {} = {}) {
     this.attributes = this.initialAttributes = attributes;
     this.model = model;
     this.handleEvents = this.handleEvents.bind(this);
@@ -49,7 +49,11 @@ export default class Model {
   set(path: (string|number)[] | string, value: any) {
     const pathNormalized = typeof path === 'string' ? [path] : path;
 
-    this.model.set(new SetContext(this, pathNormalized), value);
+    this.model.set(new SetContext({
+      value,
+      model: this,
+      path: pathNormalized,
+    }));
   }
 
   /**

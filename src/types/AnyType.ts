@@ -43,7 +43,7 @@ export default class AnyType {
       if (this.filter) {
         valueContext.newValue = this.filter(valueContext.newValue);
       }
-
+console.log(valueContext);
       this.typeCheck(valueContext);
 
       this.setValue(setContext);

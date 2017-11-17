@@ -1,21 +1,21 @@
 import * as _ from 'lodash';
 import { Subject } from 'rxjs/Subject';
 import SetContext from './SetContext';
-import AnyType from './types/AnyType';
+import ObjectType from './types/ObjectType';
 import Event from './events/Event';
 import SetValueEvent from './events/SetValueEvent';
 
 export default class Model {
   static SCENARIO_DEFAULT = 'default';
 
-  private model: AnyType;
+  private model: ObjectType;
   private scenarios: string[];
   private attributes: {};
   private initialAttributes: {};
   private context: {};
   private observable: Subject<any>;
 
-  constructor(model: AnyType, attributes: {} = {}) {
+  constructor(model: ObjectType, attributes: {} = {}) {
     this.attributes = this.initialAttributes = attributes;
     this.model = model;
     this.handleEvents = this.handleEvents.bind(this);

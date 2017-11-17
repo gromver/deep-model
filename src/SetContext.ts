@@ -96,7 +96,7 @@ export default class SetContext {
   }
 
   shift(): SetContext|false {
-    if (this.cursor < this.path.length) {
+    if (this.cursor < this.path.length - 1) {
       return new SetContext({
         model: this.model,
         path: this.path,

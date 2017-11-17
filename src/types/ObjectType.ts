@@ -2,8 +2,6 @@ import AnyType, { AnyTypeConfig } from './AnyType';
 import OneOfType from './OneOfType';
 import SetContext from '../SetContext';
 import ValueContext from '../ValueContext';
-import SetValueEvent from '../events/SetValueEvent';
-import InitValueEvent from '../events/InitValueEvent';
 
 export interface ObjectTypeConfig extends AnyTypeConfig {
   rules: { [key: string]: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType) };

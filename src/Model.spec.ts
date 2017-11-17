@@ -71,4 +71,15 @@ describe('Dispatch', () => {
       array: [1,2,3],
     });
   });
+
+  it('Should set value properly.', () => {
+    const model = getModel();
+
+    model.set('string', 'test');
+    console.log('AA', model.getAttributes());
+    expect(model.getAttributes()).toEqual({
+      string: 'test',
+    });
+  });
+
 });

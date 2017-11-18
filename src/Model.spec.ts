@@ -10,6 +10,7 @@ import ArrayType from './types/ArrayType';
 import StringType from './types/StringType';
 import NumberType from './types/NumberType';
 import BooleanType from './types/BooleanType';
+import * as t from './types';
 
 class TestModel extends Model {
   getRules() {
@@ -26,6 +27,10 @@ class TestModel extends Model {
       array: new ArrayType({
         rules: new NumberType(),
       }),
+      mixed: [
+        t.string(),
+        t.boolean(),
+      ],
     };
   }
 }
@@ -107,5 +112,27 @@ describe('Set', () => {
     expect(() => {
       model.set(['string'], 123);
     }).toThrow(new Error('StringType:typeCheck - the value must be a string'));
+  });
+
+  it('Should set string or number to the "mixed" field type.', () => {
+    const model = new TestModel();
+
+    model.set('mixed', 'test');
+    expect(model.getAttributes()).toEqual({
+      mixed: 'test',
+    });
+
+    model.set('mixed', true);
+    expect(model.getAttributes()).toEqual({
+      mixed: true,
+    });
+  });
+
+  it('Should not set number to the "mixed" field type.', () => {
+    const model = new TestModel();
+
+    expect(() => {
+      model.set('mixed', 123);
+    }).toThrow(new Error('StringType:typeCheck - the value must be a boolean'));
   });
 });

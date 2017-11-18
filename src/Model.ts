@@ -28,7 +28,7 @@ export default class Model {
     this.setContext({});
   }
 
-  getRules(): { [key: string]: AnyType } {
+  getRules(): { [key: string]: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType) } {
     throw new Error('Model:getRules - this method must be extended.');
   }
 

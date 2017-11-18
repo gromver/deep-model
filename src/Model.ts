@@ -1,9 +1,10 @@
 import * as _ from 'lodash';
 import { Subject } from 'rxjs/Subject';
 import SetContext from './SetContext';
-import ObjectType from './types/ObjectType';
 import Event from './events/Event';
 import SetValueEvent from './events/SetValueEvent';
+import AnyType from './types/AnyType';
+import ObjectType from './types/ObjectType';
 
 export default class Model {
   static SCENARIO_DEFAULT = 'default';
@@ -15,14 +16,20 @@ export default class Model {
   private context: {};
   private observable: Subject<any>;
 
-  constructor(model: ObjectType, attributes: {} = {}) {
+  constructor(attributes: {} = {}) {
     this.attributes = this.initialAttributes = attributes;
-    this.model = model;
+    this.model = new ObjectType({
+      rules: this.getRules(),
+    });
     this.handleEvents = this.handleEvents.bind(this);
     this.observable = new Subject();
     this.observable.subscribe(this.handleEvents);
     this.setScenario(Model.SCENARIO_DEFAULT);
     this.setContext({});
+  }
+
+  getRules(): { [key: string]: AnyType } {
+    throw new Error('Model:getRules - this method must be extended.');
   }
 
   handleEvents(event: Event) {
@@ -49,11 +56,19 @@ export default class Model {
   set(path: (string|number)[] | string, value: any) {
     const pathNormalized = typeof path === 'string' ? [path] : path;
 
-    this.model.set(new SetContext({
-      value,
-      model: this,
-      path: pathNormalized,
-    }));
+    if (pathNormalized.length) {
+      this.model.set(new SetContext({
+        value,
+        model: this,
+        path: pathNormalized,
+      }));
+    } else {
+      this.model.apply(new SetContext({
+        value,
+        model: this,
+        path: pathNormalized,
+      }));
+    }
   }
 
   /**
@@ -64,7 +79,7 @@ export default class Model {
   get(path: (string|number)[] | string) {
     const pathNormalized = typeof path === 'string' ? [path] : path;
 
-    return _.get(this.attributes, pathNormalized);
+    return path.length ? _.get(this.attributes, pathNormalized) : this.attributes;
   }
 
   /**

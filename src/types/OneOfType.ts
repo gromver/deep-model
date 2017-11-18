@@ -41,4 +41,28 @@ export default class OneOfType extends AnyType {
   canSet(setContext: SetContext): boolean {
     return this.getRules().some((rule) => rule.canSet(setContext));
   }
+
+  apply(setContext: SetContext) {
+    let error;
+
+    this.getRules().some((rule) => {
+      error = false;
+
+      try {
+        rule.apply(setContext);
+      } catch (e) {
+        error = e;
+      }
+
+      return error === false;
+    });
+
+    if (error) {
+      throw error;
+    }
+  }
+
+  canApply(setContext: SetContext): boolean {
+    return this.getRules().some((rule) => rule.canApply(setContext));
+  }
 }

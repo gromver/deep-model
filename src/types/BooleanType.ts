@@ -8,7 +8,7 @@ export default class BooleanType extends AnyType {
    * @throws {Error}
    */
   protected typeCheck(valueContext: ValueContext) {
-    const value = valueContext.newValue;
+    const value = valueContext.value;
 
     if (value !== undefined && typeof value !== 'boolean') {
       throw new Error('StringType:typeCheck - the value must be a boolean');

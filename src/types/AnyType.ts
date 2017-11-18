@@ -25,67 +25,73 @@ export default class AnyType {
       : config.filter;
   }
 
+  /* Set */
   set(setContext: SetContext) {
     const valueContext = setContext.get();
 
-    this.permissionCheck(valueContext);
+    this.setCheck(valueContext);
 
-    const next = setContext.shift();
-
-    if (next) {
-      // forward
-      const nestedValueContext = next.get();
-
-      this.typeCheckNested(nestedValueContext);
-
-      this.setValueNested(next);
-    } else {
-      if (this.filter) {
-        valueContext.newValue = this.filter(valueContext.newValue);
-      }
-console.log(valueContext);
-      this.typeCheck(valueContext);
-
-      this.setValue(setContext);
-    }
+    this.setValue(setContext);
   }
+
+  protected setCheck(valueContext: ValueContext) {
+    console.log(valueContext.attribute, valueContext.path, valueContext.value);
+    throw new Error('Primitive types don\'t support nested value setting.');
+  }
+
+  protected setValue(setContext: SetContext) {}
 
   canSet(setContext: SetContext): boolean {
     try {
       const valueContext = setContext.get();
 
-      this.permissionCheck(valueContext);
+      this.setCheck(valueContext);
 
-      const next = setContext.shift();
-
-      if (next) {
-        // forward
-        const nestedValueContext = next.get();
-
-        this.typeCheckNested(nestedValueContext);
-
-        return this.canSetNested(next);
-      } else {
-        this.typeCheck(valueContext);
-      }
-      return true;
+      return this.canSetValue(setContext);
     } catch (error) {
       return false;
     }
   }
 
-  protected canSetNested(setContext: SetContext): boolean {
+  protected canSetValue(setContext: SetContext): boolean {
     return false;
   }
 
-  protected setValue(setContext: SetContext) {
-    const { model, path, newValue } = setContext.get();
+  /* Apply */
+  apply(setContext: SetContext) {
+    const valueContext = setContext.get();
 
-    model.dispatch(new SetValueEvent(path, newValue));
+    this.applyCheck(valueContext);
+
+    this.applyValue(setContext);
   }
 
-  protected setValueNested(setContext: SetContext) {
-    throw new Error('This value type don\'t support nested value setting.');
+  protected applyCheck(valueContext: ValueContext) {
+    if (this.filter) {
+      valueContext.value = this.filter(valueContext.value);
+    }
+
+    this.typeCheck(valueContext);
+
+    this.permissionCheck(valueContext);
+  }
+
+  protected applyValue(setContext: SetContext) {
+    const { model, path, value } = setContext.get();
+
+    model.dispatch(new SetValueEvent(path, value));
+  }
+
+  canApply(setContext: SetContext): boolean {
+    try {
+      const valueContext = setContext.get();
+
+      this.applyCheck(valueContext);
+
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 
   /** Checks **/
@@ -96,15 +102,6 @@ console.log(valueContext);
    * @throws {Error}
    */
   protected typeCheck(valueContext: ValueContext) {}
-
-  /**
-   * Проверка типа для вложенного значения
-   * @param valueContext ValueContext
-   * @throws {Error}
-   */
-  protected typeCheckNested(valueContext: ValueContext) {
-    throw new Error('This value type can\'t set nested values.');
-  }
 
   /**
    * Запускаем кастомные проверки

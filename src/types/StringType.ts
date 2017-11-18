@@ -8,7 +8,7 @@ export default class StringType extends AnyType {
    * @throws {Error}
    */
   protected typeCheck(valueContext: ValueContext) {
-    const value = valueContext.newValue;
+    const value = valueContext.value;
 
     if (value !== undefined && typeof value !== 'string') {
       throw new Error('StringType:typeCheck - the value must be a string');

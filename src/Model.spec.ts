@@ -11,9 +11,9 @@ import StringType from './types/StringType';
 import NumberType from './types/NumberType';
 import BooleanType from './types/BooleanType';
 
-const getModel = (attributes?) => new Model(
-  new ObjectType({
-    rules: {
+class TestModel extends Model {
+  getRules() {
+    return {
       string: new StringType(),
       number: new NumberType(),
       boolean: new BooleanType(),
@@ -26,14 +26,13 @@ const getModel = (attributes?) => new Model(
       array: new ArrayType({
         rules: new NumberType(),
       }),
-    },
-  }),
-  attributes,
-);
+    };
+  }
+}
 
 describe('Dispatch', () => {
   it('Should receive dispatched value.', () => {
-    const model = getModel();
+    const model = new TestModel();
     const fn = jest.fn((e: any) => expect(e).toBe('test'));
 
     model.getObservable().subscribe(fn);
@@ -41,9 +40,11 @@ describe('Dispatch', () => {
 
     expect(fn).toHaveBeenCalled();
   });
+});
 
+describe('Set', () => {
   it('Should load values properly.', () => {
-    const model = getModel();
+    const model = new TestModel();
     model.setAttributes({
       foo: 'foo',
       bar: 'bar',
@@ -73,13 +74,38 @@ describe('Dispatch', () => {
   });
 
   it('Should set value properly.', () => {
-    const model = getModel();
+    const model = new TestModel();
 
     model.set('string', 'test');
-    console.log('AA', model.getAttributes());
+    model.set(['array', 2], 123);
+
     expect(model.getAttributes()).toEqual({
       string: 'test',
+      array: [undefined, undefined, 123],
     });
   });
 
+  it('Should not set array value by a string typed key.', () => {
+    const model = new TestModel();
+
+    expect(() => {
+      model.set(['array', '2'], 123);
+    }).toThrow(new Error('ArrayType:setCheck - nested attribute key must be a number'));
+  });
+
+  it('Should not set nested value to the primitive type.', () => {
+    const model = new TestModel();
+
+    expect(() => {
+      model.set(['string', 'foo'], 'test');
+    }).toThrow(new Error('Primitive types don\'t support nested value setting.'));
+  });
+
+  it('Should not set non string typed value to the string type.', () => {
+    const model = new TestModel();
+
+    expect(() => {
+      model.set(['string'], 123);
+    }).toThrow(new Error('StringType:typeCheck - the value must be a string'));
+  });
 });

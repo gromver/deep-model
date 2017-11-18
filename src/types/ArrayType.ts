@@ -35,37 +35,28 @@ export default class ArrayType extends AnyType {
     throw new Error('ArrayType:normalizeRule - Invalid rule description.');
   }
 
-  protected setValue(setContext: SetContext) {
+  protected applyValue(setContext: SetContext) {
     const rule = this.getRule();
-    const { newValue } = setContext.get();
+    const { value } = setContext.get();
 
-    for (const k in newValue) {
-      const v = newValue[k];
+    for (const k in value) {
+      const v = value[k];
 
-      const nestedContext = setContext.push(k, v);
-      rule.set(nestedContext);
+      const nextSetContext = setContext.push(k, v);
+      rule.apply(nextSetContext);
     }
   }
 
-  protected setValueNested(setContext: SetContext) {
+  protected setValue(setContext: SetContext) {
     const { attribute } = setContext.get();
     const rule = this.getRule();
 
-    rule.set(setContext);
-  }
+    const nextSetContext = setContext.shift();
 
-  /** Checks **/
-
-  /**
-   * Проверка типа
-   * @param valueContext ValueContext
-   * @throws {Error}
-   */
-  protected typeCheck(valueContext: ValueContext) {
-    const value = valueContext.newValue;
-
-    if (value !== undefined && !Array.isArray(value)) {
-      throw new Error('ObjectType:typeCheck - the value must be an array');
+    if (nextSetContext) {
+      rule.set(nextSetContext);
+    } else {
+      rule.apply(setContext);
     }
   }
 
@@ -74,11 +65,35 @@ export default class ArrayType extends AnyType {
    * @param valueContext ValueContext
    * @throws {Error}
    */
-  protected typeCheckNested(valueContext: ValueContext) {
+  protected setCheck(valueContext: ValueContext) {
     const { attribute } = valueContext;
 
     if (typeof attribute !== 'number') {
-      throw new Error(`ArrayType:typeCheckNested - nested attribute must be a number`);
+      throw new Error('ArrayType:setCheck - nested attribute key must be a number');
+    }
+  }
+
+  protected canSetValue(setContext: SetContext): boolean {
+    const { attribute } = setContext.get();
+    const rule = this.getRule();
+
+    const nextSetContext = setContext.shift();
+
+    return nextSetContext
+      ? rule.canSet(nextSetContext)
+      : rule.canApply(setContext);
+  }
+
+  /**
+   * Проверка типа
+   * @param valueContext ValueContext
+   * @throws {Error}
+   */
+  protected typeCheck(valueContext: ValueContext) {
+    const value = valueContext.value;
+
+    if (value !== undefined && !Array.isArray(value)) {
+      throw new Error('ObjectType:typeCheck - the value must be an array');
     }
   }
 }

@@ -17,16 +17,6 @@ export default class ObjectType extends AnyType {
     this.normalizeRule = this.normalizeRule.bind(this);
   }
 
-  // protected canSetValue(context: SetContext): boolean {
-  //   if (context.value instanceof Object) {
-  //     return true;
-  //   }
-  //
-  //   console.warn('You try to set non object value to the ObjectType');
-  //
-  //   return false;
-  // }
-
   private getRules(): { [key: string]: AnyType } {
     const rules = {};
 
@@ -51,62 +41,33 @@ export default class ObjectType extends AnyType {
     throw new Error('ObjectType:normalizeRule - Invalid rule description.');
   }
 
-  protected setValue(setContext: SetContext) {
+  protected applyValue(setContext: SetContext) {
     // смотрим правила и записываем по полям
     const rules = this.getRules();
-    const { newValue } = setContext.get();
+    const { value } = setContext.get();
 
-    for (const k in newValue) {
-      const v = newValue[k];
+    for (const k in value) {
+      // todo hasOwnProperty check
+      const v = value[k];
       const rule = rules[k];
 
       if (rule) {
-        const nestedContext = setContext.push(k, v);
-        rule.set(nestedContext);
+        const nextSetContext = setContext.push(k, v);
+        rule.apply(nextSetContext);
       }
     }
-
-    // const [attribute] = path;
-    //
-    // if (path.length && typeof attribute !== 'string') {
-    //   // init default value
-    //   model.dispatch(new InitValueEvent(this.path, {}));
-    // } else {
-    //   // check rules and try to set value
-    //   model.dispatch(new SetValueEvent(this.path, context.value));
-    // }
   }
 
-  // protected canSetNestedValue(nestedAttribute: string|number): boolean {
-  //   if (typeof nestedAttribute === 'string') {
-  //     return true;
-  //   }
-  //
-  //   console.warn('Nested object\'s values must have string typed keys');
-  //
-  //   return false;
-  // }
-
-  protected setValueNested(setContext: SetContext) {
-    // смотрим правила и делаем сет
+  protected setValue(setContext: SetContext) {
     const { attribute } = setContext.get();
-    const rules = this.getRules();
+    const rule = this.getRules()[attribute];
 
-    rules[attribute].set(setContext);
-  }
+    const nextSetContext = setContext.shift();
 
-  /** Checks **/
-
-  /**
-   * Проверка типа
-   * @param valueContext ValueContext
-   * @throws {Error}
-   */
-  protected typeCheck(valueContext: ValueContext) {
-    const value = valueContext.newValue;
-
-    if (value !== undefined && (value.constructor !== Object)) {
-      throw new Error('ObjectType:typeCheck - the value must be an instance of object');
+    if (nextSetContext) {
+      rule.set(nextSetContext);
+    } else {
+      rule.apply(setContext);
     }
   }
 
@@ -115,12 +76,36 @@ export default class ObjectType extends AnyType {
    * @param valueContext ValueContext
    * @throws {Error}
    */
-  protected typeCheckNested(valueContext: ValueContext) {
+  protected setCheck(valueContext: ValueContext) {
     const { attribute } = valueContext;
     const rules = this.getRules();
 
-    if (!this.rules[attribute]) {
+    if (!rules[attribute]) {
       throw new Error(`ObjectType:typeCheckNested - unknown attribute "${attribute}"`);
+    }
+  }
+
+  protected canSetValue(setContext: SetContext): boolean {
+    const { attribute } = setContext.get();
+    const rule = this.getRules()[attribute];
+
+    const nextSetContext = setContext.shift();
+
+    return nextSetContext
+      ? rule.canSet(nextSetContext)
+      : rule.canApply(setContext);
+  }
+
+  /**
+   * Проверка типа
+   * @param valueContext ValueContext
+   * @throws {Error}
+   */
+  protected typeCheck(valueContext: ValueContext) {
+    const value = valueContext.value;
+
+    if (value !== undefined && (value.constructor !== Object)) {
+      throw new Error('ObjectType:typeCheck - the value must be an instance of object');
     }
   }
 }

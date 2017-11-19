@@ -5,22 +5,42 @@ declare const expect;
 declare const require;
 
 import MultiplePermission from './MultiplePermission';
-import SetContext from '../SetContext';
+import Model from '../Model';
+import ValueContext from '../ValueContext';
+
+class TestModel extends Model {
+  getRules() {
+    return {};
+  }
+}
 
 describe('MultiplePermission', () => {
-  it('Should return composed permission.', () => {
+  it('Should return composed permission. The permission must works properly.', () => {
     const permission = MultiplePermission(
       [
-        (context: SetContext) => context.value > 5,
-        (context: SetContext) => context.value < 10,
+        (context: ValueContext) => {
+          if (context.value <= 5) {
+            throw new Error('Value must be greater than 5');
+          }
+        },
+        (context: ValueContext) => {
+          if (context.value >= 10) {
+            throw new Error('Value must be less than 10');
+          }
+        },
       ],
     );
 
-    const context = new SetContext(null as any, [], 6);
-    expect(permission(context)).toBe(true);
+    const context = new ValueContext({
+      path: [],
+      value: 6,
+      model: new TestModel(),
+      attribute: '',
+    });
+    expect(() => permission(context)).not.toThrow();
     context.value = 5;
-    expect(permission(context)).toBe(false);
+    expect(() => permission(context)).toThrow(new Error('Value must be greater than 5'));
     context.value = 10;
-    expect(permission(context)).toBe(false);
+    expect(() => permission(context)).toThrow(new Error('Value must be less than 10'));
   });
 });

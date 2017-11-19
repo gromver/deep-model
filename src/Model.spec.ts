@@ -163,3 +163,47 @@ describe('canSet()', () => {
     expect(model.canSet(['array', '3'])).toBe(false);
   });
 });
+
+describe('scenarios', () => {
+  it('AddScenarios and RemoveScenarios test', async () => {
+    const model = new TestModel();
+
+    expect(model.getScenarios()).toEqual([TestModel.SCENARIO_DEFAULT]);
+
+    model.setScenarios('a');
+    expect(model.getScenarios()).toEqual(['a']);
+
+    model.addScenarios('b');
+    expect(model.getScenarios()).toEqual(['a', 'b']);
+
+    model.addScenarios(['a', 'b', 'c', 'd']);
+    expect(model.getScenarios()).toEqual(['a', 'b', 'c', 'd']);
+
+    model.removeScenarios(['a', 'd']);
+    expect(model.getScenarios()).toEqual(['b', 'c']);
+
+    model.addScenarios('a');
+    expect(model.getScenarios()).toEqual(['b', 'c', 'a']);
+
+    model.removeScenarios('a');
+    expect(model.getScenarios()).toEqual(['b', 'c']);
+
+    model.removeScenarios(['a', 'b', 'c', 'd']);
+    expect(model.getScenarios()).toEqual([]);
+  });
+
+  it('isScenario', async () => {
+    const model = new TestModel();
+
+    expect(model.isScenario(TestModel.SCENARIO_DEFAULT)).toBe(true);
+    expect(model.isScenario('unknown')).toBe(false);
+
+    model.addScenarios(['a', 'b', 'c', 'd']);
+    expect(model.isScenario(TestModel.SCENARIO_DEFAULT)).toBe(true);
+    expect(model.isScenario('a')).toBe(true);
+    expect(model.isScenario('b')).toBe(true);
+    expect(model.isScenario('c')).toBe(true);
+    expect(model.isScenario('d')).toBe(true);
+    expect(model.isScenario('e')).toBe(false);
+  });
+});

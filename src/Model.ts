@@ -24,14 +24,23 @@ export default class Model {
     this.handleEvents = this.handleEvents.bind(this);
     this.observable = new Subject();
     this.observable.subscribe(this.handleEvents);
-    this.setScenario(Model.SCENARIO_DEFAULT);
+    this.setScenarios(Model.SCENARIO_DEFAULT);
     this.setContext({});
   }
 
-  getRules(): { [key: string]: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType) } {
+  /**
+   * Get model rules config
+   * Must be extended!
+   * @returns {{[p: string]: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType)}}
+   */
+  getRules(): { [key: string]: (AnyType | (AnyType | (() => AnyType))[] | (() => AnyType)) } {
     throw new Error('Model:getRules - this method must be extended.');
   }
 
+  /**
+   * Process incoming events
+   * @param {Event} event
+   */
   handleEvents(event: Event) {
     // console.log('EVENT', event);
     switch (event.type) {
@@ -44,8 +53,20 @@ export default class Model {
     }
   }
 
+  /**
+   * Dispatch event
+   * @param event
+   */
   dispatch(event: any) {
     this.observable.next(event);
+  }
+
+  /**
+   * Get Observable
+   * @returns {Subject<any>}
+   */
+  getObservable() {
+    return this.observable;
   }
 
   /**
@@ -82,6 +103,27 @@ export default class Model {
     return path.length ? _.get(this.attributes, pathNormalized) : this.attributes;
   }
 
+  /**
+   * Set attributes
+   * @param attributes
+   */
+  setAttributes(attributes) {
+    this.set([], attributes);
+  }
+
+  /**
+   * Get attributes
+   * @returns {{}}
+   */
+  getAttributes() {
+    return this.attributes;
+  }
+
+  /**
+   * Can model set a value to the given path
+   * @param {(string | number)[] | string} path
+   * @returns {boolean}
+   */
   canSet(path: (string|number)[] | string): boolean {
     const pathNormalized = typeof path === 'string' ? [path] : path;
 
@@ -97,34 +139,73 @@ export default class Model {
   }
 
   /**
-   * Get Observable
-   * @returns {Subject<any>}
+   * Context
    */
-  getObservable() {
-    return this.observable;
-  }
 
-  setAttributes(attributes) {
-    this.set([], attributes);
-  }
-
-  getAttributes() {
-    return this.attributes;
-  }
-
-  setScenario(scenario) {
-
-  }
-
-  getScenario() {
-
-  }
-
+  /**
+   * Set context
+   * @param {{}} context
+   */
   setContext(context: {}) {
     this.context = context;
   }
 
+  /**
+   * Get context
+   * @returns {{}}
+   */
   getContext() {
-
+    return this.context;
   }
+
+  /**
+   * scenarios
+   */
+
+  /**
+   * Set scenarios
+   * @param {string | string[]} scenario
+   */
+  setScenarios(scenario: string | string[]) {
+    this.scenarios = typeof scenario === 'string' ? [scenario] : scenario;
+  }
+
+  /**
+   * Get scenarios
+   * @returns {string[]}
+   */
+  getScenarios(): string[] {
+    return this.scenarios;
+  }
+
+  /**
+   * Add scenarios
+   * @param {string | string[]} scenario
+   */
+  addScenarios(scenario: string | string[]) {
+    const newSc = typeof scenario === 'string' ? [scenario] : scenario;
+    const curSc = this.scenarios;
+
+    newSc.forEach((sc) => curSc.indexOf(sc) === -1 && curSc.push(sc));
+  }
+
+  /**
+   * Remove scenarios
+   * @param {string | string[]} scenario
+   */
+  removeScenarios(scenario: string | string[]) {
+    const remSc = typeof scenario === 'string' ? [scenario] : scenario;
+
+    this.scenarios = this.scenarios.filter((sc) => remSc.indexOf(sc) === -1);
+  }
+
+  /**
+   * Is model has given scenario?
+   * @param {string} scenario
+   * @returns {boolean}
+   */
+  isScenario(scenario: string) {
+    return this.scenarios.indexOf(scenario) !== -1;
+  }
+
 }

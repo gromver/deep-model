@@ -10,10 +10,10 @@ export default class Model {
   static SCENARIO_DEFAULT = 'default';
 
   private model: ObjectType;
+  private context: {};
   private scenarios: string[];
   private attributes: {};
   private initialAttributes: {};
-  private context: {};
   private observable: Subject<any>;
 
   constructor(attributes: {} = {}) {
@@ -74,7 +74,7 @@ export default class Model {
    * @param {[(string | number)] | string} path
    * @param value
    */
-  set(path: (string|number)[] | string, value: any) {
+  set(path: string | (string|number)[], value: any) {
     const pathNormalized = typeof path === 'string' ? [path] : path;
 
     if (pathNormalized.length) {
@@ -97,7 +97,7 @@ export default class Model {
    * @param {[(string | number)] | string} path
    * @returns {any}
    */
-  get(path: (string|number)[] | string) {
+  get(path: string | (string|number)[]) {
     const pathNormalized = typeof path === 'string' ? [path] : path;
 
     return path.length ? _.get(this.attributes, pathNormalized) : this.attributes;
@@ -121,10 +121,10 @@ export default class Model {
 
   /**
    * Can model set a value to the given path
-   * @param {(string | number)[] | string} path
+   * @param {string | (string|number)[]} path
    * @returns {boolean}
    */
-  canSet(path: (string|number)[] | string): boolean {
+  canSet(path: string | (string|number)[]): boolean {
     const pathNormalized = typeof path === 'string' ? [path] : path;
 
     if (pathNormalized.length) {
@@ -208,4 +208,19 @@ export default class Model {
     return this.scenarios.indexOf(scenario) !== -1;
   }
 
+  /**
+   * Validation
+   */
+
+  validate() {
+
+  }
+
+  getValidator(path: string | (string|number)[]) {
+
+  }
+
+  getValidationState(path: string | (string|number)[]) {
+
+  }
 }

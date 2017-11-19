@@ -82,6 +82,20 @@ export default class Model {
     return path.length ? _.get(this.attributes, pathNormalized) : this.attributes;
   }
 
+  canSet(path: (string|number)[] | string): boolean {
+    const pathNormalized = typeof path === 'string' ? [path] : path;
+
+    if (pathNormalized.length) {
+      return this.model.canSet(new SetContext({
+        value: this.get(pathNormalized),
+        model: this,
+        path: pathNormalized,
+      }));
+    } else {
+      return true;
+    }
+  }
+
   /**
    * Get Observable
    * @returns {Subject<any>}

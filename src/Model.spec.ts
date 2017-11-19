@@ -47,7 +47,7 @@ describe('Dispatch', () => {
   });
 });
 
-describe('Set', () => {
+describe('set()', () => {
   it('Should load values properly.', () => {
     const model = new TestModel();
     model.setAttributes({
@@ -134,5 +134,32 @@ describe('Set', () => {
     expect(() => {
       model.set('mixed', 123);
     }).toThrow(new Error('StringType:typeCheck - the value must be a boolean'));
+  });
+});
+
+describe('canSet()', () => {
+  it('It can set a value.', () => {
+    const model = new TestModel();
+
+    expect(model.canSet([])).toBe(true);
+    expect(model.canSet('string')).toBe(true);
+    expect(model.canSet(['string'])).toBe(true);
+    expect(model.canSet('number')).toBe(true);
+    expect(model.canSet('boolean')).toBe(true);
+    expect(model.canSet('object')).toBe(true);
+    expect(model.canSet(['object', 'string'])).toBe(true);
+    expect(model.canSet(['object', 'number'])).toBe(true);
+    expect(model.canSet('array')).toBe(true);
+    expect(model.canSet(['array', 3])).toBe(true);
+  });
+
+  it('It can\'t set a value.', () => {
+    const model = new TestModel();
+
+    expect(model.canSet('foo')).toBe(false);
+    expect(model.canSet(['bar'])).toBe(false);
+    expect(model.canSet(['object', 'foo'])).toBe(false);
+    expect(model.canSet(['a', 'b'])).toBe(false);
+    expect(model.canSet(['array', '3'])).toBe(false);
   });
 });

@@ -11,8 +11,10 @@ import ValueContext from '../ValueContext';
 //   };
 // };
 
-export default (permissions: [(context: ValueContext) => void])
-  : (context: ValueContext) => void => (context: ValueContext): void => {
-    permissions.forEach((permission: (context: ValueContext) => void) => permission(context));
+export default (permissions: ((valueContext: ValueContext) => void)[])
+  : (valueContext: ValueContext) => void => {
+  return (valueContext: ValueContext): void => {
+    permissions.forEach((permission: (context: ValueContext) => void) => permission(valueContext));
   };
+};
 

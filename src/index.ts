@@ -1,3 +1,9 @@
-export * from './lib/async';
-export * from './lib/hash';
-export * from './lib/number';
+import Model from './Model';
+import SetContext from './SetContext';
+import ValueContext from './ValueContext';
+
+export default {
+  Model,
+  SetContext,
+  ValueContext,
+};

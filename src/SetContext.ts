@@ -4,7 +4,7 @@ import ValueContext from './ValueContext';
 export interface SetContextConfig {
   model: Model;
   path: (string|number)[];
-  value: any;
+  value?: any;
   cursor?: number;
 }
 
@@ -17,7 +17,7 @@ export default class SetContext {
   constructor(config: SetContextConfig) {
     this.model = config.model;
     this.path = config.path;
-    this.value = config.value;
+    this.value = config.hasOwnProperty('value') ? config.value : config.model.get(config.path);
     this.cursor = config.cursor !== undefined ? config.cursor : (this.path.length ? 0 : -1);
   }
 

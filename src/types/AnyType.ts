@@ -35,7 +35,6 @@ export default class AnyType {
   }
 
   protected setCheck(valueContext: ValueContext) {
-    console.log(valueContext.attribute, valueContext.path, valueContext.value);
     throw new Error('Primitive types don\'t support nested value setting.');
   }
 
@@ -94,6 +93,22 @@ export default class AnyType {
     }
   }
 
+  getType(setContext: SetContext): AnyType | null {
+    try {
+      const valueContext = setContext.get();
+
+      this.setCheck(valueContext);
+
+      return this.getTypeValue(setContext);
+    } catch (error) {
+      return null;
+    }
+  }
+
+  protected getTypeValue(setContext: SetContext): AnyType | null {
+    return null;
+  }
+
   /** Checks **/
 
   /**
@@ -110,9 +125,6 @@ export default class AnyType {
    */
   protected permissionCheck(valueContext: ValueContext) {
     if (this.permission) {
-      // if (!this.permission(valueContext)) {
-      //   throw new Error('You try to set a value without having permissions for that');
-      // }
       this.permission(valueContext);
     }
   }
@@ -122,7 +134,7 @@ export default class AnyType {
   }
 
   validate(setContext: SetContext) {
-    
+
   }
 
   getValidator(setContext: SetContext) {

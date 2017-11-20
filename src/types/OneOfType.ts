@@ -65,4 +65,18 @@ export default class OneOfType extends AnyType {
   canApply(setContext: SetContext): boolean {
     return this.getRules().some((rule) => rule.canApply(setContext));
   }
+
+  protected getTypeValue(setContext: SetContext): AnyType | null {
+    let type;
+
+    this.getRules().some((rule) => {
+      try {
+        type = rule.getType(setContext);
+      } catch (e) {}
+
+      return !!type;
+    });
+
+    return type || null;
+  }
 }

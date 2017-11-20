@@ -138,6 +138,15 @@ export default class Model {
     }
   }
 
+  getType(path: string | (string|number)[]) {
+    const pathNormalized = typeof path === 'string' ? [path] : path;
+
+    return this.model.getType(new SetContext({
+      model: this,
+      path: pathNormalized,
+    }));
+  }
+
   /**
    * Context
    */

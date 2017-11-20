@@ -48,7 +48,6 @@ export default class ArrayType extends AnyType {
   }
 
   protected setValue(setContext: SetContext) {
-    const { attribute } = setContext.get();
     const rule = this.getRule();
 
     const nextSetContext = setContext.shift();
@@ -74,7 +73,6 @@ export default class ArrayType extends AnyType {
   }
 
   protected canSetValue(setContext: SetContext): boolean {
-    const { attribute } = setContext.get();
     const rule = this.getRule();
 
     const nextSetContext = setContext.shift();
@@ -82,6 +80,18 @@ export default class ArrayType extends AnyType {
     return nextSetContext
       ? rule.canSet(nextSetContext)
       : rule.canApply(setContext);
+  }
+
+  protected getTypeValue(setContext: SetContext): AnyType | null {
+    const rule = this.getRule();
+
+    const nextSetContext = setContext.shift();
+
+    if (nextSetContext) {
+      return rule.getType(nextSetContext);
+    } else {
+      return rule;
+    }
   }
 
   /**

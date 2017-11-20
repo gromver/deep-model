@@ -1,3 +1,5 @@
+import OneOfType from "./types/OneOfType";
+
 declare const jest;
 declare const describe;
 declare const it;
@@ -205,5 +207,32 @@ describe('scenarios', () => {
     expect(model.isScenario('c')).toBe(true);
     expect(model.isScenario('d')).toBe(true);
     expect(model.isScenario('e')).toBe(false);
+  });
+});
+
+describe('getType', () => {
+  it('Should return certain type.', async () => {
+    const model = new TestModel();
+
+    expect(model.getType('number')).toBeInstanceOf(NumberType);
+    expect(model.getType(['number'])).toBeInstanceOf(NumberType);
+    expect(model.getType('string')).toBeInstanceOf(StringType);
+    expect(model.getType('boolean')).toBeInstanceOf(BooleanType);
+    expect(model.getType('object')).toBeInstanceOf(ObjectType);
+    expect(model.getType(['object', 'string'])).toBeInstanceOf(StringType);
+    expect(model.getType(['object', 'number'])).toBeInstanceOf(NumberType);
+    expect(model.getType('array')).toBeInstanceOf(ArrayType);
+    expect(model.getType(['array', 1])).toBeInstanceOf(NumberType);
+    expect(model.getType(['mixed'])).toBeInstanceOf(OneOfType);
+  });
+
+  it('Should return null.', async () => {
+    const model = new TestModel();
+
+    expect(model.getType('foo')).toBe(null);
+    expect(model.getType(['foo'])).toBe(null);
+    expect(model.getType(['a', 'b', 'c'])).toBe(null);
+    expect(model.getType(['object', 'string', 'foo'])).toBe(null);
+    expect(model.getType(['array', '1'])).toBe(null);
   });
 });

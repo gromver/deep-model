@@ -54,6 +54,7 @@
     "node": ">=4.5"
   },
   "devDependencies": {
+    "@types/es6-promise": "^0.0.33",
     "@types/jest": "^21.1.6",
     "@types/node": "^8.0.4",
     "ava": "^0.21.0",

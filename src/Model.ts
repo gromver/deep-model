@@ -5,6 +5,7 @@ import Event from './events/Event';
 import SetValueEvent from './events/SetValueEvent';
 import AnyType from './types/AnyType';
 import ObjectType from './types/ObjectType';
+import Validator from './validators/Validator';
 
 export default class Model {
   static SCENARIO_DEFAULT = 'default';
@@ -138,13 +139,15 @@ export default class Model {
     }
   }
 
-  getType(path: string | (string|number)[]) {
+  getType(path: string | (string|number)[]): AnyType | null {
     const pathNormalized = typeof path === 'string' ? [path] : path;
 
-    return this.model.getType(new SetContext({
-      model: this,
-      path: pathNormalized,
-    }));
+    return path.length
+      ? this.model.getType(new SetContext({
+        model: this,
+        path: pathNormalized,
+      }))
+      : this.model;
   }
 
   /**
@@ -221,12 +224,22 @@ export default class Model {
    * Validation
    */
 
-  validate() {
+  validate(path?: string | (string|number)[]) {
+    const pathNormalized: (string|number)[] = path
+      ? (typeof path === 'string' ? [path] : path)
+      : [];
+    const type = this.getType(pathNormalized);
 
+    return type ? type.validate(new SetContext({
+      model: this,
+      path: pathNormalized,
+    })) : Promise.reject('Validator not found.');
   }
 
-  getValidator(path: string | (string|number)[]) {
+  getValidator(path: string | (string|number)[]): Validator | null {
+    const type = this.getType(path);
 
+    return type && type.getValidator();
   }
 
   getValidationState(path: string | (string|number)[]) {

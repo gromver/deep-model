@@ -1,25 +1,26 @@
 import SetContext from '../SetContext';
 import ValueContext from '../ValueContext';
+import Validator from '../validators/Validator';
 import MultipleFilter from '../filters/MultipleFilter';
 import MultiplePermission from '../permissions/MultiplePermission';
 import SetValueEvent from '../events/SetValueEvent';
 
 export interface AnyTypeConfig {
   permission?: ((context: ValueContext) => void) | [(context: ValueContext) => void];
-  validator?: [any];
+  validator?: Validator | Validator[];
   filter?: ((value: any) => any) | [(value: any) => any];
 }
 
 export default class AnyType {
   protected permission?: (context: ValueContext) => void;
-  protected validator?: [any];
+  protected validator?: Validator;
   protected filter?: (value: any) => any;
 
   constructor(config: AnyTypeConfig = {}) {
     this.permission = Array.isArray(config.permission)
       ? MultiplePermission(config.permission)
       : config.permission;
-    this.validator = config.validator;
+    this.validator = config.validator as Validator;
     this.filter = Array.isArray(config.filter)
       ? MultipleFilter(config.filter)
       : config.filter;
@@ -134,10 +135,18 @@ export default class AnyType {
   }
 
   validate(setContext: SetContext) {
+    const validator = this.getValidator();
 
+    return (validator ? validator.validate(setContext.get()) : Promise.resolve())
+      .then((warning) => {
+
+      })
+      .catch((error) => {
+
+      });
   }
 
-  getValidator(setContext: SetContext) {
-    //
+  getValidator(): Validator | null {
+    return this.validator || null;
   }
 }

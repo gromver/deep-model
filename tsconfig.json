@@ -13,7 +13,10 @@
     "traceResolution": false,
     "pretty": true,
     "lib" : [
-      "es6"
+      "dom",
+      "es2015",
+      "es6",
+      "es5"
     ],
     "types" : [
       "node"

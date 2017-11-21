@@ -1,9 +1,12 @@
 import SetContext from '../SetContext';
 import ValueContext from '../ValueContext';
 import Validator from '../validators/Validator';
+import PendingState from '../validators/states/PendingState';
+import WarningState from '../validators/states/WarningState';
+import SuccessState from '../validators/states/SuccessState';
+import ErrorState from '../validators/states/ErrorState';
 import MultipleFilter from '../filters/MultipleFilter';
 import MultiplePermission from '../permissions/MultiplePermission';
-import SetValueEvent from '../events/SetValueEvent';
 
 export interface AnyTypeConfig {
   permission?: ((context: ValueContext) => void) | [(context: ValueContext) => void];
@@ -79,7 +82,8 @@ export default class AnyType {
   protected applyValue(setContext: SetContext) {
     const { model, path, value } = setContext.get();
 
-    model.dispatch(new SetValueEvent(path, value));
+    // model.dispatch(new SetValueEvent(path, value));
+    model.setValue(path, value);
   }
 
   canApply(setContext: SetContext): boolean {
@@ -136,14 +140,35 @@ export default class AnyType {
 
   validate(setContext: SetContext) {
     const validator = this.getValidator();
+    const valueContext = setContext.get();
+    const job = (validator ? validator.validate(valueContext) : Promise.resolve());
 
-    return (validator ? validator.validate(setContext.get()) : Promise.resolve())
-      .then((warning) => {
+    const jobState = job
+      .then((warningMessage) => {
+        const state = warningMessage
+          ? new WarningState(warningMessage)
+          : new SuccessState();
 
+        valueContext.model.setValidationState(valueContext.path, state);
+
+        return state;
       })
-      .catch((error) => {
+      .catch((errorMessage) => {
+        const state = new ErrorState(errorMessage);
 
+        valueContext.model.setValidationState(valueContext.path, state);
+
+        return state;
       });
+
+    Promise.race([jobState, new Promise((r) => setTimeout(() => r(new PendingState()), 0))])
+      .then((state) => {
+        if (state instanceof PendingState) {
+          valueContext.model.setValidationState(valueContext.path, state);
+        }
+      });
+
+    return job;
   }
 
   getValidator(): Validator | null {

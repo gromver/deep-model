@@ -15,6 +15,7 @@ export default class Model {
   private scenarios: string[];
   private attributes: {};
   private initialAttributes: {};
+  private states: {};
   private observable: Subject<any>;
 
   constructor(attributes: {} = {}) {
@@ -22,9 +23,9 @@ export default class Model {
     this.model = new ObjectType({
       rules: this.getRules(),
     });
-    this.handleEvents = this.handleEvents.bind(this);
+    // this.handleEvents = this.handleEvents.bind(this);
     this.observable = new Subject();
-    this.observable.subscribe(this.handleEvents);
+    // this.observable.subscribe(this.handleEvents);
     this.setScenarios(Model.SCENARIO_DEFAULT);
     this.setContext({});
   }
@@ -42,16 +43,31 @@ export default class Model {
    * Process incoming events
    * @param {Event} event
    */
-  handleEvents(event: Event) {
-    // console.log('EVENT', event);
-    switch (event.type) {
-      case 'setValue':
-        _.set(this.attributes, (<SetValueEvent>event).path, (<SetValueEvent>event).value);
-        break;
+  // handleEvents(event: Event) {
+  //   // console.log('EVENT', event);
+  //   switch (event.type) {
+  //     case 'setValue':
+  //       _.set(this.attributes, (<SetValueEvent>event).path, (<SetValueEvent>event).value);
+  //       break;
+  //
+  //     default:
+  //       return;
+  //   }
+  // }
 
-      default:
-        return;
-    }
+  /**
+   * Set value and emit the SetValueEvent
+   * @param {(string | number)[]} path
+   * @param value
+   */
+  setValue(path: (string | number)[], value: any) {
+    _.set(this.attributes, path, value);
+
+    this.dispatch(new SetValueEvent(path, value));
+  }
+
+  setValidationState(path: (string | number)[], state: any) {
+
   }
 
   /**
@@ -224,16 +240,39 @@ export default class Model {
    * Validation
    */
 
-  validate(path?: string | (string|number)[]) {
-    const pathNormalized: (string|number)[] = path
-      ? (typeof path === 'string' ? [path] : path)
-      : [];
+  validate() {
+    return this.model.validate(new SetContext({
+      model: this,
+      path: [],
+    }));
+  }
+
+  validateAttribute(path: string | (string|number)[]) {
+    const pathNormalized = typeof path === 'string' ? [path] : path;
     const type = this.getType(pathNormalized);
 
     return type ? type.validate(new SetContext({
       model: this,
       path: pathNormalized,
     })) : Promise.reject('Validator not found.');
+  }
+
+  validateAttributes(attributes: (string | (string|number)[])[]) {
+    const jobs: Promise<any>[] = [];
+
+    attributes.forEach((path) => {
+      const pathNormalized: (string|number)[] = typeof path === 'string' ? [path] : path;
+      const type = this.getType(pathNormalized);
+
+      if (type) {
+        jobs.push(type.validate(new SetContext({
+          model: this,
+          path: pathNormalized,
+        })));
+      }
+
+      return Promise.all(jobs);
+    });
   }
 
   getValidator(path: string | (string|number)[]): Validator | null {

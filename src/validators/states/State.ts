@@ -1,24 +1,33 @@
+import Message from '../utils/Message';
+
+let version: number = 1;
+
 /**
  * Base validation state class
  */
-export default class State {
-  static STATUS = undefined;
+export default class State extends String {
+  static STATUS: string | undefined = undefined;
 
-  /**
-   * @type {string}
-   */
-  attribute;
-  /**
-   * @type {Message|string}
-   */
-  message;
+  private version: number;
 
-  constructor({ attribute, message }) {
-    this.attribute = attribute;
+  public message?: string | Message;
+
+  constructor(message?: string | Message) {
+    super();
+
+    this.version = version++;
     this.message = message;
   }
 
-  getStatus() {
+  getVersion(): number {
+    return this.version;
+  }
+
+  getStatus(): string | undefined {
     return State.STATUS;
+  }
+
+  toString(): string {
+    return this.message ? this.message.toString() : '';
   }
 }

@@ -3,9 +3,11 @@ import { Subject } from 'rxjs/Subject';
 import SetContext from './SetContext';
 import Event from './events/Event';
 import SetValueEvent from './events/SetValueEvent';
+import ValidationStateEvent from './events/ValidationStateEvent';
 import AnyType from './types/AnyType';
 import ObjectType from './types/ObjectType';
 import Validator from './validators/Validator';
+import State from './validators/states/State';
 
 export default class Model {
   static SCENARIO_DEFAULT = 'default';
@@ -66,8 +68,26 @@ export default class Model {
     this.dispatch(new SetValueEvent(path, value));
   }
 
-  setValidationState(path: (string | number)[], state: any) {
+  /**
+   * Set the validation state along the supplied path
+   * @param {(string | number)[]} path
+   * @param {State} state
+   */
+  setValidationState(path: (string | number)[], state: State) {
+    this.states[JSON.stringify(path)] = state;
 
+    this.dispatch(new ValidationStateEvent(path, state));
+  }
+
+  /**
+   * Get the validation state along the supplied path
+   * @param {string | (string | number)[]} path
+   * @returns {State}
+   */
+  getValidationState(path: string | (string | number)[]): State | undefined {
+    const pathNormalized = typeof path === 'string' ? [path] : path;
+
+    return this.states[JSON.stringify(pathNormalized)];
   }
 
   /**
@@ -241,6 +261,8 @@ export default class Model {
    */
 
   validate() {
+    this.states = {};
+    // todo решить какой будет ответ
     return this.model.validate(new SetContext({
       model: this,
       path: [],
@@ -279,9 +301,5 @@ export default class Model {
     const type = this.getType(path);
 
     return type && type.getValidator();
-  }
-
-  getValidationState(path: string | (string|number)[]) {
-
   }
 }

@@ -1,5 +1,3 @@
-import OneOfType from "./types/OneOfType";
-
 declare const jest;
 declare const describe;
 declare const it;
@@ -12,7 +10,11 @@ import ArrayType from './types/ArrayType';
 import StringType from './types/StringType';
 import NumberType from './types/NumberType';
 import BooleanType from './types/BooleanType';
+import OneOfType from './types/OneOfType';
 import * as t from './types';
+
+import SuccessState from './validators/states/SuccessState';
+import ErrorState from './validators/states/ErrorState';
 
 class TestModel extends Model {
   getRules() {
@@ -234,5 +236,37 @@ describe('getType', () => {
     expect(model.getType(['a', 'b', 'c'])).toBe(null);
     expect(model.getType(['object', 'string', 'foo'])).toBe(null);
     expect(model.getType(['array', '1'])).toBe(null);
+  });
+});
+
+describe('validationState', () => {
+  it('set and get test', () => {
+    const model = new TestModel();
+    const fn = jest.fn();
+    model.getObservable().subscribe(fn);
+    model.setValidationState(['test'], new SuccessState());
+
+    const state = model.getValidationState(['test']);
+
+    expect(fn).toHaveBeenCalled();
+    expect(state).toBeInstanceOf(SuccessState);
+    expect(state).toMatchObject({ path: ['test'] });
+  });
+
+  it('set version test', () => {
+    const model = new TestModel();
+    const fn = jest.fn();
+    model.getObservable().subscribe(fn);
+
+    const state1 = new SuccessState();
+    const state2 = new ErrorState('Some Error');
+    model.setValidationState(['test'], state2);
+    model.setValidationState(['test'], state1);
+
+    const state = model.getValidationState(['test']);
+
+    expect(fn).toHaveBeenCalledTimes(1);
+    expect(state).toBeInstanceOf(ErrorState);
+    expect(state).toMatchObject({ path: ['test'], message: 'Some Error' });
   });
 });

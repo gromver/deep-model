@@ -17,7 +17,7 @@ export default class Model {
   private scenarios: string[];
   private attributes: {};
   private initialAttributes: {};
-  private states: {};
+  private states: { [key: string]: State };
   private observable: Subject<any>;
 
   constructor(attributes: {} = {}) {
@@ -25,6 +25,7 @@ export default class Model {
     this.model = new ObjectType({
       rules: this.getRules(),
     });
+    this.states = {};
     // this.handleEvents = this.handleEvents.bind(this);
     this.observable = new Subject();
     // this.observable.subscribe(this.handleEvents);
@@ -74,7 +75,15 @@ export default class Model {
    * @param {State} state
    */
   setValidationState(path: (string | number)[], state: State) {
-    this.states[JSON.stringify(path)] = state;
+    const key = JSON.stringify(path);
+    const curState = this.states[key];
+
+    if (curState && curState.getVersion() > state.getVersion()) {
+      return;
+    }
+
+    state.setPath(path);
+    this.states[key] = state;
 
     this.dispatch(new ValidationStateEvent(path, state));
   }

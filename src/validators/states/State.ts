@@ -11,12 +11,18 @@ export default class State extends String {
   private version: number;
 
   public message?: string | Message;
+  public path: (string | number)[];
 
   constructor(message?: string | Message) {
     super();
 
-    this.version = version++;
+    version += 1;
+    this.version = version;
     this.message = message;
+  }
+
+  setPath(path: (string | number)[]) {
+    this.path = path;
   }
 
   getVersion(): number {

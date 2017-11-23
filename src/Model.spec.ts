@@ -270,3 +270,33 @@ describe('validationState', () => {
     expect(state).toMatchObject({ path: ['test'], message: 'Some Error' });
   });
 });
+
+describe('getFirstError', () => {
+  it('Should return ErrorState object', () => {
+    const model = new TestModel();
+    model.setValidationState(['x'], new SuccessState());
+    model.setValidationState(['y'], new SuccessState());
+    model.setValidationState(['a'], new ErrorState('error'));
+    model.setValidationState(['b'], new ErrorState('error'));
+    model.setValidationState(['c'], new ErrorState('error'));
+    model.setValidationState(['c'], new SuccessState());
+    model.setValidationState(['d'], new SuccessState());
+
+    const state = model.getFirstError();
+
+    expect(state).toBeInstanceOf(ErrorState);
+    expect(state).toMatchObject({ path: ['a'] });
+  });
+
+  it('Should return undefined', () => {
+    const model = new TestModel();
+    model.setValidationState(['x'], new SuccessState());
+    model.setValidationState(['a'], new ErrorState('error'));
+    model.setValidationState(['a'], new SuccessState());
+    model.setValidationState(['d'], new SuccessState());
+
+    const state = model.getFirstError();
+
+    expect(state).toBe(undefined);
+  });
+});

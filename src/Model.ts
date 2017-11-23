@@ -8,6 +8,7 @@ import AnyType from './types/AnyType';
 import ObjectType from './types/ObjectType';
 import Validator from './validators/Validator';
 import State from './validators/states/State';
+import ErrorState from './validators/states/ErrorState';
 import Message from './validators/utils/Message';
 
 export default class Model {
@@ -311,5 +312,9 @@ export default class Model {
     const type = this.getType(path);
 
     return type && type.getValidator();
+  }
+
+  getFirstError(): State | undefined {
+    return _.values(this.states).find((state) => state instanceof ErrorState);
   }
 }

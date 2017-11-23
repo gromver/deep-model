@@ -6,33 +6,27 @@ declare const require;
 
 import SetContext from './SetContext';
 import Model from './Model';
-import PrimitiveType from './types/StringType';
+
+class TestModel extends Model {
+  getRules() {
+    return {};
+  }
+}
 
 describe('SetContext', () => {
-  it('Should iterate.', () => {
-    const model = new Model(new PrimitiveType({}));
-    const context = new SetContext(model,[1,2,3]);
+  it('Should shift context.', () => {
+    const model = new TestModel();
+    const aContext = new SetContext({
+      model,
+      path: ['a', 'b', 'c'],
+    });
 
-    // const iter = context[Symbol.iterator]();
-    // // iter.next();
-    // const clone = context.clone();
-    // const cloneIter = clone[Symbol.iterator]();
-    // // for (const i of context) {
-    // //   console.log(i);
-    // // }
-    // console.log(cloneIter.next(), cloneIter.next(), cloneIter.next());
-    // expect(context.next()).toBe();
-
-    console.log(context.get());
-    context.shift();
-    console.log(context.get());
-    context.shift();
-    console.log(context.get());
-    context.shift();
-    console.log(context.get());
-    context.shift();
-    console.log(context.get());
-    context.shift();
-    console.log(context.get());
+    expect(aContext.get().attribute).toBe('a');
+    const bContext = aContext.shift() as SetContext;
+    expect(bContext.get().attribute).toBe('b');
+    const cContext = bContext.shift() as SetContext;
+    expect(cContext.get().attribute).toBe('c');
+    const falseContext = cContext.shift();
+    expect(falseContext).toBe(false);
   });
 });

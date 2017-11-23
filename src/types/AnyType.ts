@@ -1,6 +1,7 @@
 import SetContext from '../SetContext';
 import ValueContext from '../ValueContext';
 import Validator from '../validators/Validator';
+import Message from '../validators/utils/Message';
 import PendingState from '../validators/states/PendingState';
 import WarningState from '../validators/states/WarningState';
 import SuccessState from '../validators/states/SuccessState';
@@ -138,7 +139,7 @@ export default class AnyType {
     return this.filter;
   }
 
-  validate(setContext: SetContext) {
+  validate(setContext: SetContext): Promise<string | Message | void> {
     const validator = this.getValidator();
     const valueContext = setContext.get();
     const job = (validator ? validator.validate(valueContext) : Promise.resolve());

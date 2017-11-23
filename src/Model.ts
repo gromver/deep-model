@@ -8,6 +8,7 @@ import AnyType from './types/AnyType';
 import ObjectType from './types/ObjectType';
 import Validator from './validators/Validator';
 import State from './validators/states/State';
+import Message from './validators/utils/Message';
 
 export default class Model {
   static SCENARIO_DEFAULT = 'default';
@@ -269,7 +270,7 @@ export default class Model {
    * Validation
    */
 
-  validate() {
+  validate(): Promise<string | Message | void> {
     this.states = {};
     // todo решить какой будет ответ
     return this.model.validate(new SetContext({

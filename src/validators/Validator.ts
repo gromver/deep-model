@@ -27,7 +27,7 @@ export default class Validator {
    * @param {ValueContext} valueContext
    * @returns {Promise}
    */
-  validate(valueContext: ValueContext): Promise<any> {
+  validate(valueContext: ValueContext): Promise<string | Message | void> {
     return Promise.resolve();
   }
 }

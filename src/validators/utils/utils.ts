@@ -1,55 +1,50 @@
-// import moment from 'moment';
+import Message from './Message';
 
 const utils = {
   EMPTY_STRING_REGEXP: /^\s*$/,
 
-  isString(value) {
+  isString(value: any): boolean {
     return typeof value === 'string';
   },
 
-  isArray(value) {
+  isArray(value: any): boolean {
     return {}.toString.call(value) === '[object Array]';
   },
 
   // Checks if the value is a number. This function does not consider NaN a
   // number like many other `isNumber` functions do.
-  isNumber(value) {
+  isNumber(value: any): boolean {
     return typeof value === 'number' && !isNaN(value);
   },
 
   // Returns false if the object is not a function
-  isFunction(value) {
+  isFunction(value: any): boolean {
     return typeof value === 'function';
   },
 
   // A simple check to verify that the value is an integer. Uses `isNumber`
   // and a simple modulo check.
-  isInteger(value) {
+  isInteger(value: any): boolean {
     return this.isNumber(value) && value % 1 === 0;
   },
 
   // Checks if the value is a boolean
-  isBoolean(value) {
+  isBoolean(value: any): boolean {
     return typeof value === 'boolean';
   },
 
   // Uses the `Object` function to check if the given argument is an object.
-  isObject(obj) {
+  isObject(obj: any): boolean {
     return obj === Object(obj);
   },
 
   // Simply checks if the object is an instance of a date
-  isDate(obj) {
+  isDate(obj: any): boolean {
     return obj instanceof Date;
   },
 
-  // Simply checks if the object is an instance of a moment
-  // isMoment(obj) {
-  //   return obj instanceof moment;
-  // },
-
   // Returns false if the object is `null` of `undefined`
-  isDefined(obj) {
+  isDefined(obj: any): boolean {
     return obj !== null && obj !== undefined;
   },
 
@@ -59,7 +54,7 @@ const utils = {
     return !!p && this.isFunction(p.then);
   },
 
-  isDomElement(o) {
+  isDomElement(o: any): boolean {
     if (!o) {
       return false;
     }
@@ -84,7 +79,7 @@ const utils = {
       typeof o.nodeName === 'string';
   },
 
-  isEmpty(value) {
+  isEmpty(value: any): boolean {
     let attr;
 
     // Null and undefined are empty
@@ -125,11 +120,11 @@ const utils = {
 
   // Checks if the object is a hash, which is equivalent to an object that
   // is neither an array nor a function.
-  isHash(value) {
+  isHash(value: any): boolean {
     return this.isObject(value) && !this.isArray(value) && !this.isFunction(value);
   },
 
-  contains(obj, value) {
+  contains(obj: any, value: any): boolean {
     if (!this.isDefined(obj)) {
       return false;
     }
@@ -139,11 +134,21 @@ const utils = {
     return value in obj;
   },
 
-  unique(array) {
+  unique(array: any[]): any[] {
     if (!this.isArray(array)) {
       return array;
     }
     return array.filter((el, index, array) => array.indexOf(el) === index);
+  },
+
+  /**
+   * Validator.createMessage wrapper for using in object context
+   * @param {string} message
+   * @param {{}} bindings
+   * @returns {Message}
+   */
+  createMessage(message: string, bindings: {}): Message {
+    return new Message(message, bindings);
   },
 };
 

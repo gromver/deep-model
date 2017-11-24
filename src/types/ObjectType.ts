@@ -2,7 +2,9 @@ import AnyType, { AnyTypeConfig } from './AnyType';
 import OneOfType from './OneOfType';
 import SetContext from '../SetContext';
 import ValueContext from '../ValueContext';
-import Message from '../validators/utils/Message';
+import Validator from '../validators/Validator';
+import ObjectValidator from '../validators/ObjectValidator';
+import MultipleValidator from '../validators/MultipleValidator';
 
 export interface ObjectTypeConfig extends AnyTypeConfig {
   rules: { [key: string]: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType) };
@@ -123,28 +125,48 @@ export default class ObjectType extends AnyType {
     }
   }
 
-  // getValidator(setContext: SetContext) {
-  //   return new Promise((resolve, reject) => {
-  //     const rules = this.getRules();
-  //     const valueContext = setContext.get();
-  //     const jobs: Promise<string | Message | void>[] = [];
-  //
-  //     for (const k in valueContext.value) {
-  //       // todo hasOwnProperty check
-  //       const v = valueContext.value[k];
-  //       const rule = rules[k];
-  //
-  //       if (rule) {
-  //         const nextSetContext = setContext.push(k, v);
-  //         jobs.push(rule.validate(nextSetContext));
-  //       }
-  //     }
-  //
-  //     Promise.all(jobs).then((warnings) => {
-  //       resolve();
-  //     }).catch((error) => {
-  //       reject(error);
-  //     });
-  //   });
-  // }
+  getValidator(setContext: SetContext) {
+    // return new Promise((resolve, reject) => {
+    //   const rules = this.getRules();
+    //   const valueContext = setContext.get();
+    //   const jobs: Promise<string | Message | void>[] = [];
+    //
+    //   for (const k in valueContext.value) {
+    //     // todo hasOwnProperty check
+    //     const v = valueContext.value[k];
+    //     const rule = rules[k];
+    //
+    //     if (rule) {
+    //       const nextSetContext = setContext.push(k, v);
+    //       jobs.push(rule.validate(nextSetContext));
+    //     }
+    //   }
+    //
+    //   Promise.all(jobs).then((warnings) => {
+    //     resolve();
+    //   }).catch((error) => {
+    //     reject(error);
+    //   });
+    // });
+    let validator = this.validator;
+
+    if (validator) {
+      if (!validator.isValidator(ObjectValidator)) {
+        validator = new MultipleValidator({
+          validators: [
+            new ObjectValidator({
+              isSilent: true,
+            }),
+            validator,
+          ],
+        });
+      }
+    } else {
+      validator = new ObjectValidator({
+        isSilent: true,
+      });
+    }
+
+    return validator;
+  }
 }

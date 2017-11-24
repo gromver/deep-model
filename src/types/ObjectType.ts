@@ -2,6 +2,7 @@ import AnyType, { AnyTypeConfig } from './AnyType';
 import OneOfType from './OneOfType';
 import SetContext from '../SetContext';
 import ValueContext from '../ValueContext';
+import Message from '../validators/utils/Message';
 
 export interface ObjectTypeConfig extends AnyTypeConfig {
   rules: { [key: string]: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType) };
@@ -121,4 +122,29 @@ export default class ObjectType extends AnyType {
       throw new Error('ObjectType:typeCheck - the value must be an instance of object');
     }
   }
+
+  // getValidator(setContext: SetContext) {
+  //   return new Promise((resolve, reject) => {
+  //     const rules = this.getRules();
+  //     const valueContext = setContext.get();
+  //     const jobs: Promise<string | Message | void>[] = [];
+  //
+  //     for (const k in valueContext.value) {
+  //       // todo hasOwnProperty check
+  //       const v = valueContext.value[k];
+  //       const rule = rules[k];
+  //
+  //       if (rule) {
+  //         const nextSetContext = setContext.push(k, v);
+  //         jobs.push(rule.validate(nextSetContext));
+  //       }
+  //     }
+  //
+  //     Promise.all(jobs).then((warnings) => {
+  //       resolve();
+  //     }).catch((error) => {
+  //       reject(error);
+  //     });
+  //   });
+  // }
 }

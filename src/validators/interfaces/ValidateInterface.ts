@@ -1,7 +1,7 @@
 import Message from '../utils/Message';
 import ValueContext from '../../ValueContext';
 
-export default interface Validate {
+export default interface ValidateInterface {
   /**
    * Validate the value
    * @param {ValueContext} valueContext

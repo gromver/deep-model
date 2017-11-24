@@ -6,7 +6,7 @@ import SetValueEvent from './events/SetValueEvent';
 import ValidationStateEvent from './events/ValidationStateEvent';
 import AnyType from './types/AnyType';
 import ObjectType from './types/ObjectType';
-import Validator from './validators/interfaces/Validate';
+import Validator from './validators/interfaces/ValidateInterface';
 import State from './validators/states/State';
 import ErrorState from './validators/states/ErrorState';
 import Message from './validators/utils/Message';

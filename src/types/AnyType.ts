@@ -1,6 +1,6 @@
 import SetContext from '../SetContext';
 import ValueContext from '../ValueContext';
-import Validator from '../validators/interfaces/Validate';
+import Validator from '../validators/interfaces/ValidateInterface';
 import Message from '../validators/utils/Message';
 import PendingState from '../validators/states/PendingState';
 import WarningState from '../validators/states/WarningState';

@@ -1,4 +1,4 @@
-import Validator from './interfaces/Validate';
+import Validator from './interfaces/ValidateInterface';
 import Message from './utils/Message';
 import ValueContext from '../ValueContext';
 

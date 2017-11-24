@@ -7,5 +7,5 @@ export default interface ValidateInterface {
    * @param {ValueContext} valueContext
    * @returns {Promise<string | Message | void>}
    */
-  validate(valueContext: ValueContext): Promise<string | Message | void>;
+  validate(valueContext: ValueContext): Promise<void | string | Message>;
 }

@@ -1,4 +1,5 @@
-import Validator from './interfaces/ValidateInterface';
+import Validator from './Validator';
+import Message from './utils/Message';
 import utils from './utils/utils';
 import ValueContext from '../ValueContext';
 import AnyType from '../types/AnyType';
@@ -7,17 +8,19 @@ export interface ObjectValidatorConfig {
   message?: string;
 }
 
-export default class ObjectValidator implements Validator {
+export default class ObjectValidator extends Validator {
   static MESSAGE = '{attribute} - object has invalid fields';
 
   public rules: { [key: string]: AnyType };
   public message?: string;
 
   constructor(config: ObjectValidatorConfig = {}) {
+    super();
+
     this.message = config.message;
   }
 
-  validate(valueContext: ValueContext) {
+  validate(valueContext: ValueContext): Promise<void | string | Message> {
     // Undefined values are fine
     if (valueContext.value === undefined) {
       return Promise.resolve();

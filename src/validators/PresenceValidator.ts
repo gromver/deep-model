@@ -1,4 +1,4 @@
-import Validator from './Validator';
+import Validator from './interfaces/Validate';
 import utils from './utils/utils';
 import ValueContext from '../ValueContext';
 
@@ -7,15 +7,13 @@ export interface PresenceValidatorConfig {
   message?: string;
 }
 
-export default class PresenceValidator extends Validator {
+export default class PresenceValidator implements Validator {
   static MESSAGE = '{attribute} - can\'t be blank';
 
   public allowEmpty: boolean;
   public message?: string;
 
   constructor(config: PresenceValidatorConfig = {}) {
-    super();
-
     this.message = config.message;
     this.allowEmpty = config.allowEmpty || false;
   }
@@ -26,7 +24,7 @@ export default class PresenceValidator extends Validator {
         ? !utils.isDefined(valueContext.value)
         : utils.isEmpty(valueContext.value)
     ) {
-      return Promise.reject(this.createMessage(this.message || PresenceValidator.MESSAGE, {
+      return Promise.reject(utils.createMessage(this.message || PresenceValidator.MESSAGE, {
         attribute: valueContext.attribute,
       }));
     }

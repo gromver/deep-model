@@ -1,6 +1,6 @@
 import SetContext from '../SetContext';
 import ValueContext from '../ValueContext';
-import Validator from '../validators/Validator';
+import Validator from '../validators/interfaces/Validate';
 import Message from '../validators/utils/Message';
 import PendingState from '../validators/states/PendingState';
 import WarningState from '../validators/states/WarningState';
@@ -8,6 +8,7 @@ import SuccessState from '../validators/states/SuccessState';
 import ErrorState from '../validators/states/ErrorState';
 import MultipleFilter from '../filters/MultipleFilter';
 import MultiplePermission from '../permissions/MultiplePermission';
+import MultipleValidator from '../validators/MultipleValidator';
 
 export interface AnyTypeConfig {
   permission?: ((context: ValueContext) => void) | [(context: ValueContext) => void];
@@ -24,7 +25,9 @@ export default class AnyType {
     this.permission = Array.isArray(config.permission)
       ? MultiplePermission(config.permission)
       : config.permission;
-    this.validator = config.validator as Validator;
+    this.validator = Array.isArray(config.validator)
+      ? new MultipleValidator({ validators: config.validator })
+      : config.validator;
     this.filter = Array.isArray(config.filter)
       ? MultipleFilter(config.filter)
       : config.filter;

@@ -13,6 +13,8 @@ import BooleanType from './types/BooleanType';
 import OneOfType from './types/OneOfType';
 import * as t from './types';
 
+import PresenceValidator from './validators/PresenceValidator';
+import MultipleValidator from './validators/MultipleValidator';
 import SuccessState from './validators/states/SuccessState';
 import ErrorState from './validators/states/ErrorState';
 
@@ -35,6 +37,16 @@ class TestModel extends Model {
         t.string(),
         t.boolean(),
       ],
+    };
+  }
+}
+
+class ValidationModel extends Model {
+  getRules() {
+    return {
+      presence: t.string({
+        validator: new PresenceValidator(),
+      }),
     };
   }
 }
@@ -298,5 +310,11 @@ describe('getFirstError', () => {
     const state = model.getFirstError();
 
     expect(state).toBe(undefined);
+  });
+});
+
+describe('Validate', () => {
+  it('Should reject and return error message', () => {
+    const model = new ValidationModel();
   });
 });

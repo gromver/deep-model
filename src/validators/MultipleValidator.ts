@@ -1,4 +1,4 @@
-import Validator from './Validator';
+import Validator from './interfaces/Validate';
 import Message from './utils/Message';
 import ValueContext from '../ValueContext';
 
@@ -15,13 +15,11 @@ export interface MultipleValidatorConfig {
   isAny?: boolean;
 }
 
-export default class MultipleValidator extends Validator {
+export default class MultipleValidator implements Validator {
   public validators: Validator[];
   public isAny: boolean;
 
   constructor(config: MultipleValidatorConfig) {
-    super();
-
     this.validators = config.validators;
     this.isAny = config.isAny || false;
   }

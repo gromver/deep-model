@@ -4,9 +4,8 @@ declare const it;
 declare const expect;
 declare const require;
 
-import MultipleValidator from './MultipleValidator';
 import PresenceValidator from './PresenceValidator';
-import ObjectValidator from './ObjectValidator';
+import StringValidator from './StringValidator';
 
 import Model from '../Model';
 import * as t from '../types';
@@ -17,7 +16,7 @@ class TestModel extends Model {
       object: t.object({
         rules: {
           foo: t.string({
-            validator: new PresenceValidator(),
+            validator: [new PresenceValidator(), new StringValidator()],
           }),
           bar: t.string(),
         },
@@ -30,9 +29,23 @@ class TestModel extends Model {
 describe('validate', () => {
   it('Should reject.', async () => {
     const model = new TestModel({
-      boolean: 'wrong',
+      object: { foo: '' },
     });
 
-    await model.validate().catch((err) => console.log('ERR', err));
+
+    await expect(model.validate()).rejects.toMatchObject({
+      bindings: { attribute: undefined },
+      message: '{attribute} - object has invalid fields',
+    });
+    expect(model.getErrors()).toHaveLength(3);
+  });
+
+  it('Should resolve.', async () => {
+    const model = new TestModel({
+      object: { foo: 'foo', bar: 'bar' },
+    });
+
+    await expect(model.validate()).resolves.toBe(undefined);
+    expect(model.getErrors()).toHaveLength(0);
   });
 });

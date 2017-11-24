@@ -1,12 +1,15 @@
+import AnyType from '../types/AnyType';
 import Validator from './Validator';
 import Message from './utils/Message';
 import utils from './utils/utils';
 import ValueContext from '../ValueContext';
+import SetContext from '../SetContext';
 
 export interface ObjectValidatorConfig {
   errorMessage?: string;
   warningMessage?: string;
-  isSilent?: boolean;
+  rules: { [key: string]: AnyType };
+  setContext: SetContext;
 }
 
 export default class ObjectValidator extends Validator implements ObjectValidatorConfig {
@@ -15,14 +18,16 @@ export default class ObjectValidator extends Validator implements ObjectValidato
 
   public errorMessage?: string;
   public warningMessage?: string;
-  public isSilent: boolean;
+  public rules: { [key: string]: AnyType };
+  public setContext: SetContext;
 
-  constructor(config: ObjectValidatorConfig = {}) {
+  constructor(config: ObjectValidatorConfig) {
     super();
 
     this.errorMessage = config.errorMessage;
     this.warningMessage = config.warningMessage;
-    this.isSilent = utils.isBoolean(config.isSilent) ? config.isSilent as boolean : false;
+    this.rules = config.rules;
+    this.setContext = config.setContext;
   }
 
   validate(valueContext: ValueContext): Promise<void | string | Message> {
@@ -31,7 +36,7 @@ export default class ObjectValidator extends Validator implements ObjectValidato
       return Promise.resolve();
     }
 
-    const { rules, setContext } = valueContext.attachment;
+    const { rules, setContext } = this;
     const { value } = valueContext;
 
     return new Promise((resolve, reject) => {
@@ -50,23 +55,19 @@ export default class ObjectValidator extends Validator implements ObjectValidato
       }
 
       Promise.all(jobs).then((warnings) => {
-        if (this.isSilent) {
-          resolve();
-        } else {
-          // const warning = warnings.find((i) => !!i);
+        const warning = warnings.find((i) => !!i);
 
+        if (warning) {
           resolve(utils.createMessage(this.warningMessage || ObjectValidator.WARNING_MESSAGE, {
             attribute: valueContext.attribute,
           }));
-        }
-      }).catch((error) => {
-        if (this.isSilent) {
-          reject();
         } else {
-          reject(utils.createMessage(this.errorMessage || ObjectValidator.ERROR_MESSAGE, {
-            attribute: valueContext.attribute,
-          }));
+          resolve();
         }
+      }).catch(() => {
+        reject(utils.createMessage(this.errorMessage || ObjectValidator.ERROR_MESSAGE, {
+          attribute: valueContext.attribute,
+        }));
       });
     });
   }

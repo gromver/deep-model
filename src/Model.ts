@@ -273,7 +273,7 @@ export default class Model {
 
   validate(): Promise<string | Message | void> {
     this.states = {};
-    // todo решить какой будет ответ
+
     return this.model.validate(new SetContext({
       model: this,
       path: [],
@@ -309,12 +309,21 @@ export default class Model {
   }
 
   getValidator(path: string | (string|number)[]): Validator | null {
-    const type = this.getType(path);
+    const pathNormalized = typeof path === 'string' ? [path] : path;
+    const type = this.getType(pathNormalized);
 
-    return type && type.getValidator();
+    return type && type.getValidator(new SetContext({
+      model: this,
+      path: pathNormalized,
+      cursor: pathNormalized.length - 1,
+    }));
   }
 
   getFirstError(): State | undefined {
     return _.values(this.states).find((state) => state instanceof ErrorState);
+  }
+
+  getErrors(): State[] {
+    return _.values(this.states).filter((state) => state instanceof ErrorState);
   }
 }

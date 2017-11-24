@@ -6,7 +6,7 @@ declare const require;
 
 import MultipleValidator, { promiseAny } from './MultipleValidator';
 import PresenceValidator from './PresenceValidator';
-import ObjectValidator from './ObjectValidator';
+import StringValidator from './StringValidator';
 
 describe('promiseAny', () => {
   it('Should process any.', () => {
@@ -27,19 +27,19 @@ describe('promiseAny', () => {
 describe('isValidator', () => {
   it('Should return valid results.', () => {
     const validator1 = new MultipleValidator({
-      validators: [new ObjectValidator],
+      validators: [new StringValidator()],
     });
 
     expect(validator1.isValidator(MultipleValidator)).toBe(true);
-    expect(validator1.isValidator(ObjectValidator)).toBe(true);
+    expect(validator1.isValidator(StringValidator)).toBe(true);
     expect(validator1.isValidator(PresenceValidator)).toBe(false);
 
     const validator2 = new MultipleValidator({
-      validators: [new ObjectValidator, new PresenceValidator()],
+      validators: [new StringValidator, new PresenceValidator()],
     });
 
     expect(validator2.isValidator(MultipleValidator)).toBe(true);
-    expect(validator2.isValidator(ObjectValidator)).toBe(true);
+    expect(validator2.isValidator(StringValidator)).toBe(true);
     expect(validator2.isValidator(PresenceValidator)).toBe(true);
   });
 });

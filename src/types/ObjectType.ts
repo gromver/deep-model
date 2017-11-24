@@ -8,15 +8,18 @@ import MultipleValidator from '../validators/MultipleValidator';
 
 export interface ObjectTypeConfig extends AnyTypeConfig {
   rules: { [key: string]: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType) };
+  validatorConfig?: {};
 }
 
 export default class ObjectType extends AnyType {
   protected rules: { [key: string]: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType) };
+  protected validatorConfig: { [key: string]: any };
 
   constructor(config: ObjectTypeConfig) {
     super(config);
 
     this.rules = config.rules;
+    this.validatorConfig = config.validatorConfig || {};
     this.normalizeRule = this.normalizeRule.bind(this);
   }
 
@@ -151,19 +154,31 @@ export default class ObjectType extends AnyType {
     let validator = this.validator;
 
     if (validator) {
-      if (!validator.isValidator(ObjectValidator)) {
-        validator = new MultipleValidator({
-          validators: [
-            new ObjectValidator({
-              isSilent: true,
-            }),
-            validator,
-          ],
-        });
-      }
+      // if (!validator.isValidator(ObjectValidator)) {
+      //   validator = new MultipleValidator({
+      //     validators: [
+      //       new ObjectValidator({
+      //         isSilent: true,
+      //       }),
+      //       validator,
+      //     ],
+      //   });
+      // }
+      validator = new MultipleValidator({
+        validators: [
+          new ObjectValidator({
+            setContext,
+            rules: this.getRules(),
+            ...this.validatorConfig,
+          }),
+          validator,
+        ],
+      });
     } else {
       validator = new ObjectValidator({
-        isSilent: true,
+        setContext,
+        rules: this.getRules(),
+        ...this.validatorConfig,
       });
     }
 

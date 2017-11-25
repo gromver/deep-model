@@ -7,7 +7,8 @@ import ObjectValidator from '../validators/ObjectValidator';
 import MultipleValidator from '../validators/MultipleValidator';
 
 export interface ValidatorConfig {
-  errorMessage?: string;
+  errorMessageType?: string;
+  errorMessageFields?: string;
   warningMessage?: string;
 }
 
@@ -58,13 +59,14 @@ export default class ObjectType extends AnyType {
     const { value } = setContext.get();
 
     for (const k in value) {
-      // todo hasOwnProperty check
-      const v = value[k];
-      const rule = rules[k];
+      if (value.hasOwnProperty(k)) {
+        const v = value[k];
+        const rule = rules[k];
 
-      if (rule) {
-        const nextSetContext = setContext.push(k, v);
-        rule.apply(nextSetContext);
+        if (rule) {
+          const nextSetContext = setContext.push(k, v);
+          rule.apply(nextSetContext);
+        }
       }
     }
   }
@@ -134,41 +136,9 @@ export default class ObjectType extends AnyType {
   }
 
   getValidator(setContext: SetContext) {
-    // return new Promise((resolve, reject) => {
-    //   const rules = this.getRules();
-    //   const valueContext = setContext.get();
-    //   const jobs: Promise<string | Message | void>[] = [];
-    //
-    //   for (const k in valueContext.value) {
-    //     // todo hasOwnProperty check
-    //     const v = valueContext.value[k];
-    //     const rule = rules[k];
-    //
-    //     if (rule) {
-    //       const nextSetContext = setContext.push(k, v);
-    //       jobs.push(rule.validate(nextSetContext));
-    //     }
-    //   }
-    //
-    //   Promise.all(jobs).then((warnings) => {
-    //     resolve();
-    //   }).catch((error) => {
-    //     reject(error);
-    //   });
-    // });
     let validator = this.validator;
 
     if (validator) {
-      // if (!validator.isValidator(ObjectValidator)) {
-      //   validator = new MultipleValidator({
-      //     validators: [
-      //       new ObjectValidator({
-      //         isSilent: true,
-      //       }),
-      //       validator,
-      //     ],
-      //   });
-      // }
       validator = new MultipleValidator({
         validators: [
           new ObjectValidator({

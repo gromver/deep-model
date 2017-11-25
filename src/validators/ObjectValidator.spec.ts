@@ -4,10 +4,13 @@ declare const it;
 declare const expect;
 declare const require;
 
+import ObjectValidator from './ObjectValidator';
 import PresenceValidator from './PresenceValidator';
 import StringValidator from './StringValidator';
 
 import Model from '../Model';
+import SetContext from '../SetContext';
+import ValueContext from '../ValueContext';
 import * as t from '../types';
 
 class TestModel extends Model {
@@ -27,6 +30,68 @@ class TestModel extends Model {
 }
 
 describe('validate', () => {
+  it('Should reject with "object has invalid fields" error', async () => {
+    const model = new TestModel();
+    const validator = new ObjectValidator({
+      setContext: new SetContext({
+        model,
+        path: [],
+      }),
+      rules: {
+        object: t.object({
+          rules: {
+            foo: t.string({
+              validator: [new PresenceValidator(), new StringValidator()],
+            }),
+            bar: t.string(),
+          },
+        }),
+      },
+    });
+
+    await expect(validator.validate(new ValueContext({
+      model,
+      attribute: 'test',
+      path: [],
+      value: {
+        object: { foo: '' },
+      },
+    }))).rejects.toMatchObject({
+      bindings: { attribute: 'test' },
+      message: '{attribute} - object has invalid fields',
+    });
+  });
+
+  it('Should reject with "object has an invalid type" error', async () => {
+    const model = new TestModel();
+    const validator = new ObjectValidator({
+      setContext: new SetContext({
+        model,
+        path: [],
+      }),
+      rules: {
+        object: t.object({
+          rules: {
+            foo: t.string({
+              validator: [new PresenceValidator(), new StringValidator()],
+            }),
+            bar: t.string(),
+          },
+        }),
+      },
+    });
+
+    await expect(validator.validate(new ValueContext({
+      model,
+      attribute: 'test',
+      path: [],
+      value: 'not an object',
+    }))).rejects.toMatchObject({
+      bindings: { attribute: 'test' },
+      message: '{attribute} - object has an invalid type',
+    });
+  });
+
   it('Should reject.', async () => {
     const model = new TestModel({
       object: { foo: '' },

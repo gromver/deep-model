@@ -6,17 +6,21 @@ import SetContext from '../SetContext';
 import utils from './utils/utils';
 
 export interface ObjectValidatorConfig {
-  errorMessage?: string;
+  errorMessageType?: string;
+  errorMessageFields?: string;
   warningMessage?: string;
   rules: { [key: string]: AnyType };
   setContext: SetContext;
 }
 
 export default class ObjectValidator extends Validator {
-  static ERROR_MESSAGE = '{attribute} - object has invalid fields';
+  static ERROR_MESSAGE_TYPE = '{attribute} - object has an invalid type';
+  static ERROR_MESSAGE_FIELDS = '{attribute} - object has invalid fields';
+
   static WARNING_MESSAGE = '{attribute} - object has some fields with warnings';
 
-  private errorMessage?: string;
+  private errorMessageType?: string;
+  private errorMessageFields?: string;
   private warningMessage?: string;
   private rules: { [key: string]: AnyType };
   private setContext: SetContext;
@@ -24,7 +28,8 @@ export default class ObjectValidator extends Validator {
   constructor(config: ObjectValidatorConfig) {
     super();
 
-    this.errorMessage = config.errorMessage;
+    this.errorMessageType = config.errorMessageType;
+    this.errorMessageFields = config.errorMessageFields;
     this.warningMessage = config.warningMessage;
     this.rules = config.rules;
     this.setContext = config.setContext;
@@ -36,6 +41,14 @@ export default class ObjectValidator extends Validator {
     // Undefined values are fine
     if (value === undefined) {
       return Promise.resolve();
+    }
+
+    if (value.constructor !== Object) {
+      return Promise.reject(
+        utils.createMessage(this.errorMessageType || ObjectValidator.ERROR_MESSAGE_TYPE, {
+          attribute: valueContext.attribute,
+        }),
+      );
     }
 
     const { rules, setContext } = this;
@@ -59,16 +72,20 @@ export default class ObjectValidator extends Validator {
         const warning = warnings.find((i) => !!i);
 
         if (warning) {
-          resolve(utils.createMessage(this.warningMessage || ObjectValidator.WARNING_MESSAGE, {
-            attribute: valueContext.attribute,
-          }));
+          resolve(
+            utils.createMessage(this.warningMessage || ObjectValidator.WARNING_MESSAGE, {
+              attribute: valueContext.attribute,
+            }),
+          );
         } else {
           resolve();
         }
       }).catch(() => {
-        reject(utils.createMessage(this.errorMessage || ObjectValidator.ERROR_MESSAGE, {
-          attribute: valueContext.attribute,
-        }));
+        reject(
+          utils.createMessage(this.errorMessageFields || ObjectValidator.ERROR_MESSAGE_FIELDS, {
+            attribute: valueContext.attribute,
+          }),
+        );
       });
     });
   }

@@ -9,10 +9,13 @@ import ErrorState from '../validators/states/ErrorState';
 import MultipleFilter from '../filters/MultipleFilter';
 import MultiplePermission from '../permissions/MultiplePermission';
 import MultipleValidator from '../validators/MultipleValidator';
+import CustomValidator from '../validators/CustomValidator';
 
 export interface AnyTypeConfig {
   permission?: ((context: ValueContext) => void) | [(context: ValueContext) => void];
-  validator?: Validator | Validator[];
+  validator?: Validator | (Validator
+    | ((context: ValueContext) => Promise<void | string | Message>))[]
+    | ((context: ValueContext) => Promise<void | string | Message>); // Validator | Validator[];
   filter?: ((value: any) => any) | [(value: any) => any];
 }
 
@@ -25,12 +28,31 @@ export default class AnyType {
     this.permission = Array.isArray(config.permission)
       ? MultiplePermission(config.permission)
       : config.permission;
-    this.validator = Array.isArray(config.validator)
-      ? new MultipleValidator({ validators: config.validator })
-      : config.validator;
+    // this.validator = Array.isArray(config.validator)
+    //   ? new MultipleValidator({ validators: config.validator })
+    //   : config.validator;
+    this.validator = config.validator && this.normalizeValidator(config.validator);
     this.filter = Array.isArray(config.filter)
       ? MultipleFilter(config.filter)
       : config.filter;
+  }
+
+  protected normalizeValidator(validator: Validator | (Validator
+    | ((context: ValueContext) => Promise<void | string | Message>))[]
+    | ((context: ValueContext) => Promise<void | string | Message>)): Validator {
+    if (typeof validator === 'function') {
+      return new CustomValidator({
+        func: validator,
+      });
+    } else if (Array.isArray(validator)) {
+      const validators = [...validator].map(this.normalizeValidator);
+
+      return new MultipleValidator({ validators });
+    } else if (validator instanceof Validator) {
+      return validator;
+    }
+
+    throw new Error('AnyType:normalizeValidator - Invalid validator description.');
   }
 
   /* Set */

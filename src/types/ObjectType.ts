@@ -6,14 +6,19 @@ import Validator from '../validators/Validator';
 import ObjectValidator from '../validators/ObjectValidator';
 import MultipleValidator from '../validators/MultipleValidator';
 
+export interface ValidatorConfig {
+  errorMessage?: string;
+  warningMessage?: string;
+}
+
 export interface ObjectTypeConfig extends AnyTypeConfig {
   rules: { [key: string]: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType) };
-  validatorConfig?: {};
+  validatorConfig?: ValidatorConfig;
 }
 
 export default class ObjectType extends AnyType {
   protected rules: { [key: string]: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType) };
-  protected validatorConfig: { [key: string]: any };
+  protected validatorConfig: ValidatorConfig;
 
   constructor(config: ObjectTypeConfig) {
     super(config);

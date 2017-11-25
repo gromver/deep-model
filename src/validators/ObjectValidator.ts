@@ -1,9 +1,9 @@
 import AnyType from '../types/AnyType';
 import Validator from './Validator';
 import Message from './utils/Message';
-import utils from './utils/utils';
 import ValueContext from '../ValueContext';
 import SetContext from '../SetContext';
+import utils from './utils/utils';
 
 export interface ObjectValidatorConfig {
   errorMessage?: string;
@@ -12,14 +12,14 @@ export interface ObjectValidatorConfig {
   setContext: SetContext;
 }
 
-export default class ObjectValidator extends Validator implements ObjectValidatorConfig {
+export default class ObjectValidator extends Validator {
   static ERROR_MESSAGE = '{attribute} - object has invalid fields';
   static WARNING_MESSAGE = '{attribute} - object has some fields with warnings';
 
-  public errorMessage?: string;
-  public warningMessage?: string;
-  public rules: { [key: string]: AnyType };
-  public setContext: SetContext;
+  private errorMessage?: string;
+  private warningMessage?: string;
+  private rules: { [key: string]: AnyType };
+  private setContext: SetContext;
 
   constructor(config: ObjectValidatorConfig) {
     super();
@@ -31,13 +31,14 @@ export default class ObjectValidator extends Validator implements ObjectValidato
   }
 
   validate(valueContext: ValueContext): Promise<void | string | Message> {
+    const { value } = valueContext;
+
     // Undefined values are fine
-    if (valueContext.value === undefined) {
+    if (value === undefined) {
       return Promise.resolve();
     }
 
     const { rules, setContext } = this;
-    const { value } = valueContext;
 
     return new Promise((resolve, reject) => {
       const jobs: Promise<string | Message | void>[] = [];

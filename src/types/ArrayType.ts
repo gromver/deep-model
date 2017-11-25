@@ -7,7 +7,8 @@ import ArrayValidator from '../validators/ArrayValidator';
 import MultipleValidator from '../validators/MultipleValidator';
 
 export interface ValidatorConfig {
-  errorMessage?: string;
+  errorMessageType?: string;
+  errorMessageFields?: string;
   errorMessageMaxLength?: string;
   errorMessageMinLength?: string;
   warningMessage?: string;

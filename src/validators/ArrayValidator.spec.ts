@@ -56,6 +56,29 @@ describe('validate', () => {
     });
   });
 
+  it('Should reject with "array has an invalid type" error', async () => {
+    const model = new TestModel();
+    const validator = new ArrayValidator({
+      setContext: new SetContext({
+        model,
+        path: [],
+      }),
+      rule: t.string({
+        validator: new PresenceValidator(),
+      }),
+    });
+
+    await expect(validator.validate(new ValueContext({
+      model,
+      attribute: 'test',
+      path: [],
+      value: 'not an array',
+    }))).rejects.toMatchObject({
+      bindings: { attribute: 'test' },
+      message: '{attribute} - array has an invalid type',
+    });
+  });
+
   it('Should reject because of length is less than 3', async () => {
     const model = new TestModel();
     const validator = new ArrayValidator({

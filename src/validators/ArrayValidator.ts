@@ -6,7 +6,8 @@ import SetContext from '../SetContext';
 import utils from './utils/utils';
 
 export interface ArrayValidatorConfig {
-  errorMessage?: string;
+  errorMessageType?: string;
+  errorMessageFields?: string;
   errorMessageMaxLength?: string;
   errorMessageMinLength?: string;
   warningMessage?: string;
@@ -17,13 +18,15 @@ export interface ArrayValidatorConfig {
 }
 
 export default class ArrayValidator extends Validator {
-  static ERROR_MESSAGE = '{attribute} - array has invalid fields';
+  static ERROR_MESSAGE_TYPE = '{attribute} - array has an invalid type';
+  static ERROR_MESSAGE_FIELDS = '{attribute} - array has invalid fields';
   static ERROR_MESSAGE_MIN_LENGTH = '{attribute} - has not enough elements in the array (minimum is {count})';
   static ERROR_MESSAGE_MAX_LENGTH = '{attribute} - has too many elements in the array (maximum is {count})';
 
   static WARNING_MESSAGE = '{attribute} - array has some fields with warnings';
 
-  private errorMessage?: string;
+  private errorMessageType?: string;
+  private errorMessageFileds?: string;
   private errorMessageMaxLength?: string;
   private errorMessageMinLength?: string;
   private warningMessage?: string;
@@ -35,7 +38,8 @@ export default class ArrayValidator extends Validator {
   constructor(config: ArrayValidatorConfig) {
     super();
 
-    this.errorMessage = config.errorMessage;
+    this.errorMessageType = config.errorMessageType;
+    this.errorMessageFileds = config.errorMessageFields;
     this.errorMessageMaxLength = config.errorMessageMaxLength;
     this.errorMessageMinLength = config.errorMessageMinLength;
     this.warningMessage = config.warningMessage;
@@ -53,14 +57,13 @@ export default class ArrayValidator extends Validator {
       return Promise.resolve();
     }
 
-    // unnecessary
-    // if (!utils.isArray(value)) {
-    //   return Promise.reject(
-    //     utils.createMessage(this.errorMessage || ArrayValidator.ERROR_MESSAGE, {
-    //       attribute: valueContext.attribute,
-    //     }),
-    //   );
-    // }
+    if (!utils.isArray(value)) {
+      return Promise.reject(
+        utils.createMessage(this.errorMessageType || ArrayValidator.ERROR_MESSAGE_TYPE, {
+          attribute: valueContext.attribute,
+        }),
+      );
+    }
 
     const length = value.length;
 
@@ -109,7 +112,7 @@ export default class ArrayValidator extends Validator {
           resolve();
         }
       }).catch(() => {
-        reject(utils.createMessage(this.errorMessage || ArrayValidator.ERROR_MESSAGE, {
+        reject(utils.createMessage(this.errorMessageFileds || ArrayValidator.ERROR_MESSAGE_FIELDS, {
           attribute: valueContext.attribute,
         }));
       });

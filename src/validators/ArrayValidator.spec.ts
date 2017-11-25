@@ -18,9 +18,12 @@ class TestModel extends Model {
   getRules() {
     return {
       array: t.array({
-        rules: t.string({
-          validator: [new PresenceValidator(), new StringValidator()],
-        }),
+        rules: [
+          t.string({
+            validator: [new PresenceValidator(), new StringValidator()],
+          }),
+          t.number(),
+        ],
       }),
     };
   }
@@ -50,6 +53,34 @@ describe('validate', () => {
       attribute: 'test',
       path: [],
       value: [1, 2, ''],
+    }))).rejects.toMatchObject({
+      bindings: { attribute: 'test' },
+      message: '{attribute} - array has invalid fields',
+    });
+  });
+
+  it('Should reject with "array has invalid fields" because of unsupported type', async () => {
+    const model = new TestModel();
+    const validator = new ArrayValidator({
+      setContext: new SetContext({
+        model,
+        path: [],
+      }),
+      rule: t.oneOf({
+        rules: [
+          t.string({
+            validator: [new PresenceValidator(), new StringValidator()],
+          }),
+          t.number(),
+        ],
+      }),
+    });
+
+    await expect(validator.validate(new ValueContext({
+      model,
+      attribute: 'test',
+      path: [],
+      value: [1, 2, 'string', true],  // boolean not supported
     }))).rejects.toMatchObject({
       bindings: { attribute: 'test' },
       message: '{attribute} - array has invalid fields',
@@ -234,5 +265,4 @@ describe('validate', () => {
   });
 
   // todo test all custom messages and length check
-  // todo check with oneOfType rule
 });

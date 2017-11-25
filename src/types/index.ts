@@ -3,7 +3,7 @@ import ArrayType, { ArrayTypeConfig } from './ArrayType';
 import BooleanType from './BooleanType';
 import FunctionType from './FunctionType';
 import NumberType from './NumberType';
-import ObjectType,{ ObjectTypeConfig } from './ObjectType';
+import ObjectType, { ObjectTypeConfig } from './ObjectType';
 import StringType from './StringType';
 import OneOfType, { OneOfTypeConfig } from './OneOfType';
 

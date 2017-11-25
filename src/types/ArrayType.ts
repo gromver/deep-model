@@ -56,10 +56,12 @@ export default class ArrayType extends AnyType {
     const { value } = setContext.get();
 
     for (const k in value) {
-      const v = value[k];
+      if (value.hasOwnProperty(k)) {
+        const v = value[k];
 
-      const nextSetContext = setContext.push(k, v);
-      rule.apply(nextSetContext);
+        const nextSetContext = setContext.push(k, v);
+        rule.apply(nextSetContext);
+      }
     }
   }
 

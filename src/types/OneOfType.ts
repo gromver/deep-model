@@ -1,12 +1,21 @@
 import AnyType, { AnyTypeConfig } from './AnyType';
 import SetContext from '../SetContext';
+import Validator from '../validators/Validator';
+import OneOfTypeValidator from '../validators/OneOfTypeValidator';
+import MultipleValidator from '../validators/MultipleValidator';
+
+export interface ValidatorConfig {
+  errorMessageRule?: string;
+}
 
 export interface OneOfTypeConfig extends AnyTypeConfig {
   rules: AnyType[];
+  validatorConfig?: ValidatorConfig;
 }
 
 export default class OneOfType extends AnyType {
   protected rules: AnyType[];
+  validatorConfig?: ValidatorConfig;
 
   constructor(config: OneOfTypeConfig) {
     super(config);
@@ -78,5 +87,31 @@ export default class OneOfType extends AnyType {
     });
 
     return type || null;
+  }
+
+  getValidator(setContext: SetContext) {
+    const rule = this.getRules().find((rule) => rule.canApply(setContext));
+    let validator = this.validator;
+
+    if (validator) {
+      validator = new MultipleValidator({
+        validators: [
+          new OneOfTypeValidator({
+            setContext,
+            rule,
+            ...this.validatorConfig,
+          }),
+          validator,
+        ],
+      });
+    } else {
+      validator = new OneOfTypeValidator({
+        setContext,
+        rule,
+        ...this.validatorConfig,
+      });
+    }
+
+    return validator;
   }
 }

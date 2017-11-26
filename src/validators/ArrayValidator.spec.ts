@@ -252,7 +252,7 @@ describe('validate', () => {
       bindings: { attribute: undefined },
       message: '{attribute} - object has invalid fields',
     });
-    expect(model.getErrors()).toHaveLength(4);
+    expect(model.getErrors()).toHaveLength(3);
   });
 
   it('Model should resolve.', async () => {

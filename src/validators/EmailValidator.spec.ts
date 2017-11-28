@@ -26,7 +26,7 @@ function createValue(value) {
   });
 }
 
-describe('CustomValidator', () => {
+describe('EmailValidator', () => {
   it('Should validate properly', async () => {
     const validator = new EmailValidator();
 

@@ -23,7 +23,8 @@ export default class Model {
   private observable: Subject<any>;
 
   constructor(attributes: {} = {}) {
-    this.attributes = this.initialAttributes = attributes;
+    this.initialAttributes = _.cloneDeep(attributes);
+    this.attributes = _.cloneDeep(attributes);
     this.model = new ObjectType({
       rules: this.getRules(),
     });
@@ -165,6 +166,10 @@ export default class Model {
    */
   getAttributes() {
     return this.attributes;
+  }
+
+  isChanged() {
+    return !_.isEqual(this.attributes, this.initialAttributes);
   }
 
   /**

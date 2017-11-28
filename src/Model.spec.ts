@@ -318,3 +318,23 @@ describe('Validate', () => {
     const model = new ValidationModel();
   });
 });
+
+describe('isChanged', () => {
+  it('Should return proper values', () => {
+    const model = new TestModel({
+      string: 'a',
+      object: {
+        string: 'b',
+      },
+    });
+
+    expect(model.isChanged()).toBe(false);
+    model.set('string', 'b');
+    expect(model.isChanged()).toBe(true);
+    model.set('string', 'a');
+    model.set(['object', 'string'], 'b');
+    expect(model.isChanged()).toBe(false);
+    model.set(['object', 'string'], 'c');
+    expect(model.isChanged()).toBe(true);
+  });
+});

@@ -1,8 +1,8 @@
-import * as _ from 'lodash';
+const toPairs = require('lodash/toPairs');
 
 export default class Message extends String {
   static formatMessage(message: string, bindings: {}): string {
-    _.toPairs(bindings).forEach(([k, v]) => {
+    toPairs(bindings).forEach(([k, v]) => {
       message = message.replace(new RegExp(`\\{${k}\\}`, 'g'), v as string);
     });
 

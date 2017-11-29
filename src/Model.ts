@@ -1,4 +1,3 @@
-import * as _ from 'lodash';
 import { Subject } from 'rxjs/Subject';
 import SetContext from './SetContext';
 import Event from './events/Event';
@@ -10,6 +9,14 @@ import Validator from './validators/interfaces/ValidateInterface';
 import State from './validators/states/State';
 import ErrorState from './validators/states/ErrorState';
 import Message from './validators/utils/Message';
+
+const _ = {
+  cloneDeep: require('lodash/cloneDeep'),
+  values: require('lodash/values'),
+  isEqual: require('lodash/isEqual'),
+  get: require('lodash/get'),
+  set: require('lodash/set'),
+};
 
 export default class Model {
   static SCENARIO_DEFAULT = 'default';

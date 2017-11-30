@@ -38,7 +38,7 @@ const itemRule = t.array({
 });
 
 class TestModel extends Model {
-  getRules() {
+  rules() {
     return {
       items: itemRule,
     };

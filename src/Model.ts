@@ -33,7 +33,7 @@ export default class Model {
     this.initialAttributes = _.cloneDeep(attributes);
     this.attributes = _.cloneDeep(attributes);
     this.model = new ObjectType({
-      rules: this.getRules(),
+      rules: this.rules(),
     });
     this.states = {};
     // this.handleEvents = this.handleEvents.bind(this);
@@ -48,8 +48,8 @@ export default class Model {
    * Must be extended!
    * @returns {{[p: string]: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType)}}
    */
-  getRules(): { [key: string]: (AnyType | (AnyType | (() => AnyType))[] | (() => AnyType)) } {
-    throw new Error('Model:getRules - this method must be extended.');
+  rules(): { [key: string]: (AnyType | (AnyType | (() => AnyType))[] | (() => AnyType)) } {
+    throw new Error('Model:rules - this method must be extended.');
   }
 
   /**

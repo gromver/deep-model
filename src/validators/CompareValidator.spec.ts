@@ -11,7 +11,7 @@ import Model from '../Model';
 import * as t from '../types';
 
 class TestModel extends Model {
-  getRules() {
+  rules() {
     return {
       object: t.object({
         rules: {

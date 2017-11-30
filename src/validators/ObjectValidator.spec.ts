@@ -14,7 +14,7 @@ import ValueContext from '../ValueContext';
 import * as t from '../types';
 
 class TestModel extends Model {
-  getRules() {
+  rules() {
     return {
       object: t.object({
         rules: {

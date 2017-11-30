@@ -19,7 +19,7 @@ import SuccessState from './validators/states/SuccessState';
 import ErrorState from './validators/states/ErrorState';
 
 class TestModel extends Model {
-  getRules() {
+  rules() {
     return {
       string: new StringType(),
       number: new NumberType(),
@@ -42,7 +42,7 @@ class TestModel extends Model {
 }
 
 class ValidationModel extends Model {
-  getRules() {
+  rules() {
     return {
       presence: t.string({
         validator: new PresenceValidator(),

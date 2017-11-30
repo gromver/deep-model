@@ -10,7 +10,7 @@ import ValueContext from '../ValueContext';
 import Model from '../Model';
 
 class TestModel extends Model {
-  getRules() {
+  rules() {
     return {};
   }
 }
@@ -59,7 +59,7 @@ describe('NumberValidator', () => {
 
   it('lessThan', async () => {
     const validator = new NumberValidator({
-      lessThan: 0
+      lessThan: 0,
     });
 
     let result = await validator.validate(createValue(0)).then(() => true).catch(() => false);
@@ -74,7 +74,7 @@ describe('NumberValidator', () => {
 
   it('lessThanOrEqual', async () => {
     const validator = new NumberValidator({
-      lessThanOrEqualTo: 0
+      lessThanOrEqualTo: 0,
     });
 
     let result = await validator.validate(createValue(0)).then(() => true).catch(() => false);
@@ -89,7 +89,7 @@ describe('NumberValidator', () => {
 
   it('equalTo', async () => {
     const validator = new NumberValidator({
-      equalTo: 0
+      equalTo: 0,
     });
 
     let result = await validator.validate(createValue(0)).then(() => true).catch(() => false);
@@ -104,7 +104,7 @@ describe('NumberValidator', () => {
 
   it('divisibleBy', async () => {
     const validator = new NumberValidator({
-      divisibleBy: 2
+      divisibleBy: 2,
     });
 
     let result = await validator.validate(createValue(2)).then(() => true).catch(() => false);
@@ -122,7 +122,7 @@ describe('NumberValidator', () => {
 
   it('odd', async () => {
     const validator = new NumberValidator({
-      odd: true
+      odd: true,
     });
 
     let result = await validator.validate(createValue(0)).then(() => true).catch(() => false);
@@ -140,7 +140,7 @@ describe('NumberValidator', () => {
 
   it('even', async () => {
     const validator = new NumberValidator({
-      even: true
+      even: true,
     });
 
     let result = await validator.validate(createValue(0)).then(() => true).catch(() => false);
@@ -177,7 +177,7 @@ describe('NumberValidator', () => {
 
   it('onlyInteger true', async () => {
     const validator = new NumberValidator({
-      onlyInteger: true
+      onlyInteger: true,
     });
 
     let result = await validator.validate(createValue(0)).then(() => true).catch(() => false);
@@ -199,7 +199,7 @@ describe('NumberValidator', () => {
 
   it('strict', async () => {
     const validator = new NumberValidator({
-      strict: true
+      strict: true,
     });
 
     let result = await validator.validate(createValue('-1')).then(() => true).catch(() => false);
@@ -227,7 +227,7 @@ describe('NumberValidator', () => {
   it('strict and onlyInteger', async () => {
     const validator = new NumberValidator({
       strict: true,
-      onlyInteger: true
+      onlyInteger: true,
     });
 
     let result = await validator.validate(createValue('-1')).then(() => true).catch(() => false);

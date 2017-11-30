@@ -15,7 +15,7 @@ import ValueContext from '../ValueContext';
 import * as t from '../types';
 
 class TestModel extends Model {
-  getRules() {
+  rules() {
     return {
       array: t.array({
         rules: [

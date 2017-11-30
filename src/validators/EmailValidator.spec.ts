@@ -10,7 +10,7 @@ import ValueContext from '../ValueContext';
 import Model from '../Model';
 
 class TestModel extends Model {
-  getRules() {
+  rules() {
     return {};
   }
 }

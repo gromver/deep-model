@@ -1,6 +1,6 @@
 {
   "name": "deep-model",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Model representing deep json data",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",

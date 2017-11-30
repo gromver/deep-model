@@ -124,6 +124,11 @@ export default class AnyType {
     }
   }
 
+  /**
+   * Попытка найти тип для указанного аттрибута
+   * @param {SetContext} setContext
+   * @returns {AnyType}
+   */
   getType(setContext: SetContext): AnyType | null {
     try {
       const valueContext = setContext.get();
@@ -136,6 +141,11 @@ export default class AnyType {
     }
   }
 
+  /**
+   * Custom getType implementation
+   * @param {SetContext} setContext
+   * @returns {AnyType}
+   */
   protected getTypeValue(setContext: SetContext): AnyType | null {
     return null;
   }

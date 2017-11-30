@@ -17,42 +17,38 @@ export interface ValidatorConfig {
 }
 
 export interface ArrayTypeConfig extends AnyTypeConfig {
-  rules: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType);
+  types: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType);
   validatorConfig?: ValidatorConfig;
 }
 
 export default class ArrayType extends AnyType {
-  protected rules: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType);
+  protected types: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType);
   protected validatorConfig: ValidatorConfig;
 
   constructor(config: ArrayTypeConfig) {
     super(config);
 
-    this.rules = config.rules;
+    this.types = config.types;
     this.validatorConfig = config.validatorConfig || {};
-    this.normalizeRule = this.normalizeRule.bind(this);
+    this.normalizeType = this.normalizeType.bind(this);
   }
 
-  private getRule(): AnyType {
-    return this.normalizeRule(this.rules);
-  }
+  private normalizeType(type: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType)): AnyType {
+    if (typeof type === 'function') {
+      return this.normalizeType(type());
+    } else if (Array.isArray(type)) {
+      const types = [...type].map(this.normalizeType);
 
-  private normalizeRule(rule: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType)): AnyType {
-    if (typeof rule === 'function') {
-      return this.normalizeRule(rule());
-    } else if (Array.isArray(rule)) {
-      const rules = [...rule].map(this.normalizeRule);
-
-      return new OneOfType({ rules });
-    } else if (rule instanceof AnyType) {
-      return rule;
+      return new OneOfType({ types });
+    } else if (type instanceof AnyType) {
+      return type;
     }
 
-    throw new Error('ArrayType:normalizeRule - Invalid rule description.');
+    throw new Error('ArrayType:normalizeType - Invalid type description.');
   }
 
   protected applyValue(setContext: SetContext) {
-    const rule = this.getRule();
+    const type = this.normalizeType(this.types);
     const { value } = setContext.get();
 
     for (const k in value) {
@@ -60,20 +56,20 @@ export default class ArrayType extends AnyType {
         const v = value[k];
 
         const nextSetContext = setContext.push(k, v);
-        rule.apply(nextSetContext);
+        type.apply(nextSetContext);
       }
     }
   }
 
   protected setValue(setContext: SetContext) {
-    const rule = this.getRule();
+    const type = this.normalizeType(this.types);
 
     const nextSetContext = setContext.shift();
 
     if (nextSetContext) {
-      rule.set(nextSetContext);
+      type.set(nextSetContext);
     } else {
-      rule.apply(setContext);
+      type.apply(setContext);
     }
   }
 
@@ -91,24 +87,24 @@ export default class ArrayType extends AnyType {
   }
 
   protected canSetValue(setContext: SetContext): boolean {
-    const rule = this.getRule();
+    const type = this.normalizeType(this.types);
 
     const nextSetContext = setContext.shift();
 
     return nextSetContext
-      ? rule.canSet(nextSetContext)
-      : rule.canApply(setContext);
+      ? type.canSet(nextSetContext)
+      : type.canApply(setContext);
   }
 
   protected getTypeValue(setContext: SetContext): AnyType | null {
-    const rule = this.getRule();
+    const type = this.normalizeType(this.types);
 
     const nextSetContext = setContext.shift();
 
     if (nextSetContext) {
-      return rule.getType(nextSetContext);
+      return type.getType(nextSetContext);
     } else {
-      return rule;
+      return type;
     }
   }
 
@@ -133,7 +129,7 @@ export default class ArrayType extends AnyType {
         validators: [
           new ArrayValidator({
             setContext,
-            rule: this.getRule(),
+            type: this.normalizeType(this.types),
             ...this.validatorConfig,
           }),
           validator,
@@ -142,7 +138,7 @@ export default class ArrayType extends AnyType {
     } else {
       validator = new ArrayValidator({
         setContext,
-        rule: this.getRule(),
+        type: this.normalizeType(this.types),
         ...this.validatorConfig,
       });
     }

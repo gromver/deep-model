@@ -9,32 +9,32 @@ export interface ValidatorConfig {
 }
 
 export interface OneOfTypeConfig extends AnyTypeConfig {
-  rules: AnyType[];
+  types: AnyType[];
   validatorConfig?: ValidatorConfig;
 }
 
 export default class OneOfType extends AnyType {
-  protected rules: AnyType[];
-  validatorConfig?: ValidatorConfig;
+  protected types: AnyType[];
+  protected validatorConfig?: ValidatorConfig;
 
   constructor(config: OneOfTypeConfig) {
     super(config);
 
-    this.rules = config.rules;
+    this.types = config.types;
   }
 
-  private getRules(): AnyType[] {
-    return this.rules;
+  private getTypes(): AnyType[] {
+    return this.types;
   }
 
   set(setContext: SetContext) {
     let error;
 
-    this.getRules().some((rule) => {
+    this.getTypes().some((type) => {
       error = false;
 
       try {
-        rule.set(setContext);
+        type.set(setContext);
       } catch (e) {
         error = e;
       }
@@ -48,17 +48,17 @@ export default class OneOfType extends AnyType {
   }
 
   canSet(setContext: SetContext): boolean {
-    return this.getRules().some((rule) => rule.canSet(setContext));
+    return this.getTypes().some((type) => type.canSet(setContext));
   }
 
   apply(setContext: SetContext) {
     let error;
 
-    this.getRules().some((rule) => {
+    this.getTypes().some((type) => {
       error = false;
 
       try {
-        rule.apply(setContext);
+        type.apply(setContext);
       } catch (e) {
         error = e;
       }
@@ -72,25 +72,25 @@ export default class OneOfType extends AnyType {
   }
 
   canApply(setContext: SetContext): boolean {
-    return this.getRules().some((rule) => rule.canApply(setContext));
+    return this.getTypes().some((type) => type.canApply(setContext));
   }
 
   protected getTypeValue(setContext: SetContext): AnyType | null {
-    let type;
+    let foundedType;
 
-    this.getRules().some((rule) => {
+    this.getTypes().some((type) => {
       try {
-        type = rule.getType(setContext);
+        foundedType = type.getType(setContext);
       } catch (e) {}
 
-      return !!type;
+      return !!foundedType;
     });
 
-    return type || null;
+    return foundedType || null;
   }
 
   getValidator(setContext: SetContext) {
-    const rule = this.getRules().find((rule) => rule.canApply(setContext));
+    const type = this.getTypes().find((type) => type.canApply(setContext));
     let validator = this.validator;
 
     if (validator) {
@@ -98,7 +98,7 @@ export default class OneOfType extends AnyType {
         validators: [
           new OneOfTypeValidator({
             setContext,
-            rule,
+            type,
             ...this.validatorConfig,
           }),
           validator,
@@ -107,7 +107,7 @@ export default class OneOfType extends AnyType {
     } else {
       validator = new OneOfTypeValidator({
         setContext,
-        rule,
+        type,
         ...this.validatorConfig,
       });
     }

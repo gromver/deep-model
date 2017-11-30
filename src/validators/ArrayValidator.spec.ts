@@ -18,7 +18,7 @@ class TestModel extends Model {
   rules() {
     return {
       array: t.array({
-        rules: [
+        types: [
           t.string({
             validator: [new PresenceValidator(), new StringValidator()],
           }),
@@ -43,7 +43,7 @@ describe('validate', () => {
         model,
         path: [],
       }),
-      rule: t.string({
+      type: t.string({
         validator: new PresenceValidator(),
       }),
     });
@@ -66,8 +66,8 @@ describe('validate', () => {
         model,
         path: [],
       }),
-      rule: t.oneOf({
-        rules: [
+      type: t.oneOf({
+        types: [
           t.string({
             validator: [new PresenceValidator(), new StringValidator()],
           }),
@@ -94,7 +94,7 @@ describe('validate', () => {
         model,
         path: [],
       }),
-      rule: t.string({
+      type: t.string({
         validator: new PresenceValidator(),
       }),
     });
@@ -117,7 +117,7 @@ describe('validate', () => {
         model,
         path: [],
       }),
-      rule: t.string({
+      type: t.string({
         validator: new PresenceValidator(),
       }),
       minLength: 3,
@@ -141,7 +141,7 @@ describe('validate', () => {
         model,
         path: [],
       }),
-      rule: t.string({
+      type: t.string({
         validator: new PresenceValidator(),
       }),
       minLength: 3,
@@ -162,7 +162,7 @@ describe('validate', () => {
         model,
         path: [],
       }),
-      rule: t.string({
+      type: t.string({
         validator: new PresenceValidator(),
       }),
       maxLength: 3,
@@ -186,7 +186,7 @@ describe('validate', () => {
         model,
         path: [],
       }),
-      rule: t.string({
+      type: t.string({
         validator: new PresenceValidator(),
       }),
       maxLength: 3,
@@ -207,7 +207,7 @@ describe('validate', () => {
         model,
         path: [],
       }),
-      rule: t.string({
+      type: t.string({
         validator: new PresenceValidator(),
       }),
     });
@@ -227,7 +227,7 @@ describe('validate', () => {
         model,
         path: [],
       }),
-      rule: t.string({
+      type: t.string({
         validator: new ValidatorWithWarning(),
       }),
     });

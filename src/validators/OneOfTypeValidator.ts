@@ -7,29 +7,29 @@ import utils from './utils/utils';
 
 export interface OneOfTypeValidatorConfig {
   errorMessageRule?: string;
-  rule?: AnyType;
+  type?: AnyType;
   setContext: SetContext;
 }
 
 export default class OneOfTypeValidator extends Validator {
-  static ERROR_MESSAGE_RULE = '{attribute} - the rule for a given value is undefined';
+  static ERROR_MESSAGE_RULE = '{attribute} - the type for a given value is undefined';
 
   private errorMessageRule?: string;
-  private rule?: AnyType;
+  private type?: AnyType;
   private setContext: SetContext;
 
   constructor(config: OneOfTypeValidatorConfig) {
     super();
 
     this.errorMessageRule = config.errorMessageRule;
-    this.rule = config.rule;
+    this.type = config.type;
     this.setContext = config.setContext;
   }
 
   validate(valueContext: ValueContext): Promise<void | string | Message> {
-    const { rule, setContext } = this;
+    const { type, setContext } = this;
 
-    if (!rule) {
+    if (!type) {
       return Promise.reject(
         utils.createMessage(this.errorMessageRule || OneOfTypeValidator.ERROR_MESSAGE_RULE, {
           attribute: valueContext.attribute,
@@ -37,7 +37,7 @@ export default class OneOfTypeValidator extends Validator {
       );
     }
 
-    return rule.validate(setContext);
+    return type.validate(setContext);
   }
 }
 

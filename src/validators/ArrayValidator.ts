@@ -13,7 +13,7 @@ export interface ArrayValidatorConfig {
   warningMessage?: string;
   maxLength?: number;
   minLength?: number;
-  rule: AnyType;
+  type: AnyType;
   setContext: SetContext;
 }
 
@@ -32,7 +32,7 @@ export default class ArrayValidator extends Validator {
   private warningMessage?: string;
   private maxLength?: number;
   private minLength?: number;
-  private rule: AnyType;
+  private type: AnyType;
   private setContext: SetContext;
 
   constructor(config: ArrayValidatorConfig) {
@@ -45,7 +45,7 @@ export default class ArrayValidator extends Validator {
     this.warningMessage = config.warningMessage;
     this.maxLength = config.maxLength;
     this.minLength = config.minLength;
-    this.rule = config.rule;
+    this.type = config.type;
     this.setContext = config.setContext;
   }
 
@@ -85,7 +85,7 @@ export default class ArrayValidator extends Validator {
       );
     }
 
-    const { rule, setContext } = this;
+    const { type, setContext } = this;
 
     return new Promise((resolve, reject) => {
       const jobs: Promise<string | Message | void>[] = [];
@@ -94,9 +94,9 @@ export default class ArrayValidator extends Validator {
         if (value.hasOwnProperty(k)) {
           const v = value[k];
 
-          if (rule) {
+          if (type) {
             const nextSetContext = setContext.push(k, v);
-            jobs.push(rule.validate(nextSetContext));
+            jobs.push(type.validate(nextSetContext));
           }
         }
       }

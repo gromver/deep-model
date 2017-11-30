@@ -34,7 +34,7 @@ class ValidatorWithWarning extends Validator {
 }
 
 describe('validate', () => {
-  it('Should reject with "the rule for a given value is undefined" error', async () => {
+  it('Should reject with "the type for a given value is undefined" error', async () => {
     const model = new TestModel();
     const validator = new OneOfTypeValidator({
       setContext: new SetContext({
@@ -50,7 +50,7 @@ describe('validate', () => {
       value: 'foo',
     }))).rejects.toMatchObject({
       bindings: { attribute: 'test' },
-      message: '{attribute} - the rule for a given value is undefined',
+      message: '{attribute} - the type for a given value is undefined',
     });
   });
 
@@ -75,7 +75,7 @@ describe('validate', () => {
     });
   });
 
-  it('Model should reject because of the rule is undefined', async () => {
+  it('Model should reject because of the type is undefined', async () => {
     const model = new TestModel({
       oneOfType: false,
     });

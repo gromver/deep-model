@@ -31,7 +31,7 @@ class TestModel extends Model {
         },
       }),
       array: new ArrayType({
-        rules: new NumberType(),
+        types: new NumberType(),
       }),
       mixed: [
         t.string(),

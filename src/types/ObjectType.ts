@@ -26,31 +26,31 @@ export default class ObjectType extends AnyType {
 
     this.rules = config.rules;
     this.validatorConfig = config.validatorConfig || {};
-    this.normalizeRule = this.normalizeRule.bind(this);
+    this.normalizeType = this.normalizeType.bind(this);
   }
 
   private getRules(): { [key: string]: AnyType } {
     const rules = {};
 
     for (const k in this.rules) {
-      rules[k] = this.normalizeRule(this.rules[k]);
+      rules[k] = this.normalizeType(this.rules[k]);
     }
 
     return rules;
   }
 
-  private normalizeRule(rule: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType)): AnyType {
-    if (typeof rule === 'function') {
-      return this.normalizeRule(rule());
-    } else if (Array.isArray(rule)) {
-      const rules = [...rule].map(this.normalizeRule);
+  private normalizeType(type: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType)): AnyType {
+    if (typeof type === 'function') {
+      return this.normalizeType(type());
+    } else if (Array.isArray(type)) {
+      const types = [...type].map(this.normalizeType);
 
-      return new OneOfType({ rules });
-    } else if (rule instanceof AnyType) {
-      return rule;
+      return new OneOfType({ types });
+    } else if (type instanceof AnyType) {
+      return type;
     }
 
-    throw new Error('ObjectType:normalizeRule - Invalid rule description.');
+    throw new Error('ObjectType:normalizeType - Invalid type description.');
   }
 
   protected applyValue(setContext: SetContext) {

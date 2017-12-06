@@ -25,7 +25,7 @@ class TestModel extends Model {
       number: new NumberType(),
       boolean: new BooleanType(),
       object: new ObjectType({
-        rules: {
+        properties: {
           string: new StringType(),
           number: new NumberType(),
         },

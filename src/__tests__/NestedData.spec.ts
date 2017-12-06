@@ -11,7 +11,7 @@ import * as t from '../types';
 const itemRule = t.array({
   types: [
     t.object({
-      rules: {
+      properties: {
         name: t.string(),
         isGroup: t.boolean(),
         value: t.string(),
@@ -23,7 +23,7 @@ const itemRule = t.array({
       },
     }),
     t.object({
-      rules: {
+      properties: {
         name: t.string(),
         isGroup: t.boolean(),
         items: () => itemRule,

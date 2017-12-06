@@ -9,7 +9,7 @@ export interface ObjectValidatorConfig {
   errorMessageType?: string;
   errorMessageFields?: string;
   warningMessage?: string;
-  rules: { [key: string]: AnyType };
+  properties: { [key: string]: AnyType };
   setContext: SetContext;
 }
 
@@ -22,7 +22,7 @@ export default class ObjectValidator extends Validator {
   private errorMessageType?: string;
   private errorMessageFields?: string;
   private warningMessage?: string;
-  private rules: { [key: string]: AnyType };
+  private properties: { [key: string]: AnyType };
   private setContext: SetContext;
 
   constructor(config: ObjectValidatorConfig) {
@@ -31,7 +31,7 @@ export default class ObjectValidator extends Validator {
     this.errorMessageType = config.errorMessageType;
     this.errorMessageFields = config.errorMessageFields;
     this.warningMessage = config.warningMessage;
-    this.rules = config.rules;
+    this.properties = config.properties;
     this.setContext = config.setContext;
   }
 
@@ -51,7 +51,7 @@ export default class ObjectValidator extends Validator {
       );
     }
 
-    const { rules, setContext } = this;
+    const { properties, setContext } = this;
 
     return new Promise((resolve, reject) => {
       const jobs: Promise<string | Message | void>[] = [];
@@ -59,11 +59,11 @@ export default class ObjectValidator extends Validator {
       for (const k in value) {
         if (value.hasOwnProperty(k)) {
           const v = value[k];
-          const rule = rules[k];
+          const type = properties[k];
 
-          if (rule) {
+          if (type) {
             const nextSetContext = setContext.push(k, v);
-            jobs.push(rule.validate(nextSetContext));
+            jobs.push(type.validate(nextSetContext));
           }
         }
       }

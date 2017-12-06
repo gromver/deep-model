@@ -17,7 +17,7 @@ class TestModel extends Model {
   rules() {
     return {
       object: t.object({
-        rules: {
+        properties: {
           foo: t.string({
             validator: [new PresenceValidator(), new StringValidator()],
           }),
@@ -37,9 +37,9 @@ describe('validate', () => {
         model,
         path: [],
       }),
-      rules: {
+      properties: {
         object: t.object({
-          rules: {
+          properties: {
             foo: t.string({
               validator: [new PresenceValidator(), new StringValidator()],
             }),
@@ -69,9 +69,9 @@ describe('validate', () => {
         model,
         path: [],
       }),
-      rules: {
+      properties: {
         object: t.object({
-          rules: {
+          properties: {
             foo: t.string({
               validator: [new PresenceValidator(), new StringValidator()],
             }),

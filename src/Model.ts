@@ -33,7 +33,7 @@ export default class Model {
     this.initialAttributes = _.cloneDeep(attributes);
     this.attributes = _.cloneDeep(attributes);
     this.model = new ObjectType({
-      rules: this.rules(),
+      properties: this.rules(),
     });
     this.states = {};
     // this.handleEvents = this.handleEvents.bind(this);
@@ -44,7 +44,7 @@ export default class Model {
   }
 
   /**
-   * Get model rules config
+   * Get model properties config
    * Must be extended!
    * @returns {{[p: string]: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType)}}
    */

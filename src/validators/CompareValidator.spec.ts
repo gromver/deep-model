@@ -14,7 +14,7 @@ class TestModel extends Model {
   rules() {
     return {
       object: t.object({
-        rules: {
+        properties: {
           a: t.string(),
           b: t.string({
             validator: new CompareValidator({

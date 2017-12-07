@@ -18,7 +18,7 @@ class TestModel extends Model {
   rules() {
     return {
       array: t.array({
-        types: [
+        items: [
           t.string({
             validator: [new PresenceValidator(), new StringValidator()],
           }),

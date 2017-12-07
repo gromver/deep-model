@@ -17,22 +17,28 @@ export interface ValidatorConfig {
 }
 
 export interface ArrayTypeConfig extends AnyTypeConfig {
-  types: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType);
+  items: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType);
   validatorConfig?: ValidatorConfig;
 }
 
 export default class ArrayType extends AnyType {
-  protected types: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType);
+  protected items: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType);
   protected validatorConfig: ValidatorConfig;
 
   constructor(config: ArrayTypeConfig) {
     super(config);
 
-    this.types = config.types;
+    this.items = config.items;
     this.validatorConfig = config.validatorConfig || {};
     this.normalizeType = this.normalizeType.bind(this);
   }
 
+    /**
+     * Normalize type
+     * todo: добавить возможность настраивать типы для индексов массивов, как в json schema спеке
+     * @param {AnyType | (AnyType | (() => AnyType))[] | (() => AnyType)} type
+     * @returns {AnyType}
+     */
   private normalizeType(type: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType)): AnyType {
     if (typeof type === 'function') {
       return this.normalizeType(type());
@@ -48,7 +54,7 @@ export default class ArrayType extends AnyType {
   }
 
   protected applyValue(setContext: SetContext) {
-    const type = this.normalizeType(this.types);
+    const type = this.normalizeType(this.items);
     const { value } = setContext.get();
 
     for (const k in value) {
@@ -62,7 +68,7 @@ export default class ArrayType extends AnyType {
   }
 
   protected setValue(setContext: SetContext) {
-    const type = this.normalizeType(this.types);
+    const type = this.normalizeType(this.items);
 
     const nextSetContext = setContext.shift();
 
@@ -87,7 +93,7 @@ export default class ArrayType extends AnyType {
   }
 
   protected canSetValue(setContext: SetContext): boolean {
-    const type = this.normalizeType(this.types);
+    const type = this.normalizeType(this.items);
 
     const nextSetContext = setContext.shift();
 
@@ -97,7 +103,7 @@ export default class ArrayType extends AnyType {
   }
 
   protected getTypeValue(setContext: SetContext): AnyType | null {
-    const type = this.normalizeType(this.types);
+    const type = this.normalizeType(this.items);
 
     const nextSetContext = setContext.shift();
 
@@ -129,7 +135,7 @@ export default class ArrayType extends AnyType {
         validators: [
           new ArrayValidator({
             setContext,
-            type: this.normalizeType(this.types),
+            type: this.normalizeType(this.items),
             ...this.validatorConfig,
           }),
           validator,
@@ -138,7 +144,7 @@ export default class ArrayType extends AnyType {
     } else {
       validator = new ArrayValidator({
         setContext,
-        type: this.normalizeType(this.types),
+        type: this.normalizeType(this.items),
         ...this.validatorConfig,
       });
     }

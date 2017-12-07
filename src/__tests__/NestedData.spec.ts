@@ -9,7 +9,7 @@ import * as t from '../types';
 // import * as v from '../validators';
 
 const itemRule = t.array({
-  types: [
+  items: [
     t.object({
       properties: {
         name: t.string(),

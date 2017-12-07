@@ -78,7 +78,7 @@ describe('Dispatch', () => {
 describe('set()', () => {
   it('Should load values properly.', () => {
     const model = getTestModel();
-    model.setAttributes({
+    model.set({
       foo: 'foo',
       bar: 'bar',
       string: 'string',
@@ -94,7 +94,7 @@ describe('set()', () => {
       array: [1,2,3],
     });
 
-    expect(model.getAttributes()).toEqual({
+    expect(model.get()).toEqual({
       string: 'string',
       number: 123,
       boolean: false,
@@ -112,7 +112,7 @@ describe('set()', () => {
     model.set('string', 'test');
     model.set(['array', 2], 123);
 
-    expect(model.getAttributes()).toEqual({
+    expect(model.get()).toEqual({
       string: 'test',
       array: [undefined, undefined, 123],
     });
@@ -146,12 +146,12 @@ describe('set()', () => {
     const model = getTestModel();
 
     model.set('mixed', 'test');
-    expect(model.getAttributes()).toEqual({
+    expect(model.get()).toEqual({
       mixed: 'test',
     });
 
     model.set('mixed', true);
-    expect(model.getAttributes()).toEqual({
+    expect(model.get()).toEqual({
       mixed: true,
     });
   });
@@ -352,5 +352,31 @@ describe('isChanged', () => {
     expect(model.isChanged()).toBe(false);
     model.set(['object', 'string'], 'c');
     expect(model.isChanged()).toBe(true);
+  });
+});
+
+describe('Test Model with primitive types', () => {
+  it('Should set value', () => {
+    const model = new Model({
+      type: t.number(),
+    });
+
+    model.set([], 1);
+    expect(model.get()).toBe(1);
+    model.set([], 2);
+    expect(model.get()).toBe(2);
+  });
+
+  it('Should not set value and throw an error', () => {
+    const model = new Model({
+      type: t.number(),
+    });
+
+    expect(() => {
+      model.set([], '2');
+    }).toThrow();
+    expect(() => {
+      model.set([], false);
+    }).toThrow();
   });
 });

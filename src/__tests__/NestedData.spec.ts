@@ -90,8 +90,8 @@ const structure = {
 describe('Nested test', () => {
   it('Should load nested data structure', () => {
     const model = getTestModel();
-    model.setAttributes(structure);
-    expect(model.getAttributes()).toEqual({
+    model.set(structure);
+    expect(model.get()).toEqual({
       items: [
         {
           name: 'group 1',

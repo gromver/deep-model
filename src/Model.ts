@@ -22,7 +22,7 @@ export interface ModelConfig {
   type: AnyType;
   context?: {};
   scenarios?: string | string[];
-  attributes?: {};
+  value?: {};
 }
 
 export default class Model {
@@ -31,14 +31,14 @@ export default class Model {
   private type: AnyType;
   private context: {};
   private scenarios: string[];
-  private attributes: {};
-  private initialAttributes: {};
+  private value: {};
+  private initialValue: {};
   private states: { [key: string]: State };
   private observable: Subject<Event>;
 
-  static compile(properties, attributes?: {}, scenarios?: string | string[], context?: {}) {
+  static compile(properties, value?: {}, scenarios?: string | string[], context?: {}) {
     return new Model({
-      attributes,
+      value,
       scenarios,
       context,
       type: new ObjectType({
@@ -48,9 +48,9 @@ export default class Model {
   }
 
   constructor(config: ModelConfig) {
-    const attributes = config.attributes || {};
-    this.initialAttributes = _.cloneDeep(attributes);
-    this.attributes = _.cloneDeep(attributes);
+    const attributes = config.value || {};
+    this.initialValue = _.cloneDeep(attributes);
+    this.value = _.cloneDeep(attributes);
     this.type = config.type;
     this.states = {};
     this.observable = new Subject();
@@ -64,7 +64,11 @@ export default class Model {
    * @param value
    */
   setValue(path: (string | number)[], value: any) {
-    _.set(this.attributes, path, value);
+    if (path.length) {
+      _.set(this.value, path, value);
+    } else {
+      this.value = value;
+    }
 
     this.dispatch(new SetValueEvent(path, value));
   }
@@ -117,56 +121,59 @@ export default class Model {
 
   /**
    * Set value
-   * @param {[(string | number)] | string} path
+   * model.set('value') => set model's value
+   * model.set(foo, 'value') => set property value of the model's value
+   * model.set(['foo', 'bar'], 'value') => set property value of the model's value
+   * @param {[(string | number)] | string | any} path
    * @param value
    */
-  set(path: string | (string|number)[], value: any) {
-    const pathNormalized = typeof path === 'string' ? [path] : path;
+  set(path: string | (string|number)[] | any, value?: any) {
+    let pathNormalized;
+    let valueNormalized;
+
+    if (arguments.length > 1) {
+      pathNormalized = typeof path === 'string' ? [path] : path;
+      valueNormalized = value;
+    } else {
+      pathNormalized = [];
+      valueNormalized = path;
+    }
 
     if (pathNormalized.length) {
       this.type.set(new SetContext({
-        value,
         model: this,
         path: pathNormalized,
+        value: valueNormalized,
       }));
     } else {
       this.type.apply(new SetContext({
-        value,
         model: this,
         path: pathNormalized,
+        value: valueNormalized,
       }));
     }
   }
 
   /**
    * Get value
+   * model.get() => get model's value
+   * model.get('foo') => get property value of the model's value
+   * model.get(['foo', 'bar']) => get property value of the model's value
    * @param {[(string | number)] | string} path
    * @returns {any}
    */
-  get(path: string | (string|number)[]) {
-    const pathNormalized = typeof path === 'string' ? [path] : path;
+  get(path?: string | (string|number)[]) {
+    if (path) {
+      const pathNormalized = typeof path === 'string' ? [path] : path;
 
-    return path.length ? _.get(this.attributes, pathNormalized) : this.attributes;
-  }
+      return path.length ? _.get(this.value, pathNormalized) : this.value;
+    }
 
-  /**
-   * Set attributes
-   * @param attributes
-   */
-  setAttributes(attributes) {
-    this.set([], attributes);
-  }
-
-  /**
-   * Get attributes
-   * @returns {{}}
-   */
-  getAttributes() {
-    return this.attributes;
+    return this.value;
   }
 
   isChanged() {
-    return !_.isEqual(this.attributes, this.initialAttributes);
+    return !_.isEqual(this.value, this.initialValue);
   }
 
   /**

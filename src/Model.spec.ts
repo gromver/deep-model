@@ -53,16 +53,6 @@ function getValidationModel(attributes?) {
   );
 }
 
-// class ValidationModel extends Model {
-//   rules() {
-//     return {
-//       presence: t.string({
-//         validator: new PresenceValidator(),
-//       }),
-//     };
-//   }
-// }
-
 describe('Dispatch', () => {
   it('Should receive dispatched value.', () => {
     const model = getTestModel();

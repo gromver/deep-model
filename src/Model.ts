@@ -48,9 +48,9 @@ export default class Model {
   }
 
   constructor(config: ModelConfig) {
-    const attributes = config.value || {};
-    this.initialValue = _.cloneDeep(attributes);
-    this.value = _.cloneDeep(attributes);
+    const value = config.value;
+    this.initialValue = _.cloneDeep(value);
+    this.value = _.cloneDeep(value);
     this.type = config.type;
     this.states = {};
     this.observable = new Subject();
@@ -65,6 +65,7 @@ export default class Model {
    */
   setValue(path: (string | number)[], value: any) {
     if (path.length) {
+      // todo fix this line
       _.set(this.value, path, value);
     } else {
       this.value = value;

@@ -14,9 +14,9 @@ import SetContext from '../SetContext';
 import ValueContext from '../ValueContext';
 import * as t from '../types';
 
-class TestModel extends Model {
-  rules() {
-    return {
+function getTestModel(attributes?) {
+  return Model.compile(
+    {
       array: t.array({
         items: [
           t.string({
@@ -25,8 +25,9 @@ class TestModel extends Model {
           t.number(),
         ],
       }),
-    };
-  }
+    },
+    attributes,
+  );
 }
 
 class ValidatorWithWarning extends Validator {
@@ -37,7 +38,7 @@ class ValidatorWithWarning extends Validator {
 
 describe('validate', () => {
   it('Should reject with "array has invalid fields" error', async () => {
-    const model = new TestModel();
+    const model = getTestModel();
     const validator = new ArrayValidator({
       setContext: new SetContext({
         model,
@@ -60,7 +61,7 @@ describe('validate', () => {
   });
 
   it('Should reject with "array has invalid fields" because of unsupported type', async () => {
-    const model = new TestModel();
+    const model = getTestModel();
     const validator = new ArrayValidator({
       setContext: new SetContext({
         model,
@@ -88,7 +89,7 @@ describe('validate', () => {
   });
 
   it('Should reject with "array has an invalid type" error', async () => {
-    const model = new TestModel();
+    const model = getTestModel();
     const validator = new ArrayValidator({
       setContext: new SetContext({
         model,
@@ -111,7 +112,7 @@ describe('validate', () => {
   });
 
   it('Should reject because of length is less than 3', async () => {
-    const model = new TestModel();
+    const model = getTestModel();
     const validator = new ArrayValidator({
       setContext: new SetContext({
         model,
@@ -135,7 +136,7 @@ describe('validate', () => {
   });
 
   it('Should resolve because of length is greater or equal to 3', async () => {
-    const model = new TestModel();
+    const model = getTestModel();
     const validator = new ArrayValidator({
       setContext: new SetContext({
         model,
@@ -156,7 +157,7 @@ describe('validate', () => {
   });
 
   it('Should reject because of length is greater than 3', async () => {
-    const model = new TestModel();
+    const model = getTestModel();
     const validator = new ArrayValidator({
       setContext: new SetContext({
         model,
@@ -180,7 +181,7 @@ describe('validate', () => {
   });
 
   it('Should resolve because of length is less or equal to 3', async () => {
-    const model = new TestModel();
+    const model = getTestModel();
     const validator = new ArrayValidator({
       setContext: new SetContext({
         model,
@@ -201,7 +202,7 @@ describe('validate', () => {
   });
 
   it('Should resolves', async () => {
-    const model = new TestModel();
+    const model = getTestModel();
     const validator = new ArrayValidator({
       setContext: new SetContext({
         model,
@@ -221,7 +222,7 @@ describe('validate', () => {
   });
 
   it('Should resolves with warning', async () => {
-    const model = new TestModel();
+    const model = getTestModel();
     const validator = new ArrayValidator({
       setContext: new SetContext({
         model,
@@ -244,7 +245,7 @@ describe('validate', () => {
   });
 
   it('Model should reject.', async () => {
-    const model = new TestModel({
+    const model = getTestModel({
       array: [1, ''],
     });
 
@@ -256,7 +257,7 @@ describe('validate', () => {
   });
 
   it('Model should resolve.', async () => {
-    const model = new TestModel({
+    const model = getTestModel({
       array: ['1', '2'],
     });
 

@@ -9,13 +9,7 @@ import ValueContext from '../ValueContext';
 
 import Model from '../Model';
 
-class TestModel extends Model {
-  rules() {
-    return {};
-  }
-}
-
-const model = new TestModel();
+const model = Model.compile({});
 
 function createValue(value) {
   return new ValueContext({

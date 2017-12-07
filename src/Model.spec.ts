@@ -18,9 +18,9 @@ import MultipleValidator from './validators/MultipleValidator';
 import SuccessState from './validators/states/SuccessState';
 import ErrorState from './validators/states/ErrorState';
 
-class TestModel extends Model {
-  rules() {
-    return {
+function getTestModel(attributes?) {
+  return Model.compile(
+    {
       string: new StringType(),
       number: new NumberType(),
       boolean: new BooleanType(),
@@ -37,23 +37,35 @@ class TestModel extends Model {
         t.string(),
         t.boolean(),
       ],
-    };
-  }
+    },
+    attributes,
+  );
 }
 
-class ValidationModel extends Model {
-  rules() {
-    return {
+function getValidationModel(attributes?) {
+  return Model.compile(
+    {
       presence: t.string({
         validator: new PresenceValidator(),
       }),
-    };
-  }
+    },
+    attributes,
+  );
 }
+
+// class ValidationModel extends Model {
+//   rules() {
+//     return {
+//       presence: t.string({
+//         validator: new PresenceValidator(),
+//       }),
+//     };
+//   }
+// }
 
 describe('Dispatch', () => {
   it('Should receive dispatched value.', () => {
-    const model = new TestModel();
+    const model = getTestModel();
     const fn = jest.fn((e: any) => expect(e).toBe('test'));
 
     model.getObservable().subscribe(fn);
@@ -65,7 +77,7 @@ describe('Dispatch', () => {
 
 describe('set()', () => {
   it('Should load values properly.', () => {
-    const model = new TestModel();
+    const model = getTestModel();
     model.setAttributes({
       foo: 'foo',
       bar: 'bar',
@@ -95,7 +107,7 @@ describe('set()', () => {
   });
 
   it('Should set value properly.', () => {
-    const model = new TestModel();
+    const model = getTestModel();
 
     model.set('string', 'test');
     model.set(['array', 2], 123);
@@ -107,7 +119,7 @@ describe('set()', () => {
   });
 
   it('Should not set array value by a string typed key.', () => {
-    const model = new TestModel();
+    const model = getTestModel();
 
     expect(() => {
       model.set(['array', '2'], 123);
@@ -115,7 +127,7 @@ describe('set()', () => {
   });
 
   it('Should not set nested value to the primitive type.', () => {
-    const model = new TestModel();
+    const model = getTestModel();
 
     expect(() => {
       model.set(['string', 'foo'], 'test');
@@ -123,7 +135,7 @@ describe('set()', () => {
   });
 
   it('Should not set non string typed value to the string type.', () => {
-    const model = new TestModel();
+    const model = getTestModel();
 
     expect(() => {
       model.set(['string'], 123);
@@ -131,7 +143,7 @@ describe('set()', () => {
   });
 
   it('Should set string or number to the "mixed" field type.', () => {
-    const model = new TestModel();
+    const model = getTestModel();
 
     model.set('mixed', 'test');
     expect(model.getAttributes()).toEqual({
@@ -145,7 +157,7 @@ describe('set()', () => {
   });
 
   it('Should not set number to the "mixed" field type.', () => {
-    const model = new TestModel();
+    const model = getTestModel();
 
     expect(() => {
       model.set('mixed', 123);
@@ -155,7 +167,7 @@ describe('set()', () => {
 
 describe('canSet()', () => {
   it('It can set a value.', () => {
-    const model = new TestModel();
+    const model = getTestModel();
 
     expect(model.canSet([])).toBe(true);
     expect(model.canSet('string')).toBe(true);
@@ -170,7 +182,7 @@ describe('canSet()', () => {
   });
 
   it('It can\'t set a value.', () => {
-    const model = new TestModel();
+    const model = getTestModel();
 
     expect(model.canSet('foo')).toBe(false);
     expect(model.canSet(['bar'])).toBe(false);
@@ -182,9 +194,9 @@ describe('canSet()', () => {
 
 describe('scenarios', () => {
   it('AddScenarios and RemoveScenarios test', async () => {
-    const model = new TestModel();
+    const model = getTestModel();
 
-    expect(model.getScenarios()).toEqual([TestModel.SCENARIO_DEFAULT]);
+    expect(model.getScenarios()).toEqual([Model.SCENARIO_DEFAULT]);
 
     model.setScenarios('a');
     expect(model.getScenarios()).toEqual(['a']);
@@ -209,13 +221,13 @@ describe('scenarios', () => {
   });
 
   it('isScenario', async () => {
-    const model = new TestModel();
+    const model = getTestModel();
 
-    expect(model.isScenario(TestModel.SCENARIO_DEFAULT)).toBe(true);
+    expect(model.isScenario(Model.SCENARIO_DEFAULT)).toBe(true);
     expect(model.isScenario('unknown')).toBe(false);
 
     model.addScenarios(['a', 'b', 'c', 'd']);
-    expect(model.isScenario(TestModel.SCENARIO_DEFAULT)).toBe(true);
+    expect(model.isScenario(Model.SCENARIO_DEFAULT)).toBe(true);
     expect(model.isScenario('a')).toBe(true);
     expect(model.isScenario('b')).toBe(true);
     expect(model.isScenario('c')).toBe(true);
@@ -226,7 +238,7 @@ describe('scenarios', () => {
 
 describe('getType', () => {
   it('Should return certain type.', async () => {
-    const model = new TestModel();
+    const model = getTestModel();
 
     expect(model.getType('number')).toBeInstanceOf(NumberType);
     expect(model.getType(['number'])).toBeInstanceOf(NumberType);
@@ -241,7 +253,7 @@ describe('getType', () => {
   });
 
   it('Should return null.', async () => {
-    const model = new TestModel();
+    const model = getTestModel();
 
     expect(model.getType('foo')).toBe(null);
     expect(model.getType(['foo'])).toBe(null);
@@ -253,7 +265,7 @@ describe('getType', () => {
 
 describe('validationState', () => {
   it('set and get test', () => {
-    const model = new TestModel();
+    const model = getTestModel();
     const fn = jest.fn();
     model.getObservable().subscribe(fn);
     model.setValidationState(['test'], new SuccessState());
@@ -266,7 +278,7 @@ describe('validationState', () => {
   });
 
   it('set version test', () => {
-    const model = new TestModel();
+    const model = getTestModel();
     const fn = jest.fn();
     model.getObservable().subscribe(fn);
 
@@ -285,7 +297,7 @@ describe('validationState', () => {
 
 describe('getFirstError', () => {
   it('Should return ErrorState object', () => {
-    const model = new TestModel();
+    const model = getTestModel();
     model.setValidationState(['x'], new SuccessState());
     model.setValidationState(['y'], new SuccessState());
     model.setValidationState(['a'], new ErrorState('error'));
@@ -301,7 +313,7 @@ describe('getFirstError', () => {
   });
 
   it('Should return undefined', () => {
-    const model = new TestModel();
+    const model = getTestModel();
     model.setValidationState(['x'], new SuccessState());
     model.setValidationState(['a'], new ErrorState('error'));
     model.setValidationState(['a'], new SuccessState());
@@ -314,14 +326,18 @@ describe('getFirstError', () => {
 });
 
 describe('Validate', () => {
-  it('Should reject and return error message', () => {
-    const model = new ValidationModel();
+  it('Should reject and return error message', async () => {
+    const model = getValidationModel({ presence: '' });
+
+    await expect(model.validate()).rejects.toMatchObject({
+      message: '{attribute} - object has invalid fields',
+    });
   });
 });
 
 describe('isChanged', () => {
   it('Should return proper values', () => {
-    const model = new TestModel({
+    const model = getTestModel({
       string: 'a',
       object: {
         string: 'b',

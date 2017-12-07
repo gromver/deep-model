@@ -14,17 +14,18 @@ import SetContext from '../SetContext';
 import ValueContext from '../ValueContext';
 import * as t from '../types';
 
-class TestModel extends Model {
-  rules() {
-    return {
+function getTestModel(attributes?) {
+  return Model.compile(
+    {
       oneOfType: [
         t.string({
           validator: [new PresenceValidator(), new StringValidator()],
         }),
         t.number(),
       ],
-    };
-  }
+    },
+    attributes,
+  );
 }
 
 class ValidatorWithWarning extends Validator {
@@ -35,7 +36,7 @@ class ValidatorWithWarning extends Validator {
 
 describe('validate', () => {
   it('Should reject with "the type for a given value is undefined" error', async () => {
-    const model = new TestModel();
+    const model = getTestModel();
     const validator = new OneOfTypeValidator({
       setContext: new SetContext({
         model,
@@ -55,7 +56,7 @@ describe('validate', () => {
   });
 
   it('Should reject with "custom error" error', async () => {
-    const model = new TestModel();
+    const model = getTestModel();
     const validator = new OneOfTypeValidator({
       setContext: new SetContext({
         model,
@@ -76,7 +77,7 @@ describe('validate', () => {
   });
 
   it('Model should reject because of the type is undefined', async () => {
-    const model = new TestModel({
+    const model = getTestModel({
       oneOfType: false,
     });
 
@@ -88,7 +89,7 @@ describe('validate', () => {
   });
 
   it('Model should resolves', async () => {
-    const model = new TestModel({
+    const model = getTestModel({
       oneOfType: 'string',
     });
 

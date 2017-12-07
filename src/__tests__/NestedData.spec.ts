@@ -37,12 +37,13 @@ const itemRule = t.array({
   ],
 });
 
-class TestModel extends Model {
-  rules() {
-    return {
+function getTestModel(attributes?) {
+  return Model.compile(
+    {
       items: itemRule,
-    };
-  }
+    },
+    attributes,
+  );
 }
 
 const structure = {
@@ -88,7 +89,7 @@ const structure = {
 
 describe('Nested test', () => {
   it('Should load nested data structure', () => {
-    const model = new TestModel();
+    const model = getTestModel();
     model.setAttributes(structure);
     expect(model.getAttributes()).toEqual({
       items: [

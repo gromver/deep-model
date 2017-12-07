@@ -18,55 +18,45 @@ const _ = {
   set: require('lodash/set'),
 };
 
+export interface ModelConfig {
+  type: AnyType;
+  context?: {};
+  scenarios?: string | string[];
+  attributes?: {};
+}
+
 export default class Model {
   static SCENARIO_DEFAULT = 'default';
 
-  private model: ObjectType;
+  private type: AnyType;
   private context: {};
   private scenarios: string[];
   private attributes: {};
   private initialAttributes: {};
   private states: { [key: string]: State };
-  private observable: Subject<any>;
+  private observable: Subject<Event>;
 
-  constructor(attributes: {} = {}) {
+  static compile(properties, attributes?: {}, scenarios?: string | string[], context?: {}) {
+    return new Model({
+      attributes,
+      scenarios,
+      context,
+      type: new ObjectType({
+        properties,
+      }),
+    });
+  }
+
+  constructor(config: ModelConfig) {
+    const attributes = config.attributes || {};
     this.initialAttributes = _.cloneDeep(attributes);
     this.attributes = _.cloneDeep(attributes);
-    this.model = new ObjectType({
-      properties: this.rules(),
-    });
+    this.type = config.type;
     this.states = {};
-    // this.handleEvents = this.handleEvents.bind(this);
     this.observable = new Subject();
-    // this.observable.subscribe(this.handleEvents);
-    this.setScenarios(Model.SCENARIO_DEFAULT);
-    this.setContext({});
+    this.setScenarios(config.scenarios || Model.SCENARIO_DEFAULT);
+    this.setContext(config.context || {});
   }
-
-  /**
-   * Get model properties config
-   * Must be extended!
-   * @returns {{[p: string]: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType)}}
-   */
-  rules(): { [key: string]: (AnyType | (AnyType | (() => AnyType))[] | (() => AnyType)) } {
-    throw new Error('Model:rules - this method must be extended.');
-  }
-
-  /**
-   * Process incoming events
-   * @param {Event} event
-   */
-  // handleEvents(event: Event) {
-  //   // console.log('EVENT', event);
-  //   switch (event.type) {
-  //     case 'setValue':
-  //       _.set(this.attributes, (<SetValueEvent>event).path, (<SetValueEvent>event).value);
-  //       break;
-  //
-  //     default:
-  //       return;
-  //   }
-  // }
 
   /**
    * Set value and emit the SetValueEvent
@@ -134,13 +124,13 @@ export default class Model {
     const pathNormalized = typeof path === 'string' ? [path] : path;
 
     if (pathNormalized.length) {
-      this.model.set(new SetContext({
+      this.type.set(new SetContext({
         value,
         model: this,
         path: pathNormalized,
       }));
     } else {
-      this.model.apply(new SetContext({
+      this.type.apply(new SetContext({
         value,
         model: this,
         path: pathNormalized,
@@ -180,7 +170,7 @@ export default class Model {
   }
 
   /**
-   * Can model set a value to the given path
+   * Can type set a value to the given path
    * @param {string | (string|number)[]} path
    * @returns {boolean}
    */
@@ -188,7 +178,7 @@ export default class Model {
     const pathNormalized = typeof path === 'string' ? [path] : path;
 
     if (pathNormalized.length) {
-      return this.model.canSet(new SetContext({
+      return this.type.canSet(new SetContext({
         value: this.get(pathNormalized),
         model: this,
         path: pathNormalized,
@@ -202,11 +192,11 @@ export default class Model {
     const pathNormalized = typeof path === 'string' ? [path] : path;
 
     return path.length
-      ? this.model.getType(new SetContext({
+      ? this.type.getType(new SetContext({
         model: this,
         path: pathNormalized,
       }))
-      : this.model;
+      : this.type;
   }
 
   /**
@@ -271,7 +261,7 @@ export default class Model {
   }
 
   /**
-   * Is model has given scenario?
+   * Is type has given scenario?
    * @param {string} scenario
    * @returns {boolean}
    */
@@ -286,7 +276,7 @@ export default class Model {
   validate(): Promise<string | Message | void> {
     this.states = {};
 
-    return this.model.validate(new SetContext({
+    return this.type.validate(new SetContext({
       model: this,
       path: [],
     }));

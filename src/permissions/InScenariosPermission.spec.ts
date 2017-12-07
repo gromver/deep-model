@@ -8,16 +8,17 @@ import InScenariosPermission from './InScenariosPermission';
 import Model from '../Model';
 import ValueContext from '../ValueContext';
 
-class TestModel extends Model {
-  rules() {
-    return {};
-  }
+function getTestModel(attributes?) {
+  return Model.compile(
+    {},
+    attributes,
+  );
 }
 
 describe('InScenariosPermission', () => {
   it('Should return InScenarios permission. The permission must works properly.', () => {
     const permission = InScenariosPermission(['a', 'b']);
-    const model = new TestModel();
+    const model = getTestModel();
 
     const context = new ValueContext({
       model,

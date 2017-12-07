@@ -9,13 +9,14 @@ import ValueContext from '../ValueContext';
 
 import Model from '../Model';
 
-class TestModel extends Model {
-  rules() {
-    return {};
-  }
+function getTestModel(attributes?) {
+  return Model.compile(
+    {},
+    attributes,
+  );
 }
 
-const model = new TestModel();
+const model = getTestModel();
 
 function createValue(value) {
   return new ValueContext({

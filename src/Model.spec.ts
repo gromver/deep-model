@@ -382,3 +382,45 @@ describe('Test Model with primitive types', () => {
     }).toThrow();
   });
 });
+
+describe('Test Model with array types', () => {
+  it('Should set value', () => {
+    const model = new Model({
+      type: t.array({
+        items: t.number(),
+      }),
+      value: [1,2,3],
+    });
+    expect(model.get()).toEqual([1,2,3]);
+
+    model.set([3,2,1]);
+    expect(model.get()).toEqual([3,2,1]);
+    model.set([1], 10);
+    expect(model.get()).toEqual([3,10,1]);
+    expect(model.get([1])).toEqual(10);
+  });
+
+  it('Should not set value and throw an error', () => {
+    const model = new Model({
+      type: t.array({
+        items: t.number(),
+      }),
+      value: [],
+    });
+
+    expect(() => {
+      model.set(1, '2');
+    }).toThrow();
+    expect(() => {
+      model.set('string');
+    }).toThrow();
+    expect(() => {
+      new Model({
+        type: t.array({
+          items: t.number(),
+        }),
+        value: 'string',
+      });
+    }).toThrow();
+  });
+});

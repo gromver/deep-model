@@ -9,7 +9,7 @@ import ValueContext from '../ValueContext';
 
 import Model from '../Model';
 
-const model = Model.compile({});
+const model = Model.object({});
 
 function createValue(value) {
   return new ValueContext({

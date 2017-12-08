@@ -8,7 +8,7 @@ import SetContext from './SetContext';
 import Model from './Model';
 
 function getTestModel(attributes?) {
-  return Model.compile(
+  return Model.object(
     {},
     attributes,
   );

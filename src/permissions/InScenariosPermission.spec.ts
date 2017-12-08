@@ -9,7 +9,7 @@ import Model from '../Model';
 import ValueContext from '../ValueContext';
 
 function getTestModel(attributes?) {
-  return Model.compile(
+  return Model.object(
     {},
     attributes,
   );

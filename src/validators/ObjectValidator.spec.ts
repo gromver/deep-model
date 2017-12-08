@@ -14,7 +14,7 @@ import ValueContext from '../ValueContext';
 import * as t from '../types';
 
 function getTestModel(attributes?) {
-  return Model.compile(
+  return Model.object(
     {
       object: t.object({
         properties: {

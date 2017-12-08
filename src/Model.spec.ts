@@ -19,7 +19,7 @@ import SuccessState from './validators/states/SuccessState';
 import ErrorState from './validators/states/ErrorState';
 
 function getTestModel(attributes?) {
-  return Model.compile(
+  return Model.object(
     {
       string: new StringType(),
       number: new NumberType(),
@@ -43,7 +43,7 @@ function getTestModel(attributes?) {
 }
 
 function getValidationModel(attributes?) {
-  return Model.compile(
+  return Model.object(
     {
       presence: t.string({
         validator: new PresenceValidator(),
@@ -159,26 +159,29 @@ describe('canSet()', () => {
   it('It can set a value.', () => {
     const model = getTestModel();
 
-    expect(model.canSet([])).toBe(true);
-    expect(model.canSet('string')).toBe(true);
-    expect(model.canSet(['string'])).toBe(true);
-    expect(model.canSet('number')).toBe(true);
-    expect(model.canSet('boolean')).toBe(true);
-    expect(model.canSet('object')).toBe(true);
-    expect(model.canSet(['object', 'string'])).toBe(true);
-    expect(model.canSet(['object', 'number'])).toBe(true);
-    expect(model.canSet('array')).toBe(true);
-    expect(model.canSet(['array', 3])).toBe(true);
+    expect(model.canSet({})).toBe(true);
+    expect(model.canSet('string', 'foo')).toBe(true);
+    expect(model.canSet(['string'], 'foo')).toBe(true);
+    expect(model.canSet('number', 2)).toBe(true);
+    expect(model.canSet('boolean', false)).toBe(true);
+    expect(model.canSet('object', {})).toBe(true);
+    expect(model.canSet(['object', 'string'], 'foo')).toBe(true);
+    expect(model.canSet(['object', 'number'], 2)).toBe(true);
+    expect(model.canSet('array', [1, 2])).toBe(true);
+    expect(model.canSet(['array', 3], 2)).toBe(true);
   });
 
   it('It can\'t set a value.', () => {
     const model = getTestModel();
 
+    expect(model.canSet([])).toBe(false);
+    expect(model.canSet(2)).toBe(false);
     expect(model.canSet('foo')).toBe(false);
-    expect(model.canSet(['bar'])).toBe(false);
-    expect(model.canSet(['object', 'foo'])).toBe(false);
-    expect(model.canSet(['a', 'b'])).toBe(false);
-    expect(model.canSet(['array', '3'])).toBe(false);
+    expect(model.canSet('foo','some value')).toBe(false);
+    expect(model.canSet(['bar'], 'some value')).toBe(false);
+    expect(model.canSet(['object', 'foo'], 'some value')).toBe(false);
+    expect(model.canSet(['a', 'b'], 'some value')).toBe(false);
+    expect(model.canSet(['array', '3'], 'string value')).toBe(false);
   });
 });
 
@@ -349,7 +352,9 @@ describe('Test Model with primitive types', () => {
   it('Should set value', () => {
     const model = new Model({
       type: t.number(),
+      value: -1,
     });
+    expect(model.get()).toBe(-1);
 
     model.set([], 1);
     expect(model.get()).toBe(1);
@@ -360,13 +365,20 @@ describe('Test Model with primitive types', () => {
   it('Should not set value and throw an error', () => {
     const model = new Model({
       type: t.number(),
+      value: 0,
     });
 
     expect(() => {
-      model.set([], '2');
+      model.set('2');
     }).toThrow();
     expect(() => {
       model.set([], false);
+    }).toThrow();
+    expect(() => {
+      new Model({
+        type: t.number(),
+        value: '0',
+      });
     }).toThrow();
   });
 });

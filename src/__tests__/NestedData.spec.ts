@@ -38,7 +38,7 @@ const itemRule = t.array({
 });
 
 function getTestModel(attributes?) {
-  return Model.compile(
+  return Model.object(
     {
       items: itemRule,
     },

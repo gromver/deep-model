@@ -5,6 +5,7 @@ import SetValueEvent from './events/SetValueEvent';
 import ValidationStateEvent from './events/ValidationStateEvent';
 import AnyType from './types/AnyType';
 import ObjectType from './types/ObjectType';
+import ArrayType from './types/ArrayType';
 import Validator from './validators/interfaces/ValidateInterface';
 import State from './validators/states/State';
 import ErrorState from './validators/states/ErrorState';
@@ -19,10 +20,10 @@ const _ = {
 };
 
 export interface ModelConfig {
+  value: any;
   type: AnyType;
   context?: {};
   scenarios?: string | string[];
-  value?: {};
 }
 
 export default class Model {
@@ -31,12 +32,12 @@ export default class Model {
   private type: AnyType;
   private context: {};
   private scenarios: string[];
-  private value: {};
-  private initialValue: {};
+  private value: any;
+  private initialValue: any;
   private states: { [key: string]: State };
   private observable: Subject<Event>;
 
-  static compile(properties, value?: {}, scenarios?: string | string[], context?: {}) {
+  static object(properties, value: {} = {}, scenarios?: string | string[], context?: {}) {
     return new Model({
       value,
       scenarios,
@@ -47,15 +48,43 @@ export default class Model {
     });
   }
 
+  static array(items, value: {} = [], scenarios?: string | string[], context?: {}) {
+    return new Model({
+      value,
+      scenarios,
+      context,
+      type: new ArrayType({
+        items,
+      }),
+    });
+  }
+
+  static value(type: AnyType, value: any, scenarios?: string | string[], context?: {}) {
+    return new Model({
+      type,
+      value,
+      scenarios,
+      context,
+    });
+  }
+
   constructor(config: ModelConfig) {
-    const value = config.value;
-    this.initialValue = _.cloneDeep(value);
-    this.value = _.cloneDeep(value);
+    /**
+     * Начальное значение сохраняем как есть, возможно есть смысл пропускать значение через
+     * механизм установки (set) значения с применением к значению прав доступа и фильтров
+     */
+    this.initialValue = _.cloneDeep(config.value);
+    this.value = _.cloneDeep(config.value);
     this.type = config.type;
     this.states = {};
     this.observable = new Subject();
     this.setScenarios(config.scenarios || Model.SCENARIO_DEFAULT);
     this.setContext(config.context || {});
+
+    // check if we have valid initial value type
+    if (!this.canApply(this.value)) {
+      throw new Error('You should specify proper initial value');
+    }
   }
 
   /**
@@ -178,22 +207,49 @@ export default class Model {
   }
 
   /**
-   * Can type set a value to the given path
+   * Can the model set the stored value to the given path
    * @param {string | (string|number)[]} path
+   * @param value
    * @returns {boolean}
    */
-  canSet(path: string | (string|number)[]): boolean {
-    const pathNormalized = typeof path === 'string' ? [path] : path;
+  canSet(path: string | (string|number)[] | any, value?: any): boolean {
+    let pathNormalized;
+    let valueNormalized;
+
+    if (arguments.length > 1) {
+      pathNormalized = typeof path === 'string' ? [path] : path;
+      valueNormalized = value;
+    } else {
+      pathNormalized = [];
+      valueNormalized = path;
+    }
 
     if (pathNormalized.length) {
       return this.type.canSet(new SetContext({
-        value: this.get(pathNormalized),
+        value: valueNormalized,
         model: this,
         path: pathNormalized,
       }));
     } else {
-      return true;
+      return this.type.canApply(new SetContext({
+        value: valueNormalized,
+        model: this,
+        path: pathNormalized,
+      }));
     }
+  }
+
+  /**
+   * Can the model apply the given value
+   * @param value
+   * @returns {boolean}
+   */
+  canApply(value: any): boolean {
+    return this.type.canApply(new SetContext({
+      value,
+      model: this,
+      path: [],
+    }));
   }
 
   getType(path: string | (string|number)[]): AnyType | null {

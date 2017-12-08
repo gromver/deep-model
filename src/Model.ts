@@ -94,7 +94,6 @@ export default class Model {
    */
   setValue(path: (string | number)[], value: any) {
     if (path.length) {
-      // todo fix this line
       _.set(this.value, path, value);
     } else {
       this.value = value;

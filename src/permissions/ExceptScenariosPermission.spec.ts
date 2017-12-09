@@ -8,16 +8,17 @@ import ExceptScenariosPermission from './ExceptScenariosPermission';
 import Model from '../Model';
 import ValueContext from '../ValueContext';
 
-class TestModel extends Model {
-  rules() {
-    return {};
-  }
+function getTestModel(attributes?) {
+  return Model.object(
+    {},
+    attributes,
+  );
 }
 
 describe('ExceptScenariosPermission', () => {
   it('Should return ExceptScenarios permission. The permission must works properly.', () => {
     const permission = ExceptScenariosPermission(['a', 'b']);
-    const model = new TestModel();
+    const model = getTestModel();
 
     const context = new ValueContext({
       model,

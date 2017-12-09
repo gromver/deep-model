@@ -9,9 +9,9 @@ import * as t from '../types';
 // import * as v from '../validators';
 
 const itemRule = t.array({
-  types: [
+  items: [
     t.object({
-      rules: {
+      properties: {
         name: t.string(),
         isGroup: t.boolean(),
         value: t.string(),
@@ -23,7 +23,7 @@ const itemRule = t.array({
       },
     }),
     t.object({
-      rules: {
+      properties: {
         name: t.string(),
         isGroup: t.boolean(),
         items: () => itemRule,
@@ -37,12 +37,13 @@ const itemRule = t.array({
   ],
 });
 
-class TestModel extends Model {
-  rules() {
-    return {
+function getTestModel(attributes?) {
+  return Model.object(
+    {
       items: itemRule,
-    };
-  }
+    },
+    attributes,
+  );
 }
 
 const structure = {
@@ -88,9 +89,9 @@ const structure = {
 
 describe('Nested test', () => {
   it('Should load nested data structure', () => {
-    const model = new TestModel();
-    model.setAttributes(structure);
-    expect(model.getAttributes()).toEqual({
+    const model = getTestModel();
+    model.set(structure);
+    expect(model.get()).toEqual({
       items: [
         {
           name: 'group 1',

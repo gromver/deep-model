@@ -7,11 +7,11 @@ declare const require;
 import MultiplePermission from './MultiplePermission';
 import Model from '../Model';
 import ValueContext from '../ValueContext';
-
-class TestModel extends Model {
-  rules() {
-    return {};
-  }
+function getTestModel(attributes?) {
+  return Model.object(
+    {},
+    attributes,
+  );
 }
 
 describe('MultiplePermission', () => {
@@ -34,7 +34,7 @@ describe('MultiplePermission', () => {
     const context = new ValueContext({
       path: [],
       value: 6,
-      model: new TestModel(),
+      model: getTestModel(),
       attribute: '',
     });
     expect(() => permission(context)).not.toThrow();

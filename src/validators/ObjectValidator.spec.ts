@@ -13,11 +13,11 @@ import SetContext from '../SetContext';
 import ValueContext from '../ValueContext';
 import * as t from '../types';
 
-class TestModel extends Model {
-  rules() {
-    return {
+function getTestModel(attributes?) {
+  return Model.object(
+    {
       object: t.object({
-        rules: {
+        properties: {
           foo: t.string({
             validator: [new PresenceValidator(), new StringValidator()],
           }),
@@ -25,21 +25,22 @@ class TestModel extends Model {
         },
       }),
       boolean: t.boolean(),
-    };
-  }
+    },
+    attributes,
+  );
 }
 
 describe('validate', () => {
   it('Should reject with "object has invalid fields" error', async () => {
-    const model = new TestModel();
+    const model = getTestModel();
     const validator = new ObjectValidator({
       setContext: new SetContext({
         model,
         path: [],
       }),
-      rules: {
+      properties: {
         object: t.object({
-          rules: {
+          properties: {
             foo: t.string({
               validator: [new PresenceValidator(), new StringValidator()],
             }),
@@ -63,15 +64,15 @@ describe('validate', () => {
   });
 
   it('Should reject with "object has an invalid type" error', async () => {
-    const model = new TestModel();
+    const model = getTestModel();
     const validator = new ObjectValidator({
       setContext: new SetContext({
         model,
         path: [],
       }),
-      rules: {
+      properties: {
         object: t.object({
-          rules: {
+          properties: {
             foo: t.string({
               validator: [new PresenceValidator(), new StringValidator()],
             }),
@@ -93,7 +94,7 @@ describe('validate', () => {
   });
 
   it('Should reject.', async () => {
-    const model = new TestModel({
+    const model = getTestModel({
       object: { foo: '' },
     });
 
@@ -106,7 +107,7 @@ describe('validate', () => {
   });
 
   it('Should resolve.', async () => {
-    const model = new TestModel({
+    const model = getTestModel({
       object: { foo: 'foo', bar: 'bar' },
     });
 

@@ -10,11 +10,11 @@ import Message from './utils/Message';
 import Model from '../Model';
 import * as t from '../types';
 
-class TestModel extends Model {
-  rules() {
-    return {
+function getTestModel(attributes?) {
+  return Model.object(
+    {
       object: t.object({
-        rules: {
+        properties: {
           a: t.string(),
           b: t.string({
             validator: new CompareValidator({
@@ -35,11 +35,10 @@ class TestModel extends Model {
           errorMessage: 'custom error',
         }),
       }),
-    };
-  }
+    },
+    attributes,
+  );
 }
-
-const model = new TestModel();
 
 describe('CompareValidator', () => {
   it('Constructor should throw an error', async () => {
@@ -49,7 +48,7 @@ describe('CompareValidator', () => {
   });
 
   it('Should resolve', async () => {
-    const model = new TestModel({
+    const model = getTestModel({
       object: {
         a: 'foo',
         b: 'foo',
@@ -63,7 +62,7 @@ describe('CompareValidator', () => {
   });
 
   it('Should reject', async () => {
-    const model = new TestModel({
+    const model = getTestModel({
       object: {
         a: 'foo',
         b: 'bar',
@@ -84,7 +83,7 @@ describe('CompareValidator', () => {
   });
 
   it('Should reject 2', async () => {
-    const model = new TestModel({
+    const model = getTestModel({
       object: {
         a: 'foo',
         b: 'foo',
@@ -105,7 +104,7 @@ describe('CompareValidator', () => {
   });
 
   it('Should reject 3 and get custom error', async () => {
-    const model = new TestModel({
+    const model = getTestModel({
       object: {
         a: 'foo',
         b: 'foo',

@@ -7,15 +7,16 @@ declare const require;
 import SetContext from './SetContext';
 import Model from './Model';
 
-class TestModel extends Model {
-  rules() {
-    return {};
-  }
+function getTestModel(attributes?) {
+  return Model.object(
+    {},
+    attributes,
+  );
 }
 
 describe('SetContext', () => {
   it('Should shift context.', () => {
-    const model = new TestModel();
+    const model = getTestModel();
     const aContext = new SetContext({
       model,
       path: ['a', 'b', 'c'],

@@ -5,6 +5,7 @@ import SetValueEvent from './events/SetValueEvent';
 import ValidationStateEvent from './events/ValidationStateEvent';
 import AnyType from './types/AnyType';
 import ObjectType from './types/ObjectType';
+import ArrayType from './types/ArrayType';
 import Validator from './validators/interfaces/ValidateInterface';
 import State from './validators/states/State';
 import ErrorState from './validators/states/ErrorState';
@@ -18,55 +19,73 @@ const _ = {
   set: require('lodash/set'),
 };
 
+export interface ModelConfig {
+  value: any;
+  type: AnyType;
+  context?: {};
+  scenarios?: string | string[];
+}
+
 export default class Model {
   static SCENARIO_DEFAULT = 'default';
 
-  private model: ObjectType;
+  private type: AnyType;
   private context: {};
   private scenarios: string[];
-  private attributes: {};
-  private initialAttributes: {};
+  private value: any;
+  private initialValue: any;
   private states: { [key: string]: State };
-  private observable: Subject<any>;
+  private observable: Subject<Event>;
 
-  constructor(attributes: {} = {}) {
-    this.initialAttributes = _.cloneDeep(attributes);
-    this.attributes = _.cloneDeep(attributes);
-    this.model = new ObjectType({
-      rules: this.rules(),
+  static object(properties, value: {} = {}, scenarios?: string | string[], context?: {}) {
+    return new Model({
+      value,
+      scenarios,
+      context,
+      type: new ObjectType({
+        properties,
+      }),
     });
+  }
+
+  static array(items, value: {} = [], scenarios?: string | string[], context?: {}) {
+    return new Model({
+      value,
+      scenarios,
+      context,
+      type: new ArrayType({
+        items,
+      }),
+    });
+  }
+
+  static value(type: AnyType, value: any, scenarios?: string | string[], context?: {}) {
+    return new Model({
+      type,
+      value,
+      scenarios,
+      context,
+    });
+  }
+
+  constructor(config: ModelConfig) {
+    /**
+     * Начальное значение сохраняем как есть, возможно есть смысл пропускать значение через
+     * механизм установки (set) значения с применением к значению прав доступа и фильтров
+     */
+    this.initialValue = _.cloneDeep(config.value);
+    this.value = _.cloneDeep(config.value);
+    this.type = config.type;
     this.states = {};
-    // this.handleEvents = this.handleEvents.bind(this);
     this.observable = new Subject();
-    // this.observable.subscribe(this.handleEvents);
-    this.setScenarios(Model.SCENARIO_DEFAULT);
-    this.setContext({});
-  }
+    this.setScenarios(config.scenarios || Model.SCENARIO_DEFAULT);
+    this.setContext(config.context || {});
 
-  /**
-   * Get model rules config
-   * Must be extended!
-   * @returns {{[p: string]: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType)}}
-   */
-  rules(): { [key: string]: (AnyType | (AnyType | (() => AnyType))[] | (() => AnyType)) } {
-    throw new Error('Model:rules - this method must be extended.');
+    // check if we have valid initial value type
+    if (!this.canApply(this.value)) {
+      throw new Error('You should specify proper initial value');
+    }
   }
-
-  /**
-   * Process incoming events
-   * @param {Event} event
-   */
-  // handleEvents(event: Event) {
-  //   // console.log('EVENT', event);
-  //   switch (event.type) {
-  //     case 'setValue':
-  //       _.set(this.attributes, (<SetValueEvent>event).path, (<SetValueEvent>event).value);
-  //       break;
-  //
-  //     default:
-  //       return;
-  //   }
-  // }
 
   /**
    * Set value and emit the SetValueEvent
@@ -74,7 +93,11 @@ export default class Model {
    * @param value
    */
   setValue(path: (string | number)[], value: any) {
-    _.set(this.attributes, path, value);
+    if (path.length) {
+      _.set(this.value, path, value);
+    } else {
+      this.value = value;
+    }
 
     this.dispatch(new SetValueEvent(path, value));
   }
@@ -127,86 +150,116 @@ export default class Model {
 
   /**
    * Set value
-   * @param {[(string | number)] | string} path
+   * model.set('value') => set model's value
+   * model.set(foo, 'value') => set property value of the model's value
+   * model.set(['foo', 'bar'], 'value') => set property value of the model's value
+   * @param {[(string | number)] | string | any} path
    * @param value
    */
-  set(path: string | (string|number)[], value: any) {
-    const pathNormalized = typeof path === 'string' ? [path] : path;
+  set(path: string | (string|number)[] | any, value?: any) {
+    let pathNormalized;
+    let valueNormalized;
+
+    if (arguments.length > 1) {
+      pathNormalized = typeof path === 'string' ? [path] : path;
+      valueNormalized = value;
+    } else {
+      pathNormalized = [];
+      valueNormalized = path;
+    }
 
     if (pathNormalized.length) {
-      this.model.set(new SetContext({
-        value,
+      this.type.set(new SetContext({
         model: this,
         path: pathNormalized,
+        value: valueNormalized,
       }));
     } else {
-      this.model.apply(new SetContext({
-        value,
+      this.type.apply(new SetContext({
         model: this,
         path: pathNormalized,
+        value: valueNormalized,
       }));
     }
   }
 
   /**
    * Get value
+   * model.get() => get model's value
+   * model.get('foo') => get property value of the model's value
+   * model.get(['foo', 'bar']) => get property value of the model's value
    * @param {[(string | number)] | string} path
    * @returns {any}
    */
-  get(path: string | (string|number)[]) {
-    const pathNormalized = typeof path === 'string' ? [path] : path;
+  get(path?: string | (string|number)[]) {
+    if (path) {
+      const pathNormalized = typeof path === 'string' ? [path] : path;
 
-    return path.length ? _.get(this.attributes, pathNormalized) : this.attributes;
-  }
+      return path.length ? _.get(this.value, pathNormalized) : this.value;
+    }
 
-  /**
-   * Set attributes
-   * @param attributes
-   */
-  setAttributes(attributes) {
-    this.set([], attributes);
-  }
-
-  /**
-   * Get attributes
-   * @returns {{}}
-   */
-  getAttributes() {
-    return this.attributes;
+    return this.value;
   }
 
   isChanged() {
-    return !_.isEqual(this.attributes, this.initialAttributes);
+    return !_.isEqual(this.value, this.initialValue);
   }
 
   /**
-   * Can model set a value to the given path
+   * Can the model set the stored value to the given path
    * @param {string | (string|number)[]} path
+   * @param value
    * @returns {boolean}
    */
-  canSet(path: string | (string|number)[]): boolean {
-    const pathNormalized = typeof path === 'string' ? [path] : path;
+  canSet(path: string | (string|number)[] | any, value?: any): boolean {
+    let pathNormalized;
+    let valueNormalized;
+
+    if (arguments.length > 1) {
+      pathNormalized = typeof path === 'string' ? [path] : path;
+      valueNormalized = value;
+    } else {
+      pathNormalized = [];
+      valueNormalized = path;
+    }
 
     if (pathNormalized.length) {
-      return this.model.canSet(new SetContext({
-        value: this.get(pathNormalized),
+      return this.type.canSet(new SetContext({
+        value: valueNormalized,
         model: this,
         path: pathNormalized,
       }));
     } else {
-      return true;
+      return this.type.canApply(new SetContext({
+        value: valueNormalized,
+        model: this,
+        path: pathNormalized,
+      }));
     }
+  }
+
+  /**
+   * Can the model apply the given value
+   * @param value
+   * @returns {boolean}
+   */
+  canApply(value: any): boolean {
+    return this.type.canApply(new SetContext({
+      value,
+      model: this,
+      path: [],
+    }));
   }
 
   getType(path: string | (string|number)[]): AnyType | null {
     const pathNormalized = typeof path === 'string' ? [path] : path;
 
     return path.length
-      ? this.model.getType(new SetContext({
+      ? this.type.getType(new SetContext({
         model: this,
         path: pathNormalized,
       }))
-      : this.model;
+      : this.type;
   }
 
   /**
@@ -271,7 +324,7 @@ export default class Model {
   }
 
   /**
-   * Is model has given scenario?
+   * Is type has given scenario?
    * @param {string} scenario
    * @returns {boolean}
    */
@@ -286,7 +339,7 @@ export default class Model {
   validate(): Promise<string | Message | void> {
     this.states = {};
 
-    return this.model.validate(new SetContext({
+    return this.type.validate(new SetContext({
       model: this,
       path: [],
     }));

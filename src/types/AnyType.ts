@@ -154,6 +154,7 @@ export default class AnyType {
 
   /**
    * Проверка типа
+   * Примечание! undefined значения всегда должны проходить проверку
    * @param valueContext ValueContext
    * @throws {Error}
    */

@@ -7,13 +7,16 @@ import ValidationStateEvent from './events/ValidationStateEvent';
 import AnyType from './types/AnyType';
 import ObjectType from './types/ObjectType';
 import ArrayType from './types/ArrayType';
-import Validator from './validators/interfaces/ValidateInterface';
+import Validator from './validators/Validator';
+import PresenceValidator from './validators/PresenceValidator';
 import State from './validators/states/State';
 import ErrorState from './validators/states/ErrorState';
+import PendingState from './validators/states/PendingState';
 import Message from './validators/utils/Message';
 
 const _ = {
   cloneDeep: require('lodash/cloneDeep'),
+  keys: require('lodash/keys'),
   values: require('lodash/values'),
   isEqual: require('lodash/isEqual'),
   get: require('lodash/get'),
@@ -27,44 +30,46 @@ export interface FormConfig {
 
 export default class Form {
   private model: Model;
+  // Скоуп формы - путь к полю модели которое будет обслуживать форма
   private scope: (string | number)[];
+  // private observable: Subject<Event>;
 
-  static object(properties, value: {} = {}, scenarios?: string | string[], context?: {}) {
-    return new Form({
-      model: new Model({
-        value,
-        scenarios,
-        context,
-        type: new ObjectType({
-          properties,
-        }),
-      }),
-    });
-  }
-
-  static array(items, value: {} = [], scenarios?: string | string[], context?: {}) {
-    return new Form({
-      model: new Model({
-        value,
-        scenarios,
-        context,
-        type: new ArrayType({
-          items,
-        }),
-      }),
-    });
-  }
-
-  static value(type: AnyType, value: any, scenarios?: string | string[], context?: {}) {
-    return new Form({
-      model: new Model({
-        type,
-        value,
-        scenarios,
-        context,
-      }),
-    });
-  }
+  // static object(properties, value: {} = {}, scenarios?: string | string[], context?: {}) {
+  //   return new Form({
+  //     model: new Model({
+  //       value,
+  //       scenarios,
+  //       context,
+  //       type: new ObjectType({
+  //         properties,
+  //       }),
+  //     }),
+  //   });
+  // }
+  //
+  // static array(items, value: {} = [], scenarios?: string | string[], context?: {}) {
+  //   return new Form({
+  //     model: new Model({
+  //       value,
+  //       scenarios,
+  //       context,
+  //       type: new ArrayType({
+  //         items,
+  //       }),
+  //     }),
+  //   });
+  // }
+  //
+  // static value(type: AnyType, value: any, scenarios?: string | string[], context?: {}) {
+  //   return new Form({
+  //     model: new Model({
+  //       type,
+  //       value,
+  //       scenarios,
+  //       context,
+  //     }),
+  //   });
+  // }
 
   constructor(config: FormConfig) {
     this.model = config.model;
@@ -135,20 +140,69 @@ export default class Form {
   //   return this.observable;
   // }
 
-  isChanged() {
-    // return !_.isEqual(this.value, this.initialValue);
+  getValidationState(path?: string | (string | number)[]): State | undefined {
+    if (arguments.length > 1) {
+      return this.model.getValidationState(this.normalizePath(path));
+    }
+
+    return this.model.getValidationState(this.scope);
   }
 
-  isDirty() {
-    // return !_.isEqual(this.value, this.initialValue);
+  getFirstError(): State | undefined {
+    return _.values(this.model.getValidationStates(this.scope))
+      .find((state) => state instanceof ErrorState);
   }
 
-  isValid() {
-    // return !_.isEqual(this.value, this.initialValue);
+  getErrors(): State[] {
+    return _.values(this.model.getValidationStates(this.scope))
+      .filter((state) => state instanceof ErrorState);
   }
 
-  isPending() {
-    // return !_.isEqual(this.value, this.initialValue);
+  validate(): Promise<string | Message | void> {
+    if (this.scope.length) {
+      const formStates = this.model.getValidationStates(this.scope);
+      const modelStates = this.model.getValidationStates();
+      _.keys(formStates).forEach((k) => delete modelStates[k]);
+
+      return this.model.validateAttribute(this.scope);
+    }
+
+    return this.model.validate();
   }
 
+  validateAttribute(path: string | (string|number)[]): Promise<string | Message | void> {
+    return this.model.validateAttribute(this.normalizePath(path));
+  }
+
+  validateAttributes(attributes: (string | (string|number)[])[])
+  : Promise<(string | Message | void)[]> {
+    return this.model.validateAttributes(attributes.map(this.normalizePath));
+  }
+
+  isChanged(path?: string | (string|number)[]) {
+    return !_.isEqual(
+      this.model.get(this.normalizePath(path)),
+      this.model.getInitial(this.normalizePath(path)),
+    );
+  }
+
+  isDirty(path?: string | (string|number)[]) {
+    return !!_.values(this.model.getValidationStates(this.normalizePath(path))).length;
+  }
+
+  isValid(path?: string | (string|number)[]) {
+    return !_.values(this.model.getValidationStates(this.normalizePath(path)))
+      .find((state) => state instanceof ErrorState);
+  }
+
+  isPending(path?: string | (string|number)[]) {
+    return !!_.values(this.model.getValidationStates(this.normalizePath(path)))
+      .find((state) => state instanceof PendingState);
+  }
+
+  isRequired(path?: string | (string|number)[]) {
+    const validator = this.model.getValidator(this.normalizePath(path));
+
+    return validator ? (validator as Validator).isValidator(PresenceValidator) : false;
+  }
 }

@@ -14,6 +14,7 @@ import Message from './validators/utils/Message';
 const _ = {
   cloneDeep: require('lodash/cloneDeep'),
   values: require('lodash/values'),
+  entries: require('lodash/entries'),
   isEqual: require('lodash/isEqual'),
   get: require('lodash/get'),
   set: require('lodash/set'),
@@ -132,7 +133,25 @@ export default class Model {
     return this.states[JSON.stringify(pathNormalized)];
   }
 
-  /**
+  getValidationStates(path?: string | (string | number)[]): { [key: string]: State } {
+    if (path) {
+      const pathNormalized = typeof path === 'string' ? [path] : path;
+      const pattern = JSON.stringify(pathNormalized).slice(0, -1);
+      const states = {};
+
+      _.entries(this.states).forEach(([k, v]) => {
+        if (k.indexOf(pattern) === 0) {
+          states[k] = v;
+        }
+      });
+
+      return states;
+    }
+
+    return this.states;
+  }
+
+    /**
    * Dispatch event
    * @param event
    */

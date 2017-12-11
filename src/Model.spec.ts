@@ -424,3 +424,28 @@ describe('Test Model with array types', () => {
     }).toThrow();
   });
 });
+
+describe('getValidationStates', () => {
+  it('Should return proper states', () => {
+    const model = getTestModel();
+    const state = new SuccessState();
+    model.setValidationState(['foo'], state);
+    model.setValidationState(['a', 'b'], state);
+    expect(model.getValidationStates()).toEqual(expect.objectContaining({
+      '["foo"]': expect.any(SuccessState),
+      '["a","b"]': expect.any(SuccessState),
+    }));
+  });
+
+  it('Should return proper states for the specified path', () => {
+    const model = getTestModel();
+    const state = new SuccessState();
+    model.setValidationState(['foo'], state);
+    model.setValidationState(['a', 'b'], state);
+    model.setValidationState(['a', 'c'], state);
+    expect(model.getValidationStates(['a'])).toEqual(expect.objectContaining({
+      '["a","b"]': expect.any(SuccessState),
+      '["a","c"]': expect.any(SuccessState),
+    }));
+  });
+});

@@ -220,6 +220,16 @@ export default class Model {
     return this.value;
   }
 
+  getInitial(path?: string | (string|number)[]) {
+    if (path) {
+      const pathNormalized = typeof path === 'string' ? [path] : path;
+
+      return path.length ? _.get(this.initialValue, pathNormalized) : this.initialValue;
+    }
+
+    return this.initialValue;
+  }
+
   isChanged() {
     return !_.isEqual(this.value, this.initialValue);
   }
@@ -270,7 +280,7 @@ export default class Model {
     }));
   }
 
-  getType(path: string | (string|number)[]): AnyType | null {
+  getType(path: string | (string|number)[]): AnyType | void {
     const pathNormalized = typeof path === 'string' ? [path] : path;
 
     return path.length
@@ -364,7 +374,7 @@ export default class Model {
     }));
   }
 
-  validateAttribute(path: string | (string|number)[]) {
+  validateAttribute(path: string | (string|number)[]): Promise<string | Message | void> {
     const pathNormalized = typeof path === 'string' ? [path] : path;
     const type = this.getType(pathNormalized);
 
@@ -374,7 +384,8 @@ export default class Model {
     })) : Promise.reject('Validator not found.');
   }
 
-  validateAttributes(attributes: (string | (string|number)[])[]) {
+  validateAttributes(attributes: (string | (string|number)[])[])
+  : Promise<(string | Message | void)[]> {
     const jobs: Promise<any>[] = [];
 
     attributes.forEach((path) => {
@@ -387,12 +398,12 @@ export default class Model {
           path: pathNormalized,
         })));
       }
-
-      return Promise.all(jobs);
     });
+
+    return Promise.all(jobs);
   }
 
-  getValidator(path: string | (string|number)[]): Validator | null {
+  getValidator(path: string | (string|number)[]): Validator | void {
     const pathNormalized = typeof path === 'string' ? [path] : path;
     const type = this.getType(pathNormalized);
 

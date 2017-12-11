@@ -75,7 +75,7 @@ export default class OneOfType extends AnyType {
     return this.getTypes().some((type) => type.canApply(setContext));
   }
 
-  protected getTypeValue(setContext: SetContext): AnyType | null {
+  protected getTypeValue(setContext: SetContext): AnyType | void {
     let foundedType;
 
     this.getTypes().some((type) => {

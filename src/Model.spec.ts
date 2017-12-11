@@ -248,11 +248,11 @@ describe('getType', () => {
   it('Should return null.', async () => {
     const model = getTestModel();
 
-    expect(model.getType('foo')).toBe(null);
-    expect(model.getType(['foo'])).toBe(null);
-    expect(model.getType(['a', 'b', 'c'])).toBe(null);
-    expect(model.getType(['object', 'string', 'foo'])).toBe(null);
-    expect(model.getType(['array', '1'])).toBe(null);
+    expect(model.getType('foo')).toBe(undefined);
+    expect(model.getType(['foo'])).toBe(undefined);
+    expect(model.getType(['a', 'b', 'c'])).toBe(undefined);
+    expect(model.getType(['object', 'string', 'foo'])).toBe(undefined);
+    expect(model.getType(['array', '1'])).toBe(undefined);
   });
 });
 

@@ -102,7 +102,7 @@ export default class ArrayType extends AnyType {
       : type.canApply(setContext);
   }
 
-  protected getTypeValue(setContext: SetContext): AnyType | null {
+  protected getTypeValue(setContext: SetContext): AnyType | void {
     const type = this.normalizeType(this.items);
 
     const nextSetContext = setContext.shift();

@@ -384,6 +384,7 @@ export default class Model {
     return type ? type.validate(new SetContext({
       model: this,
       path: pathNormalized,
+      cursor: pathNormalized.length - 1,
     })) : Promise.reject('Validator not found.');
   }
 
@@ -399,6 +400,7 @@ export default class Model {
         jobs.push(type.validate(new SetContext({
           model: this,
           path: pathNormalized,
+          cursor: pathNormalized.length - 1,
         })));
       }
     });

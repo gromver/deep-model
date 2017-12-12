@@ -111,7 +111,7 @@ export default class ObjectType extends AnyType {
       : rule.canApply(setContext);
   }
 
-  protected getTypeValue(setContext: SetContext): AnyType | null {
+  protected getTypeValue(setContext: SetContext): AnyType | void {
     const { attribute } = setContext.get();
     const rule = this.getProperties()[attribute];
 

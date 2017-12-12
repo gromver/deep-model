@@ -129,7 +129,7 @@ export default class AnyType {
    * @param {SetContext} setContext
    * @returns {AnyType}
    */
-  getType(setContext: SetContext): AnyType | null {
+  getType(setContext: SetContext): AnyType | void {
     try {
       const valueContext = setContext.get();
 
@@ -137,7 +137,7 @@ export default class AnyType {
 
       return this.getTypeValue(setContext);
     } catch (error) {
-      return null;
+      // return null;
     }
   }
 
@@ -146,14 +146,15 @@ export default class AnyType {
    * @param {SetContext} setContext
    * @returns {AnyType}
    */
-  protected getTypeValue(setContext: SetContext): AnyType | null {
-    return null;
+  protected getTypeValue(setContext: SetContext): AnyType | void {
+    return;
   }
 
   /** Checks **/
 
   /**
    * Проверка типа
+   * Примечание! undefined значения всегда должны проходить проверку
    * @param valueContext ValueContext
    * @throws {Error}
    */
@@ -207,7 +208,7 @@ export default class AnyType {
     return job;
   }
 
-  getValidator(setContext: SetContext): Validator | null {
-    return this.validator || null;
+  getValidator(setContext: SetContext): Validator | void {
+    return this.validator;
   }
 }

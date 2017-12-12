@@ -248,11 +248,11 @@ describe('getType', () => {
   it('Should return null.', async () => {
     const model = getTestModel();
 
-    expect(model.getType('foo')).toBe(null);
-    expect(model.getType(['foo'])).toBe(null);
-    expect(model.getType(['a', 'b', 'c'])).toBe(null);
-    expect(model.getType(['object', 'string', 'foo'])).toBe(null);
-    expect(model.getType(['array', '1'])).toBe(null);
+    expect(model.getType('foo')).toBe(undefined);
+    expect(model.getType(['foo'])).toBe(undefined);
+    expect(model.getType(['a', 'b', 'c'])).toBe(undefined);
+    expect(model.getType(['object', 'string', 'foo'])).toBe(undefined);
+    expect(model.getType(['array', '1'])).toBe(undefined);
   });
 });
 
@@ -422,5 +422,30 @@ describe('Test Model with array types', () => {
         value: 'string',
       });
     }).toThrow();
+  });
+});
+
+describe('getValidationStates', () => {
+  it('Should return proper states', () => {
+    const model = getTestModel();
+    const state = new SuccessState();
+    model.setValidationState(['foo'], state);
+    model.setValidationState(['a', 'b'], state);
+    expect(model.getValidationStates()).toEqual(expect.objectContaining({
+      '["foo"]': expect.any(SuccessState),
+      '["a","b"]': expect.any(SuccessState),
+    }));
+  });
+
+  it('Should return proper states for the specified path', () => {
+    const model = getTestModel();
+    const state = new SuccessState();
+    model.setValidationState(['foo'], state);
+    model.setValidationState(['a', 'b'], state);
+    model.setValidationState(['a', 'c'], state);
+    expect(model.getValidationStates(['a'])).toEqual(expect.objectContaining({
+      '["a","b"]': expect.any(SuccessState),
+      '["a","c"]': expect.any(SuccessState),
+    }));
   });
 });

@@ -9,11 +9,13 @@ import ArrayType from './types/ArrayType';
 import Validator from './validators/interfaces/ValidateInterface';
 import State from './validators/states/State';
 import ErrorState from './validators/states/ErrorState';
+import PristineState from './validators/states/PristineState';
 import Message from './validators/utils/Message';
 
 const _ = {
   cloneDeep: require('lodash/cloneDeep'),
   values: require('lodash/values'),
+  entries: require('lodash/entries'),
   isEqual: require('lodash/isEqual'),
   get: require('lodash/get'),
   set: require('lodash/set'),
@@ -99,6 +101,8 @@ export default class Model {
       this.value = value;
     }
 
+    this.setValidationState(path, new PristineState());
+
     this.dispatch(new SetValueEvent(path, value));
   }
 
@@ -132,7 +136,25 @@ export default class Model {
     return this.states[JSON.stringify(pathNormalized)];
   }
 
-  /**
+  getValidationStates(path?: string | (string | number)[]): { [key: string]: State } {
+    if (path) {
+      const pathNormalized = typeof path === 'string' ? [path] : path;
+      const pattern = JSON.stringify(pathNormalized).slice(0, -1);
+      const states = {};
+
+      _.entries(this.states).forEach(([k, v]) => {
+        if (k.indexOf(pattern) === 0) {
+          states[k] = v;
+        }
+      });
+
+      return states;
+    }
+
+    return this.states;
+  }
+
+    /**
    * Dispatch event
    * @param event
    */
@@ -201,6 +223,16 @@ export default class Model {
     return this.value;
   }
 
+  getInitial(path?: string | (string|number)[]) {
+    if (path) {
+      const pathNormalized = typeof path === 'string' ? [path] : path;
+
+      return path.length ? _.get(this.initialValue, pathNormalized) : this.initialValue;
+    }
+
+    return this.initialValue;
+  }
+
   isChanged() {
     return !_.isEqual(this.value, this.initialValue);
   }
@@ -251,7 +283,7 @@ export default class Model {
     }));
   }
 
-  getType(path: string | (string|number)[]): AnyType | null {
+  getType(path: string | (string|number)[]): AnyType | void {
     const pathNormalized = typeof path === 'string' ? [path] : path;
 
     return path.length
@@ -345,17 +377,19 @@ export default class Model {
     }));
   }
 
-  validateAttribute(path: string | (string|number)[]) {
+  validateAttribute(path: string | (string|number)[]): Promise<string | Message | void> {
     const pathNormalized = typeof path === 'string' ? [path] : path;
     const type = this.getType(pathNormalized);
 
     return type ? type.validate(new SetContext({
       model: this,
       path: pathNormalized,
+      cursor: pathNormalized.length - 1,
     })) : Promise.reject('Validator not found.');
   }
 
-  validateAttributes(attributes: (string | (string|number)[])[]) {
+  validateAttributes(attributes: (string | (string|number)[])[])
+  : Promise<(string | Message | void)[]> {
     const jobs: Promise<any>[] = [];
 
     attributes.forEach((path) => {
@@ -366,14 +400,15 @@ export default class Model {
         jobs.push(type.validate(new SetContext({
           model: this,
           path: pathNormalized,
+          cursor: pathNormalized.length - 1,
         })));
       }
-
-      return Promise.all(jobs);
     });
+
+    return Promise.all(jobs);
   }
 
-  getValidator(path: string | (string|number)[]): Validator | null {
+  getValidator(path: string | (string|number)[]): Validator | void {
     const pathNormalized = typeof path === 'string' ? [path] : path;
     const type = this.getType(pathNormalized);
 

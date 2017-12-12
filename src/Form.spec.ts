@@ -181,7 +181,7 @@ describe('validateAttribute()', () => {
       model,
       scope: ['object'],
     });
-    model.getObservable().subscribe((s) => console.log(s));
+
     form.set(['string'], 'bar');
 
     expect(form.getValidationState()).toBe(undefined);
@@ -203,7 +203,7 @@ describe('validateAttributes()', () => {
       model,
       scope: ['object'],
     });
-    model.getObservable().subscribe((s) => console.log(s));
+
     form.set(['string'], 'bar');
     form.set(['number'], 3);
 

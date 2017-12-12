@@ -9,6 +9,7 @@ import ArrayType from './types/ArrayType';
 import Validator from './validators/interfaces/ValidateInterface';
 import State from './validators/states/State';
 import ErrorState from './validators/states/ErrorState';
+import PristineState from './validators/states/PristineState';
 import Message from './validators/utils/Message';
 
 const _ = {
@@ -99,6 +100,8 @@ export default class Model {
     } else {
       this.value = value;
     }
+
+    this.setValidationState(path, new PristineState());
 
     this.dispatch(new SetValueEvent(path, value));
   }

@@ -1,12 +1,5 @@
-import { Subject } from 'rxjs/Subject';
-import Model, { ModelConfig } from './Model';
-import SetContext from './SetContext';
-import Event from './events/Event';
-import SetValueEvent from './events/SetValueEvent';
-import ValidationStateEvent from './events/ValidationStateEvent';
-import AnyType from './types/AnyType';
-import ObjectType from './types/ObjectType';
-import ArrayType from './types/ArrayType';
+// import { Subject } from 'rxjs/Subject';
+import Model/* , { ModelConfig } */ from './Model';
 import Validator from './validators/Validator';
 import PresenceValidator from './validators/PresenceValidator';
 import State from './validators/states/State';
@@ -15,12 +8,9 @@ import PendingState from './validators/states/PendingState';
 import Message from './validators/utils/Message';
 
 const _ = {
-  cloneDeep: require('lodash/cloneDeep'),
   keys: require('lodash/keys'),
   values: require('lodash/values'),
   isEqual: require('lodash/isEqual'),
-  get: require('lodash/get'),
-  set: require('lodash/set'),
 };
 
 export interface FormConfig {
@@ -74,6 +64,8 @@ export default class Form {
   constructor(config: FormConfig) {
     this.model = config.model;
     this.scope = config.scope || [];
+
+    this.normalizePath = this.normalizePath.bind(this);
   }
 
   getModel(): Model {
@@ -84,7 +76,7 @@ export default class Form {
     return this.scope;
   }
 
-  protected normalizePath(path?: string | (string | number)[]): (string | number)[] {
+  normalizePath(path?: string | (string | number)[]): (string | number)[] {
     const pathArr = path ? (typeof path === 'string' ? [path] : path) : [];
 
     return [...this.scope, ...pathArr];
@@ -99,7 +91,6 @@ export default class Form {
    * @param value
    */
   set(path: string | (string|number)[] | any, value?: any) {
-    // this.model.set.apply(this.model, arguments);
     if (arguments.length > 1) {
       this.model.set(this.normalizePath(path), value);
     } else {
@@ -116,8 +107,7 @@ export default class Form {
    * @returns {any}
    */
   get(path?: string | (string|number)[]) {
-    // return this.model.get.apply(this.model, arguments);
-    if (arguments.length > 1) {
+    if (arguments.length > 0) {
       return this.model.get(this.normalizePath(path));
     }
 
@@ -141,7 +131,7 @@ export default class Form {
   // }
 
   getValidationState(path?: string | (string | number)[]): State | undefined {
-    if (arguments.length > 1) {
+    if (arguments.length > 0) {
       return this.model.getValidationState(this.normalizePath(path));
     }
 

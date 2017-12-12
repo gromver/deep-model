@@ -37,7 +37,7 @@
     "jest": "jest",
     "jest:watch": "npm run jest -- --watch",
     "jest:coverage": "npm run jest -- --coverage",
-    "release:npm": "npm run build && git push --follow-tags && npm publish lib"
+    "release:npm": "yarn build && git push --follow-tags && npm publish build"
   },
   "scripts-info": {
     "info": "Display information about the scripts",

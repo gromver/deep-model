@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ArrayType | deep-model</title>
+	<title>ArrayType | rx-form</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<style type="text/css">/*! normalize.css v1.1.3 | MIT License | git.io/normalize */
@@ -879,7 +879,7 @@ img { max-width: 100%; }
 		<div class="container">
 			<div class="table-wrap">
 				<div class="table-cell">
-					<strong><a href="../index.html">deep-model</a></strong>
+					<strong><a href="../index.html">rx-form</a></strong>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -918,11 +918,11 @@ img { max-width: 100%; }
 				<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
 					<a href="arraytype.html#filter" class="tsd-kind-icon">filter</a>
 				</li>
+				<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-protected">
+					<a href="arraytype.html#items" class="tsd-kind-icon">items</a>
+				</li>
 				<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
 					<a href="arraytype.html#permission" class="tsd-kind-icon">permission</a>
-				</li>
-				<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-protected">
-					<a href="arraytype.html#types" class="tsd-kind-icon">types</a>
 				</li>
 				<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
 					<a href="arraytype.html#validator" class="tsd-kind-icon">validator</a>
@@ -1014,8 +1014,8 @@ img { max-width: 100%; }
 						<h3>Properties</h3>
 						<ul class="tsd-index-list">
 							<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="arraytype.html#filter" class="tsd-kind-icon">filter</a></li>
+							<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><a href="arraytype.html#items" class="tsd-kind-icon">items</a></li>
 							<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="arraytype.html#permission" class="tsd-kind-icon">permission</a></li>
-							<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><a href="arraytype.html#types" class="tsd-kind-icon">types</a></li>
 							<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="arraytype.html#validator" class="tsd-kind-icon">validator</a></li>
 							<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><a href="arraytype.html#validatorconfig" class="tsd-kind-icon">validator<wbr>Config</a></li>
 						</ul>
@@ -1058,7 +1058,7 @@ img { max-width: 100%; }
 						<aside class="tsd-sources">
 							<p>Overrides <a href="anytype.html">AnyType</a>.<a href="anytype.html#constructor">constructor</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/4fada5a/src/types/ArrayType.ts#L26">types/ArrayType.ts:26</a></li>
+								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/a1c5f81/src/types/ArrayType.ts#L26">types/ArrayType.ts:26</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1081,7 +1081,17 @@ img { max-width: 100%; }
 				<aside class="tsd-sources">
 					<p>Inherited from <a href="anytype.html">AnyType</a>.<a href="anytype.html#filter">filter</a></p>
 					<ul>
-						<li>Defined in <a href="https://github.com/gromver/deep-model/blob/4fada5a/src/types/AnyType.ts#L25">types/AnyType.ts:25</a></li>
+						<li>Defined in <a href="https://github.com/gromver/deep-model/blob/a1c5f81/src/types/AnyType.ts#L25">types/AnyType.ts:25</a></li>
+					</ul>
+				</aside>
+			</section>
+			<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-protected">
+				<a name="items" class="tsd-anchor"></a>
+				<h3><span class="tsd-flag ts-flagProtected">Protected</span> items</h3>
+				<div class="tsd-signature tsd-kind-icon">items<span class="tsd-signature-symbol">:</span> <a href="anytype.html" class="tsd-signature-type">AnyType</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><a href="anytype.html" class="tsd-signature-type">AnyType</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">function</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">function</span></div>
+				<aside class="tsd-sources">
+					<ul>
+						<li>Defined in <a href="https://github.com/gromver/deep-model/blob/a1c5f81/src/types/ArrayType.ts#L25">types/ArrayType.ts:25</a></li>
 					</ul>
 				</aside>
 			</section>
@@ -1092,17 +1102,7 @@ img { max-width: 100%; }
 				<aside class="tsd-sources">
 					<p>Inherited from <a href="anytype.html">AnyType</a>.<a href="anytype.html#permission">permission</a></p>
 					<ul>
-						<li>Defined in <a href="https://github.com/gromver/deep-model/blob/4fada5a/src/types/AnyType.ts#L23">types/AnyType.ts:23</a></li>
-					</ul>
-				</aside>
-			</section>
-			<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-protected">
-				<a name="types" class="tsd-anchor"></a>
-				<h3><span class="tsd-flag ts-flagProtected">Protected</span> types</h3>
-				<div class="tsd-signature tsd-kind-icon">types<span class="tsd-signature-symbol">:</span> <a href="anytype.html" class="tsd-signature-type">AnyType</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><a href="anytype.html" class="tsd-signature-type">AnyType</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">function</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">function</span></div>
-				<aside class="tsd-sources">
-					<ul>
-						<li>Defined in <a href="https://github.com/gromver/deep-model/blob/4fada5a/src/types/ArrayType.ts#L25">types/ArrayType.ts:25</a></li>
+						<li>Defined in <a href="https://github.com/gromver/deep-model/blob/a1c5f81/src/types/AnyType.ts#L23">types/AnyType.ts:23</a></li>
 					</ul>
 				</aside>
 			</section>
@@ -1113,7 +1113,7 @@ img { max-width: 100%; }
 				<aside class="tsd-sources">
 					<p>Inherited from <a href="anytype.html">AnyType</a>.<a href="anytype.html#validator">validator</a></p>
 					<ul>
-						<li>Defined in <a href="https://github.com/gromver/deep-model/blob/4fada5a/src/types/AnyType.ts#L24">types/AnyType.ts:24</a></li>
+						<li>Defined in <a href="https://github.com/gromver/deep-model/blob/a1c5f81/src/types/AnyType.ts#L24">types/AnyType.ts:24</a></li>
 					</ul>
 				</aside>
 			</section>
@@ -1123,7 +1123,7 @@ img { max-width: 100%; }
 				<div class="tsd-signature tsd-kind-icon">validator<wbr>Config<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">ValidatorConfig</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/gromver/deep-model/blob/4fada5a/src/types/ArrayType.ts#L26">types/ArrayType.ts:26</a></li>
+						<li>Defined in <a href="https://github.com/gromver/deep-model/blob/a1c5f81/src/types/ArrayType.ts#L26">types/ArrayType.ts:26</a></li>
 					</ul>
 				</aside>
 			</section>
@@ -1141,7 +1141,7 @@ img { max-width: 100%; }
 						<aside class="tsd-sources">
 							<p>Inherited from <a href="anytype.html">AnyType</a>.<a href="anytype.html#apply">apply</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/4fada5a/src/types/AnyType.ts#L90">types/AnyType.ts:90</a></li>
+								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/a1c5f81/src/types/AnyType.ts#L90">types/AnyType.ts:90</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1165,7 +1165,7 @@ img { max-width: 100%; }
 						<aside class="tsd-sources">
 							<p>Inherited from <a href="anytype.html">AnyType</a>.<a href="anytype.html#applycheck">applyCheck</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/4fada5a/src/types/AnyType.ts#L98">types/AnyType.ts:98</a></li>
+								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/a1c5f81/src/types/AnyType.ts#L98">types/AnyType.ts:98</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1189,7 +1189,7 @@ img { max-width: 100%; }
 						<aside class="tsd-sources">
 							<p>Overrides <a href="anytype.html">AnyType</a>.<a href="anytype.html#applyvalue">applyValue</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/4fada5a/src/types/ArrayType.ts#L50">types/ArrayType.ts:50</a></li>
+								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/a1c5f81/src/types/ArrayType.ts#L56">types/ArrayType.ts:56</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1213,7 +1213,7 @@ img { max-width: 100%; }
 						<aside class="tsd-sources">
 							<p>Inherited from <a href="anytype.html">AnyType</a>.<a href="anytype.html#canapply">canApply</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/4fada5a/src/types/AnyType.ts#L115">types/AnyType.ts:115</a></li>
+								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/a1c5f81/src/types/AnyType.ts#L115">types/AnyType.ts:115</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1237,7 +1237,7 @@ img { max-width: 100%; }
 						<aside class="tsd-sources">
 							<p>Inherited from <a href="anytype.html">AnyType</a>.<a href="anytype.html#canset">canSet</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/4fada5a/src/types/AnyType.ts#L73">types/AnyType.ts:73</a></li>
+								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/a1c5f81/src/types/AnyType.ts#L73">types/AnyType.ts:73</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1261,7 +1261,7 @@ img { max-width: 100%; }
 						<aside class="tsd-sources">
 							<p>Overrides <a href="anytype.html">AnyType</a>.<a href="anytype.html#cansetvalue">canSetValue</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/4fada5a/src/types/ArrayType.ts#L89">types/ArrayType.ts:89</a></li>
+								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/a1c5f81/src/types/ArrayType.ts#L95">types/ArrayType.ts:95</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1285,7 +1285,7 @@ img { max-width: 100%; }
 						<aside class="tsd-sources">
 							<p>Inherited from <a href="anytype.html">AnyType</a>.<a href="anytype.html#getfilter">getFilter</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/4fada5a/src/types/AnyType.ts#L173">types/AnyType.ts:173</a></li>
+								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/a1c5f81/src/types/AnyType.ts#L174">types/AnyType.ts:174</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">undefined</span>
@@ -1299,14 +1299,14 @@ img { max-width: 100%; }
 				<a name="gettype" class="tsd-anchor"></a>
 				<h3>get<wbr>Type</h3>
 				<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-					<li class="tsd-signature tsd-kind-icon">get<wbr>Type<span class="tsd-signature-symbol">(</span>setContext<span class="tsd-signature-symbol">: </span><a href="setcontext.html" class="tsd-signature-type">SetContext</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="anytype.html" class="tsd-signature-type">AnyType</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></li>
+					<li class="tsd-signature tsd-kind-icon">get<wbr>Type<span class="tsd-signature-symbol">(</span>setContext<span class="tsd-signature-symbol">: </span><a href="setcontext.html" class="tsd-signature-type">SetContext</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="anytype.html" class="tsd-signature-type">AnyType</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">void</span></li>
 				</ul>
 				<ul class="tsd-descriptions">
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<p>Inherited from <a href="anytype.html">AnyType</a>.<a href="anytype.html#gettype">getType</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/4fada5a/src/types/AnyType.ts#L132">types/AnyType.ts:132</a></li>
+								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/a1c5f81/src/types/AnyType.ts#L132">types/AnyType.ts:132</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -1322,7 +1322,7 @@ img { max-width: 100%; }
 						</ul>
 						<h4 class="tsd-returns-title">Returns <a href="anytype.html" class="tsd-signature-type">AnyType</a>
 							<span class="tsd-signature-symbol"> | </span>
-							<span class="tsd-signature-type">null</span>
+							<span class="tsd-signature-type">void</span>
 						</h4>
 					</li>
 				</ul>
@@ -1331,14 +1331,14 @@ img { max-width: 100%; }
 				<a name="gettypevalue" class="tsd-anchor"></a>
 				<h3><span class="tsd-flag ts-flagProtected">Protected</span> get<wbr>Type<wbr>Value</h3>
 				<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
-					<li class="tsd-signature tsd-kind-icon">get<wbr>Type<wbr>Value<span class="tsd-signature-symbol">(</span>setContext<span class="tsd-signature-symbol">: </span><a href="setcontext.html" class="tsd-signature-type">SetContext</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="anytype.html" class="tsd-signature-type">AnyType</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></li>
+					<li class="tsd-signature tsd-kind-icon">get<wbr>Type<wbr>Value<span class="tsd-signature-symbol">(</span>setContext<span class="tsd-signature-symbol">: </span><a href="setcontext.html" class="tsd-signature-type">SetContext</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="anytype.html" class="tsd-signature-type">AnyType</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">void</span></li>
 				</ul>
 				<ul class="tsd-descriptions">
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<p>Overrides <a href="anytype.html">AnyType</a>.<a href="anytype.html#gettypevalue">getTypeValue</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/4fada5a/src/types/ArrayType.ts#L99">types/ArrayType.ts:99</a></li>
+								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/a1c5f81/src/types/ArrayType.ts#L105">types/ArrayType.ts:105</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1349,7 +1349,7 @@ img { max-width: 100%; }
 						</ul>
 						<h4 class="tsd-returns-title">Returns <a href="anytype.html" class="tsd-signature-type">AnyType</a>
 							<span class="tsd-signature-symbol"> | </span>
-							<span class="tsd-signature-type">null</span>
+							<span class="tsd-signature-type">void</span>
 						</h4>
 					</li>
 				</ul>
@@ -1365,7 +1365,7 @@ img { max-width: 100%; }
 						<aside class="tsd-sources">
 							<p>Overrides <a href="anytype.html">AnyType</a>.<a href="anytype.html#getvalidator">getValidator</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/4fada5a/src/types/ArrayType.ts#L124">types/ArrayType.ts:124</a></li>
+								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/a1c5f81/src/types/ArrayType.ts#L130">types/ArrayType.ts:130</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1389,7 +1389,7 @@ img { max-width: 100%; }
 						<aside class="tsd-sources">
 							<p>Inherited from <a href="anytype.html">AnyType</a>.<a href="anytype.html#normalizevalidator">normalizeValidator</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/4fada5a/src/types/AnyType.ts#L40">types/AnyType.ts:40</a></li>
+								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/a1c5f81/src/types/AnyType.ts#L40">types/AnyType.ts:40</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1413,7 +1413,7 @@ img { max-width: 100%; }
 						<aside class="tsd-sources">
 							<p>Inherited from <a href="anytype.html">AnyType</a>.<a href="anytype.html#permissioncheck">permissionCheck</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/4fada5a/src/types/AnyType.ts#L167">types/AnyType.ts:167</a></li>
+								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/a1c5f81/src/types/AnyType.ts#L168">types/AnyType.ts:168</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -1447,7 +1447,7 @@ img { max-width: 100%; }
 						<aside class="tsd-sources">
 							<p>Inherited from <a href="anytype.html">AnyType</a>.<a href="anytype.html#set">set</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/4fada5a/src/types/AnyType.ts#L59">types/AnyType.ts:59</a></li>
+								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/a1c5f81/src/types/AnyType.ts#L59">types/AnyType.ts:59</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1471,7 +1471,7 @@ img { max-width: 100%; }
 						<aside class="tsd-sources">
 							<p>Overrides <a href="anytype.html">AnyType</a>.<a href="anytype.html#setcheck">setCheck</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/4fada5a/src/types/ArrayType.ts#L81">types/ArrayType.ts:81</a></li>
+								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/a1c5f81/src/types/ArrayType.ts#L87">types/ArrayType.ts:87</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -1508,7 +1508,7 @@ img { max-width: 100%; }
 						<aside class="tsd-sources">
 							<p>Overrides <a href="anytype.html">AnyType</a>.<a href="anytype.html#setvalue">setValue</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/4fada5a/src/types/ArrayType.ts#L64">types/ArrayType.ts:64</a></li>
+								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/a1c5f81/src/types/ArrayType.ts#L70">types/ArrayType.ts:70</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1532,7 +1532,7 @@ img { max-width: 100%; }
 						<aside class="tsd-sources">
 							<p>Overrides <a href="anytype.html">AnyType</a>.<a href="anytype.html#typecheck">typeCheck</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/4fada5a/src/types/ArrayType.ts#L116">types/ArrayType.ts:116</a></li>
+								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/a1c5f81/src/types/ArrayType.ts#L122">types/ArrayType.ts:122</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -1569,7 +1569,7 @@ img { max-width: 100%; }
 						<aside class="tsd-sources">
 							<p>Inherited from <a href="anytype.html">AnyType</a>.<a href="anytype.html#validate">validate</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/4fada5a/src/types/AnyType.ts#L177">types/AnyType.ts:177</a></li>
+								<li>Defined in <a href="https://github.com/gromver/deep-model/blob/a1c5f81/src/types/AnyType.ts#L178">types/AnyType.ts:178</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>

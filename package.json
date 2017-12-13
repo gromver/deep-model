@@ -1,6 +1,6 @@
 {
   "name": "rx-form",
-  "version": "2.0.0",
+  "version": "2.0.3",
   "description": "Model and Form representing the json data",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
@@ -32,12 +32,12 @@
     "docs:json": "typedoc --mode file --json build/docs/typedoc.json src/index.ts",
     "docs:publish": "yarn docs:html && gh-pages -d build/docs",
     "changelog": "standard-version",
-    "release": "yarn reset && yarn test && yarn docs:publish && yarn changelog",
+    "release": "yarn reset && yarn jest && yarn docs:publish && yarn changelog",
     "reset": "git clean -dfx && git reset --hard && yarn",
     "jest": "jest",
     "jest:watch": "npm run jest -- --watch",
     "jest:coverage": "npm run jest -- --coverage",
-    "release:npm": "yarn build && git push --follow-tags && npm publish build/main"
+    "release:npm": "git push --follow-tags && npm publish"
   },
   "scripts-info": {
     "info": "Display information about the scripts",

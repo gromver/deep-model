@@ -7,6 +7,17 @@ import OneOfTypeValidator, { OneOfTypeValidatorConfig } from './OneOfTypeValidat
 import PresenceValidator, { PresenceValidatorConfig } from './PresenceValidator';
 import StringValidator, { StringValidatorConfig } from './StringValidator';
 
+export {
+  ArrayValidator, ArrayValidatorConfig,
+  CustomValidator, CustomValidatorConfig,
+  MultipleValidator, MultipleValidatorConfig,
+  NumberValidator, NumberValidatorConfig,
+  ObjectValidator, ObjectValidatorConfig,
+  OneOfTypeValidator, OneOfTypeValidatorConfig,
+  PresenceValidator, PresenceValidatorConfig,
+  StringValidator, StringValidatorConfig,
+};
+
 export const array =
   (config: ArrayValidatorConfig): ArrayValidator => new ArrayValidator(config);
 

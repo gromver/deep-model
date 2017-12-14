@@ -1,8 +1,5 @@
-import ValueContext from '../ValueContext';
-import MultiplePermission from './MultiplePermission';
-import InScenariosPermission from './InScenariosPermission';
-import ExceptScenariosPermission from './ExceptScenariosPermission';
+export { default as multiple } from './MultiplePermission';
 
-export const multiple = MultiplePermission;
-export const inScenarios = InScenariosPermission;
-export const exceptScenarios = ExceptScenariosPermission;
+export { default as inScenarios } from './InScenariosPermission';
+
+export { default as exceptScenarios } from './ExceptScenariosPermission';

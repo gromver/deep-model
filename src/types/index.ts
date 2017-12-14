@@ -7,6 +7,17 @@ import ObjectType, { ObjectTypeConfig } from './ObjectType';
 import StringType from './StringType';
 import OneOfType, { OneOfTypeConfig } from './OneOfType';
 
+export {
+  AnyType, AnyTypeConfig,
+  ArrayType, ArrayTypeConfig,
+  BooleanType,
+  FunctionType,
+  NumberType,
+  ObjectType,
+  StringType,
+  OneOfType,
+};
+
 export const any = (config?: AnyTypeConfig): AnyType => new AnyType(config);
 export const array = (config: ArrayTypeConfig): ArrayType => new ArrayType(config);
 export const boolean = (config?: AnyTypeConfig): BooleanType => new BooleanType(config);

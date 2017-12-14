@@ -1,5 +1,3 @@
-import DefaultValueFilter from './DefaultValueFilter';
-import MultipleFilter from './MultipleFilter';
+export { default as defaultValue } from './DefaultValueFilter';
 
-export const defaultValue = DefaultValueFilter;
-export const multiple = MultipleFilter;
+export { default as multiple } from './MultipleFilter';

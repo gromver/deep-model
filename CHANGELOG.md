@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="2.0.12"></a>
+## [2.0.12](https://github.com/gromver/rx-form/compare/v2.0.11...v2.0.12) (2017-12-14)
+
+
+
 <a name="2.0.11"></a>
 ## [2.0.11](https://github.com/gromver/rx-form/compare/v2.0.10...v2.0.11) (2017-12-14)
 

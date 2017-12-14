@@ -360,6 +360,28 @@ describe('isRequired()', () => {
   });
 });
 
+describe('isSafe()', () => {
+  it('Should return valid results', async () => {
+    const model = getTestModel();
+    let form = new Form({
+      model,
+      scope: ['object'],
+    });
+
+    expect(form.isSafe()).toBe(true);
+    expect(form.isSafe('string')).toBe(true);
+    expect(form.isSafe(['number'])).toBe(true);
+    expect(form.isSafe('unknown')).toBe(false);
+
+    form = new Form({
+      model,
+      scope: ['unknown'],
+    });
+    expect(form.isSafe()).toBe(false);
+    expect(form.isSafe('foo')).toBe(false);
+  });
+});
+
 describe('getErrors()', () => {
   it('Should return valid errors', async () => {
     const model = getTestModel({

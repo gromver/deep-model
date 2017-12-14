@@ -1,5 +1,4 @@
-// import { Subject } from 'rxjs/Subject';
-import Model/* , { ModelConfig } */ from './Model';
+import Model from './Model';
 import Validator from './validators/Validator';
 import PresenceValidator from './validators/PresenceValidator';
 import State from './validators/states/State';
@@ -22,44 +21,6 @@ export default class Form {
   private model: Model;
   // Скоуп формы - путь к полю модели которое будет обслуживать форма
   private scope: (string | number)[];
-  // private observable: Subject<Event>;
-
-  // static object(properties, value: {} = {}, scenarios?: string | string[], context?: {}) {
-  //   return new Form({
-  //     model: new Model({
-  //       value,
-  //       scenarios,
-  //       context,
-  //       type: new ObjectType({
-  //         properties,
-  //       }),
-  //     }),
-  //   });
-  // }
-  //
-  // static array(items, value: {} = [], scenarios?: string | string[], context?: {}) {
-  //   return new Form({
-  //     model: new Model({
-  //       value,
-  //       scenarios,
-  //       context,
-  //       type: new ArrayType({
-  //         items,
-  //       }),
-  //     }),
-  //   });
-  // }
-  //
-  // static value(type: AnyType, value: any, scenarios?: string | string[], context?: {}) {
-  //   return new Form({
-  //     model: new Model({
-  //       type,
-  //       value,
-  //       scenarios,
-  //       context,
-  //     }),
-  //   });
-  // }
 
   constructor(config: FormConfig) {
     this.model = config.model;
@@ -114,28 +75,20 @@ export default class Form {
     return this.model.get(this.scope);
   }
 
-  // /**
-  //  * Dispatch event
-  //  * @param event
-  //  */
-  // dispatch(event: any) {
-  //   this.observable.next(event);
-  // }
-  //
-  // /**
-  //  * Get Observable
-  //  * @returns {Subject<any>}
-  //  */
-  // getObservable() {
-  //   return this.observable;
-  // }
-
   getValidationState(path?: string | (string | number)[]): State | undefined {
     if (arguments.length > 0) {
       return this.model.getValidationState(this.normalizePath(path));
     }
 
     return this.model.getValidationState(this.scope);
+  }
+
+  getValidationStatus(path?: string | (string | number)[]): string | undefined {
+    const state = arguments.length > 0
+      ? this.getValidationState(path)
+      : this.getValidationState();
+
+    return state && state.getStatus();
   }
 
   getFirstError(): State | undefined {
@@ -169,30 +122,34 @@ export default class Form {
     return this.model.validateAttributes(attributes.map(this.normalizePath));
   }
 
-  isChanged(path?: string | (string|number)[]) {
+  isChanged(path?: string | (string|number)[]): boolean {
     return !_.isEqual(
       this.model.get(this.normalizePath(path)),
       this.model.getInitial(this.normalizePath(path)),
     );
   }
 
-  isDirty(path?: string | (string|number)[]) {
+  isDirty(path?: string | (string|number)[]): boolean {
     return !!_.values(this.model.getValidationStates(this.normalizePath(path))).length;
   }
 
-  isValid(path?: string | (string|number)[]) {
+  isValid(path?: string | (string|number)[]): boolean {
     return !_.values(this.model.getValidationStates(this.normalizePath(path)))
       .find((state) => state instanceof ErrorState);
   }
 
-  isPending(path?: string | (string|number)[]) {
+  isPending(path?: string | (string|number)[]): boolean {
     return !!_.values(this.model.getValidationStates(this.normalizePath(path)))
       .find((state) => state instanceof PendingState);
   }
 
-  isRequired(path?: string | (string|number)[]) {
+  isRequired(path?: string | (string|number)[]): boolean {
     const validator = this.model.getValidator(this.normalizePath(path));
 
     return validator ? (validator as Validator).isValidator(PresenceValidator) : false;
+  }
+
+  isSafe(path?: string | (string|number)[]): boolean {
+    return this.model.canSet(this.normalizePath(path), undefined);
   }
 }

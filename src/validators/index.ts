@@ -1,3 +1,4 @@
+import Validator from './Validator';
 import ArrayValidator, { ArrayValidatorConfig } from './ArrayValidator';
 import CustomValidator, { CustomValidatorConfig } from './CustomValidator';
 import MultipleValidator, { MultipleValidatorConfig } from './MultipleValidator';
@@ -6,6 +7,11 @@ import ObjectValidator, { ObjectValidatorConfig } from './ObjectValidator';
 import OneOfTypeValidator, { OneOfTypeValidatorConfig } from './OneOfTypeValidator';
 import PresenceValidator, { PresenceValidatorConfig } from './PresenceValidator';
 import StringValidator, { StringValidatorConfig } from './StringValidator';
+import EmailValidator, { EmailValidatorConfig } from './EmailValidator';
+import RangeValidator, { RangeValidatorConfig } from './RangeValidator';
+import UrlValidator, { UrlValidatorConfig } from './UrlValidator';
+import DateValidator, { DateValidatorConfig } from './DateValidator';
+import CompareValidator, { CompareValidatorConfig } from './CompareValidator';
 
 export {
   ArrayValidator, ArrayValidatorConfig,
@@ -16,6 +22,12 @@ export {
   OneOfTypeValidator, OneOfTypeValidatorConfig,
   PresenceValidator, PresenceValidatorConfig,
   StringValidator, StringValidatorConfig,
+  Validator,
+  EmailValidator, EmailValidatorConfig,
+  RangeValidator, RangeValidatorConfig,
+  UrlValidator, UrlValidatorConfig,
+  DateValidator, DateValidatorConfig,
+  CompareValidator, CompareValidatorConfig,
 };
 
 export const array =
@@ -41,3 +53,18 @@ export const presence =
 
 export const string =
   (config?: StringValidatorConfig): StringValidator => new StringValidator(config);
+
+export const email =
+  (config?: EmailValidatorConfig): EmailValidator => new EmailValidator(config);
+
+export const range =
+  (config: RangeValidatorConfig): RangeValidator => new RangeValidator(config);
+
+export const url =
+  (config?: UrlValidatorConfig): UrlValidator => new UrlValidator(config);
+
+export const date =
+  (config?: DateValidatorConfig): DateValidator => new DateValidator(config);
+
+export const compare =
+  (config: CompareValidatorConfig): CompareValidator => new CompareValidator(config);

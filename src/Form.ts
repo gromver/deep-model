@@ -100,26 +100,32 @@ export default class Form {
     return _.values(this.model.getValidationStates(this.scope))
       .filter((state) => state instanceof ErrorState);
   }
-
-  validate(): Promise<string | Message | void> {
+  // todo catch all errors and return true/false
+  validate(): Promise<boolean> {
     if (this.scope.length) {
       const formStates = this.model.getValidationStates(this.scope);
       const modelStates = this.model.getValidationStates();
       _.keys(formStates).forEach((k) => delete modelStates[k]);
 
-      return this.model.validateAttribute(this.scope);
+      return this.model.validateAttribute(this.scope).then(() => true).catch(() => false);
     }
 
-    return this.model.validate();
+    return this.model.validate()
+      .then(() => true)
+      .catch(() => false);
   }
 
-  validateAttribute(path: string | (string|number)[]): Promise<string | Message | void> {
-    return this.model.validateAttribute(this.normalizePath(path));
+  validateAttribute(path: string | (string|number)[]): Promise<boolean> {
+    return this.model.validateAttribute(this.normalizePath(path))
+      .then(() => true)
+      .catch(() => false);
   }
 
   validateAttributes(attributes: (string | (string|number)[])[])
-  : Promise<(string | Message | void)[]> {
-    return this.model.validateAttributes(attributes.map(this.normalizePath));
+  : Promise<boolean> {
+    return this.model.validateAttributes(attributes.map(this.normalizePath))
+      .then(() => true)
+      .catch(() => false);
   }
 
   isChanged(path?: string | (string|number)[]): boolean {

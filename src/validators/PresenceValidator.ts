@@ -5,32 +5,35 @@ import ValueContext from '../ValueContext';
 
 export interface PresenceValidatorConfig {
   allowEmpty?: boolean;
-  message?: string;
+  errorMessage?: string;
 }
 
 export default class PresenceValidator extends Validator {
   static MESSAGE = '{attribute} - can\'t be blank';
 
   public allowEmpty: boolean;
-  public message?: string;
+  public errorMessage?: string;
 
   constructor(config: PresenceValidatorConfig = {}) {
     super();
 
-    this.message = config.message;
+    this.errorMessage = config.errorMessage;
     this.allowEmpty = config.allowEmpty || false;
   }
 
   validate(valueContext: ValueContext): Promise<void | string | Message> {
-    if (
-      this.allowEmpty
-        ? !utils.isDefined(valueContext.value)
-        : utils.isEmpty(valueContext.value)
-    ) {
-      return Promise.reject(utils.createMessage(this.message || PresenceValidator.MESSAGE, {
+    const isDefined = utils.isDefined(valueContext.value);
+
+    if (this.allowEmpty && !isDefined) {
+      return Promise.resolve();
+    }
+
+    if (!isDefined || utils.isEmpty(valueContext.value)) {
+      return Promise.reject(utils.createMessage(this.errorMessage || PresenceValidator.MESSAGE, {
         attribute: valueContext.attribute,
       }));
     }
+
     return Promise.resolve();
   }
 }

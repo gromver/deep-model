@@ -381,11 +381,20 @@ export default class Model {
     const pathNormalized = typeof path === 'string' ? [path] : path;
     const type = this.getType(pathNormalized);
 
+    // return type ? type.validate(new SetContext({
+    //   model: this,
+    //   path: pathNormalized,
+    //   cursor: pathNormalized.length - 1,
+    // })) : Promise.reject('Validator not found.');
     return type ? type.validate(new SetContext({
       model: this,
       path: pathNormalized,
       cursor: pathNormalized.length - 1,
-    })) : Promise.reject('Validator not found.');
+    })) : new AnyType().validate(new SetContext({
+      model: this,
+      path: pathNormalized,
+      cursor: pathNormalized.length - 1,
+    }));
   }
 
   validateAttributes(attributes: (string | (string|number)[])[])
@@ -398,6 +407,12 @@ export default class Model {
 
       if (type) {
         jobs.push(type.validate(new SetContext({
+          model: this,
+          path: pathNormalized,
+          cursor: pathNormalized.length - 1,
+        })));
+      } else {
+        jobs.push(new AnyType().validate(new SetContext({
           model: this,
           path: pathNormalized,
           cursor: pathNormalized.length - 1,

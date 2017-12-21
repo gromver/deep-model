@@ -8,6 +8,7 @@ import utils from './utils/utils';
 export interface OneOfTypeValidatorConfig {
   errorMessageRule?: string;
   type?: AnyType;
+  strict?: boolean;
   setContext: SetContext;
 }
 
@@ -16,6 +17,7 @@ export default class OneOfTypeValidator extends Validator {
 
   private errorMessageRule?: string;
   private type?: AnyType;
+  private strict: boolean;
   private setContext: SetContext;
 
   constructor(config: OneOfTypeValidatorConfig) {
@@ -23,13 +25,14 @@ export default class OneOfTypeValidator extends Validator {
 
     this.errorMessageRule = config.errorMessageRule;
     this.type = config.type;
+    this.strict = typeof config.strict === 'boolean' ? config.strict : true;
     this.setContext = config.setContext;
   }
 
   validate(valueContext: ValueContext): Promise<void | string | Message> {
-    const { type, setContext } = this;
+    const { type, setContext, strict } = this;
 
-    if (!type) {
+    if (strict && !type) {
       return Promise.reject(
         utils.createMessage(this.errorMessageRule || OneOfTypeValidator.ERROR_MESSAGE_RULE, {
           attribute: valueContext.attribute,
@@ -37,7 +40,7 @@ export default class OneOfTypeValidator extends Validator {
       );
     }
 
-    return type.validate(setContext);
+    return type ? type.validate(setContext) : Promise.resolve();
   }
 }
 

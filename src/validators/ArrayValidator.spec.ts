@@ -60,33 +60,33 @@ describe('validate', () => {
     });
   });
 
-  it('Should reject with "array has invalid fields" because of unsupported type', async () => {
-    const model = getTestModel();
-    const validator = new ArrayValidator({
-      setContext: new SetContext({
-        model,
-        path: [],
-      }),
-      type: t.oneOf({
-        types: [
-          t.string({
-            validator: [new PresenceValidator(), new StringValidator()],
-          }),
-          t.number(),
-        ],
-      }),
-    });
-
-    await expect(validator.validate(new ValueContext({
-      model,
-      attribute: 'test',
-      path: [],
-      value: [1, 2, 'string', true],  // boolean not supported
-    }))).rejects.toMatchObject({
-      bindings: { attribute: 'test' },
-      message: '{attribute} - array has invalid fields',
-    });
-  });
+  // it('Should reject with "array has invalid fields" because of unsupported type', async () => {
+  //   const model = getTestModel();
+  //   const validator = new ArrayValidator({
+  //     setContext: new SetContext({
+  //       model,
+  //       path: [],
+  //     }),
+  //     type: t.oneOf({
+  //       types: [
+  //         t.string({
+  //           validator: [new PresenceValidator(), new StringValidator()],
+  //         }),
+  //         t.number(),
+  //       ],
+  //     }),
+  //   });
+  //
+  //   await expect(validator.validate(new ValueContext({
+  //     model,
+  //     attribute: 'test',
+  //     path: [],
+  //     value: [1, 2, 'string', true],  // boolean not supported
+  //   }))).rejects.toMatchObject({
+  //     bindings: { attribute: 'test' },
+  //     message: '{attribute} - array has invalid fields',
+  //   });
+  // });
 
   it('Should reject with "array has an invalid type" error', async () => {
     const model = getTestModel();

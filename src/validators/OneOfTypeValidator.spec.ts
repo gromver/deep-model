@@ -76,7 +76,7 @@ describe('validate', () => {
     });
   });
 
-  it('Model should reject because of the type is undefined', async () => {
+  it('Model should reject because of type is undefined', async () => {
     const model = getTestModel({
       oneOfType: false,
     });

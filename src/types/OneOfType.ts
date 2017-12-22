@@ -5,6 +5,7 @@ import OneOfTypeValidator from '../validators/OneOfTypeValidator';
 import MultipleValidator from '../validators/MultipleValidator';
 
 export interface ValidatorConfig {
+  strict?: boolean;
   errorMessageRule?: string;
 }
 
@@ -21,6 +22,7 @@ export default class OneOfType extends AnyType {
     super(config);
 
     this.types = config.types;
+    this.validatorConfig = config.validatorConfig;
   }
 
   private getTypes(): AnyType[] {

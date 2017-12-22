@@ -56,15 +56,13 @@ export default class ObjectValidator extends Validator {
     return new Promise((resolve, reject) => {
       const jobs: Promise<string | Message | void>[] = [];
 
-      for (const k in value) {
-        if (value.hasOwnProperty(k)) {
-          const v = value[k];
-          const type = properties[k];
+      for (const k in properties) {
+        const v = value[k];
+        const type = properties[k];
 
-          if (type) {
-            const nextSetContext = setContext.push(k, v);
-            jobs.push(type.validate(nextSetContext));
-          }
+        if (type) {
+          const nextSetContext = setContext.push(k, v);
+          jobs.push(type.validate(nextSetContext));
         }
       }
 

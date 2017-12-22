@@ -390,11 +390,16 @@ export default class Model {
       model: this,
       path: pathNormalized,
       cursor: pathNormalized.length - 1,
-    })) : new AnyType().validate(new SetContext({
-      model: this,
-      path: pathNormalized,
-      cursor: pathNormalized.length - 1,
-    }));
+    })) : Promise.resolve();
+    // return type ? type.validate(new SetContext({
+    //   model: this,
+    //   path: pathNormalized,
+    //   cursor: pathNormalized.length - 1,
+    // })) : new AnyType().validate(new SetContext({
+    //   model: this,
+    //   path: pathNormalized,
+    //   cursor: pathNormalized.length - 1,
+    // }));
   }
 
   validateAttributes(attributes: (string | (string|number)[])[])
@@ -411,13 +416,13 @@ export default class Model {
           path: pathNormalized,
           cursor: pathNormalized.length - 1,
         })));
-      } else {
+      }/* else {
         jobs.push(new AnyType().validate(new SetContext({
           model: this,
           path: pathNormalized,
           cursor: pathNormalized.length - 1,
         })));
-      }
+      } */
     });
 
     return Promise.all(jobs);

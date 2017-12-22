@@ -176,7 +176,7 @@ export default class AnyType {
   }
 
   validate(setContext: SetContext): Promise<string | Message | void> {
-    const validator = this.canApply(setContext) && this.getValidator(setContext);
+    const validator = this.getValidator(setContext);
     const valueContext = setContext.get();
     const job = (validator ? validator.validate(valueContext) : Promise.resolve());
 
@@ -209,6 +209,6 @@ export default class AnyType {
   }
 
   getValidator(setContext: SetContext): Validator | void {
-    return this.validator;
+    return this.canApply(setContext) ? this.validator : undefined;
   }
 }

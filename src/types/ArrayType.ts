@@ -128,6 +128,10 @@ export default class ArrayType extends AnyType {
   }
 
   getValidator(setContext: SetContext) {
+    if (!this.canApply(setContext)) {
+      return;
+    }
+
     let validator = this.validator;
 
     if (validator) {

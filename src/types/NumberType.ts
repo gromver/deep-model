@@ -1,17 +1,17 @@
 import AnyType from './AnyType';
-import ValueContext from '../ValueContext';
+import SetContext from '../SetContext';
 
 export default class NumberType extends AnyType {
   /**
    * Проверка типа
-   * @param valueContext ValueContext
+   * @param {SetContext} setContext
    * @throws {Error}
    */
-  protected typeCheck(valueContext: ValueContext) {
-    const value = valueContext.value;
+  protected typeCheck(setContext: SetContext) {
+    const { value } = setContext.get();
 
     if (value !== undefined && typeof value !== 'number') {
-      throw new Error('StringType:typeCheck - the value must be a number');
+      throw new Error('NumberType:typeCheck - the value must be a number');
     }
   }
 }

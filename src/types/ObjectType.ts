@@ -55,10 +55,14 @@ export default class ObjectType extends AnyType {
     throw new Error('ObjectType:normalizeType - Invalid type description.');
   }
 
-  protected applyValue(setContext: SetContext) {
+  protected applyImpl(setContext: SetContext) {
     // смотрим правила и записываем по полям
     const rules = this.getProperties();
-    const { value } = setContext.get();
+    let { value } = setContext.get();
+
+    if (this.filter) {
+      value = this.filter(value);
+    }
 
     for (const k in value) {
       if (value.hasOwnProperty(k)) {
@@ -73,7 +77,7 @@ export default class ObjectType extends AnyType {
     }
   }
 
-  protected setValue(setContext: SetContext) {
+  protected setImpl(setContext: SetContext) {
     const { attribute } = setContext.get();
     const rule = this.getProperties()[attribute];
 
@@ -88,30 +92,39 @@ export default class ObjectType extends AnyType {
 
   /**
    * Проверка типа для вложенного значения
-   * @param valueContext ValueContext
+   * @param {SetContext} setContext
    * @throws {Error}
    */
-  protected setCheck(valueContext: ValueContext) {
+  setCheck(setContext: SetContext) {
+    const valueContext = setContext.get();
     const { attribute } = valueContext;
-    const rules = this.getProperties();
-
-    if (!rules[attribute]) {
-      throw new Error(`ObjectType:typeCheckNested - unknown attribute "${attribute}"`);
-    }
-  }
-
-  protected canSetValue(setContext: SetContext): boolean {
-    const { attribute } = setContext.get();
     const rule = this.getProperties()[attribute];
+
+    if (!rule) {
+      throw new Error(`ObjectType:setCheck - unknown attribute "${attribute}"`);
+    }
 
     const nextSetContext = setContext.shift();
 
-    return nextSetContext
-      ? rule.canSet(nextSetContext)
-      : rule.canApply(setContext);
+    if (nextSetContext) {
+      rule.setCheck(nextSetContext);
+    } else {
+      rule.applyCheck(setContext);
+    }
   }
 
-  protected getTypeValue(setContext: SetContext): AnyType | void {
+  // protected canSetImpl(setContext: SetContext): boolean {
+  //   const { attribute } = setContext.get();
+  //   const rule = this.getProperties()[attribute];
+  //
+  //   const nextSetContext = setContext.shift();
+  //
+  //   return nextSetContext
+  //     ? rule.canSet(nextSetContext)
+  //     : rule.canApply(setContext);
+  // }
+
+  protected getTypeImpl(setContext: SetContext): AnyType | void {
     const { attribute } = setContext.get();
     const rule = this.getProperties()[attribute];
 
@@ -126,18 +139,18 @@ export default class ObjectType extends AnyType {
 
   /**
    * Проверка типа
-   * @param valueContext ValueContext
+   * @param {SetContext} setContext
    * @throws {Error}
    */
-  protected typeCheck(valueContext: ValueContext) {
-    const value = valueContext.value;
+  protected typeCheck(setContext: SetContext) {
+    const { value } = setContext.get();
 
     if (value !== undefined && (value.constructor !== Object)) {
       throw new Error('ObjectType:typeCheck - the value must be an instance of object');
     }
   }
 
-  getValidator(setContext: SetContext) {
+  getValidator(setContext: SetContext): Validator | void {
     if (!this.canApply(setContext)) {
       return;
     }

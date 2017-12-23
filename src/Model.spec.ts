@@ -151,7 +151,7 @@ describe('set()', () => {
 
     expect(() => {
       model.set('mixed', 123);
-    }).toThrow(new Error('StringType:typeCheck - the value must be a boolean'));
+    }).toThrow(new Error('BooleanType:typeCheck - the value must be a boolean'));
   });
 });
 

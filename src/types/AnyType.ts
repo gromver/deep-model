@@ -28,9 +28,6 @@ export default class AnyType {
     this.permission = Array.isArray(config.permission)
       ? MultiplePermission(config.permission)
       : config.permission;
-    // this.validator = Array.isArray(config.validator)
-    //   ? new MultipleValidator({ validators: config.validator })
-    //   : config.validator;
     this.validator = config.validator && this.normalizeValidator(config.validator);
     this.filter = Array.isArray(config.filter)
       ? MultipleFilter(config.filter)
@@ -57,66 +54,86 @@ export default class AnyType {
 
   /* Set */
   set(setContext: SetContext) {
-    const valueContext = setContext.get();
+    // const valueContext = setContext.get();
 
-    this.setCheck(valueContext);
+    this.setCheck(setContext);
 
-    this.setValue(setContext);
+    this.setImpl(setContext);
   }
 
-  protected setCheck(valueContext: ValueContext) {
+  protected setImpl(setContext: SetContext) {}
+
+  /**
+   * Проверка на возможность установить вложенное значение
+   * Если проверка не пройдена должен быть выброшен exception
+   * @param {SetContext} setContext
+   * @throws {Error}
+   */
+  setCheck(setContext: SetContext) {
     throw new Error('Primitive types don\'t support nested value setting.');
   }
 
-  protected setValue(setContext: SetContext) {}
-
   canSet(setContext: SetContext): boolean {
     try {
-      const valueContext = setContext.get();
+      // const valueContext = setContext.get();
 
-      this.setCheck(valueContext);
+      this.setCheck(setContext);
 
-      return this.canSetValue(setContext);
+      return true;  // this.canSetImpl(setContext);
     } catch (error) {
       return false;
     }
   }
 
-  protected canSetValue(setContext: SetContext): boolean {
-    return false;
-  }
+  /**
+   * Кастомная релизация canSet для потомков
+   * @param {SetContext} setContext
+   * @returns {boolean}
+   */
+  // protected canSetImpl(setContext: SetContext): boolean {
+  //   return false;
+  // }
 
   /* Apply */
   apply(setContext: SetContext) {
+    // const valueContext = setContext.get();
+
+    this.applyCheck(setContext);
+
+    this.applyImpl(setContext);
+  }
+
+  /**
+   * Проверка на возможность установить значение
+   * Если проверка не пройдена должен быть выброшен exception
+   * @param {ValueContext} setContext
+   * @throws {Error}
+   */
+  applyCheck(setContext: SetContext) {
+    // if (this.filter) {
+    //   valueContext.value = this.filter(valueContext.value);
+    // }
+
+    this.typeCheck(setContext);
+
+    this.permissionCheck(setContext);
+  }
+
+  protected applyImpl(setContext: SetContext) {
     const valueContext = setContext.get();
 
-    this.applyCheck(valueContext);
-
-    this.applyValue(setContext);
-  }
-
-  protected applyCheck(valueContext: ValueContext) {
     if (this.filter) {
-      valueContext.value = this.filter(valueContext.value);
+      setContext.mutate(this.filter(valueContext.value));
     }
 
-    this.typeCheck(valueContext);
-
-    this.permissionCheck(valueContext);
-  }
-
-  protected applyValue(setContext: SetContext) {
-    const { model, path, value } = setContext.get();
-
-    // model.dispatch(new SetValueEvent(path, value));
-    model.setValue(path, value);
+    valueContext.model.setValue(valueContext.path, valueContext.value);
   }
 
   canApply(setContext: SetContext): boolean {
     try {
-      const valueContext = setContext.get();
+      // const valueContext = setContext.get();
 
-      this.applyCheck(valueContext);
+      this.applyCheck(setContext);
 
       return true;
     } catch (error) {
@@ -131,11 +148,11 @@ export default class AnyType {
    */
   getType(setContext: SetContext): AnyType | void {
     try {
-      const valueContext = setContext.get();
+      // const valueContext = setContext.get();
 
-      this.setCheck(valueContext);
+      this.setCheck(setContext);
 
-      return this.getTypeValue(setContext);
+      return this.getTypeImpl(setContext);
     } catch (error) {
       // return null;
     }
@@ -146,7 +163,7 @@ export default class AnyType {
    * @param {SetContext} setContext
    * @returns {AnyType}
    */
-  protected getTypeValue(setContext: SetContext): AnyType | void {
+  protected getTypeImpl(setContext: SetContext): AnyType | void {
     return;
   }
 
@@ -155,19 +172,19 @@ export default class AnyType {
   /**
    * Проверка типа
    * Примечание! undefined значения всегда должны проходить проверку
-   * @param valueContext ValueContext
+   * @param {SetContext} setContext
    * @throws {Error}
    */
-  protected typeCheck(valueContext: ValueContext) {}
+  protected typeCheck(setContext: SetContext) {}
 
   /**
    * Запускаем кастомные проверки
-   * @param {Context} valueContext
+   * @param {SetContext} setContext
    * @throws {Error}
    */
-  protected permissionCheck(valueContext: ValueContext) {
+  protected permissionCheck(setContext: SetContext) {
     if (this.permission) {
-      this.permission(valueContext);
+      this.permission(setContext.get());
     }
   }
 
@@ -208,6 +225,11 @@ export default class AnyType {
     return job;
   }
 
+  /**
+   * Возвращает валидатор в случае если данный тип применим для текущего сет контекста
+   * @param {SetContext} setContext
+   * @returns {Validator | void}
+   */
   getValidator(setContext: SetContext): Validator | void {
     return this.canApply(setContext) ? this.validator : undefined;
   }

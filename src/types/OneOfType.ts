@@ -1,7 +1,8 @@
 import AnyType, { AnyTypeConfig } from './AnyType';
 import SetContext from '../SetContext';
 import Validator from '../validators/Validator';
-import OneOfTypeValidator from '../validators/OneOfTypeValidator';
+// import OneOfTypeValidator from '../validators/OneOfTypeValidator';
+import TypeValidator from '../validators/TypeValidator';
 import MultipleValidator from '../validators/MultipleValidator';
 
 export interface ValidatorConfig {
@@ -77,7 +78,7 @@ export default class OneOfType extends AnyType {
     return this.getTypes().some((type) => type.canApply(setContext));
   }
 
-  protected getTypeValue(setContext: SetContext): AnyType | void {
+  protected getTypeImpl(setContext: SetContext): AnyType | void {
     let foundedType;
 
     this.getTypes().some((type) => {
@@ -91,26 +92,31 @@ export default class OneOfType extends AnyType {
     return foundedType || null;
   }
 
-  getValidator(setContext: SetContext) {
+  getValidator(setContext: SetContext): Validator | void {
     const type = this.getTypes().find((type) => type.canApply(setContext));
+
+    if (!type) {
+      return;
+    }
+
     let validator = this.validator;
 
     if (validator) {
       validator = new MultipleValidator({
         validators: [
-          new OneOfTypeValidator({
+          new TypeValidator({
             setContext,
             type,
-            ...this.validatorConfig,
+            // ...this.validatorConfig,
           }),
           validator,
         ],
       });
     } else {
-      validator = new OneOfTypeValidator({
+      validator = new TypeValidator({
         setContext,
         type,
-        ...this.validatorConfig,
+        // ...this.validatorConfig,
       });
     }
 

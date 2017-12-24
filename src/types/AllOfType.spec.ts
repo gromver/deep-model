@@ -22,7 +22,7 @@ function createSetContext(value, path = ['a']) {
 
 describe('applyCheck', () => {
   it('Should check apply value properly', () => {
-    const type = t.anyOf({
+    const type = t.allOf({
       types: [
         t.string({
           validator: [v.presence(), v.string()],
@@ -37,27 +37,59 @@ describe('applyCheck', () => {
       ],
     });
 
-    expect(() => type.applyCheck(createSetContext('foo'))).not.toThrow();
-    expect(() => type.applyCheck(createSetContext(2))).not.toThrow();
-    expect(() => type.applyCheck(createSetContext(true))).toThrow(
-      'AnyOfType::applyCheck - there are no suitable types detected.',
+    expect(() => type.applyCheck(createSetContext('foo'))).toThrow(
+      'AllOfType::applyCheck - there are exists at least one not suitable type.',
     );
     expect(() => type.applyCheck(createSetContext(11))).toThrow(
-      'AnyOfType::applyCheck - there are no suitable types detected.',
+      'AllOfType::applyCheck - there are exists at least one not suitable type.',
+    );
+    expect(() => type.applyCheck(createSetContext(false))).toThrow(
+      'AllOfType::applyCheck - there are exists at least one not suitable type.',
+    );
+
+    const type2 = t.allOf({
+      types: [
+        t.number({
+          permission: ({ value }) => {
+            if (value > 10) {
+              throw new Error('fail');
+            }
+          },
+        }),
+        t.number({
+          permission: ({ value }) => {
+            if (value < 0) {
+              throw new Error('fail');
+            }
+          },
+        }),
+      ],
+    });
+    expect(() => type2.applyCheck(createSetContext(0))).not.toThrow();
+    expect(() => type2.applyCheck(createSetContext(10))).not.toThrow();
+    expect(() => type.applyCheck(createSetContext(11))).toThrow(
+      'AllOfType::applyCheck - there are exists at least one not suitable type.',
+    );
+    expect(() => type.applyCheck(createSetContext(-1))).toThrow(
+      'AllOfType::applyCheck - there are exists at least one not suitable type.',
     );
   });
 });
 
 describe('setCheck', () => {
   it('Should check set value properly', () => {
-    const type = t.anyOf({
+    const type = t.allOf({
       types: [
         t.object({
           properties: {
-            a: t.anyOf({
+            a: t.allOf({
               types: [
-                t.string({
-                  validator: [v.presence(), v.string()],
+                t.number({
+                  permission: ({ value }) => {
+                    if (value < 0) {
+                      throw new Error('fail');
+                    }
+                  },
                 }),
                 t.number({
                   permission: ({ value }) => {
@@ -72,43 +104,39 @@ describe('setCheck', () => {
         }),
         t.object({
           properties: {
-            a: t.boolean(),
-          },
-        }),
-        t.object({
-          properties: {
-            b: t.string(),
+            a: t.number({
+              permission: ({ value }) => {
+                if (value > 5) {
+                  throw new Error('fail');
+                }
+              },
+            }),
           },
         }),
       ],
     });
 
-    expect(() => type.setCheck(createSetContext('foo'))).not.toThrow();
-    expect(() => type.setCheck(createSetContext(2))).not.toThrow();
-    expect(() => type.setCheck(createSetContext(true))).not.toThrow();
-    expect(() => type.setCheck(createSetContext('foo', ['b']))).not.toThrow();
-    expect(() => type.setCheck(createSetContext(11))).toThrow(
-      'AnyOfType::setCheck - there are no suitable types detected.',
+    expect(() => type.setCheck(createSetContext(0))).not.toThrow();
+    expect(() => type.setCheck(createSetContext(5))).not.toThrow();
+    expect(() => type.setCheck(createSetContext(6))).toThrow(
+      'AllOfType::setCheck - there are exists at least one not suitable type.',
     );
     expect(() => type.setCheck(createSetContext(() => {}))).toThrow(
-      'AnyOfType::setCheck - there are no suitable types detected.',
-    );
-    expect(() => type.setCheck(createSetContext(1, ['b']))).toThrow(
-      'AnyOfType::setCheck - there are no suitable types detected.',
+      'AllOfType::setCheck - there are exists at least one not suitable type.',
     );
     expect(() => type.setCheck(createSetContext(1, ['c']))).toThrow(
-      'AnyOfType::setCheck - there are no suitable types detected.',
+      'AllOfType::setCheck - there are exists at least one not suitable type.',
     );
   });
 });
 
 describe('set', () => {
   it('Should set value properly', () => {
-    const type = t.anyOf({
+    const type = t.allOf({
       types: [
         t.object({
           properties: {
-            a: t.anyOf({
+            a: t.allOf({
               types: [
                 t.number({
                   permission: ({ value }) => {
@@ -140,21 +168,19 @@ describe('set', () => {
     type.set(createSetContext(10));
     expect(model.get('a')).toBe(1000);
 
-    type.set(createSetContext(11));
-    expect(model.get('a')).toBe(110);
-
-    type.set(createSetContext(20));
-    expect(model.get('a')).toBe(200);
+    expect(() => type.setCheck(createSetContext(11))).toThrow(
+      'AllOfType::setCheck - there are exists at least one not suitable type.',
+    );
 
     expect(() => type.setCheck(createSetContext(9))).toThrow(
-      'AnyOfType::setCheck - there are no suitable types detected.',
+      'AllOfType::setCheck - there are exists at least one not suitable type.',
     );
   });
 });
 
 describe('getValidator', () => {
   it('Should get validator properly', () => {
-    const type = t.anyOf({
+    const type = t.allOf({
       types: [
         t.number({
           permission: ({ value }) => {
@@ -176,14 +202,10 @@ describe('getValidator', () => {
     });
 
     expect(type.getValidator(createSetContext(9))).toBe(undefined);
+    expect(type.getValidator(createSetContext(11))).toBe(undefined);
     expect(type.getValidator(createSetContext(10))).toEqual(expect.objectContaining({
       validators: expect.arrayContaining([
         expect.any(v.PresenceValidator),
-        expect.any(v.NumberValidator),
-      ]),
-    }));
-    expect(type.getValidator(createSetContext(11))).toEqual(expect.objectContaining({
-      validators: expect.arrayContaining([
         expect.any(v.NumberValidator),
       ]),
     }));
@@ -192,14 +214,19 @@ describe('getValidator', () => {
 
 describe('getType', () => {
   it('Should get type properly', () => {
-    const type = t.anyOf({
+    const type = t.allOf({
       types: [
         t.object({
           properties: {
-            a: t.anyOf({
+            a: t.allOf({
               types: [
-                t.string({
-                  validator: [v.presence(), v.string()],
+                t.number({
+                  permission: ({ value }) => {
+                    if (value < 0) {
+                      throw new Error('fail');
+                    }
+                  },
+                  validator: v.presence(),
                 }),
                 t.number({
                   permission: ({ value }) => {
@@ -207,6 +234,7 @@ describe('getType', () => {
                       throw new Error('fail');
                     }
                   },
+                  validator: v.number(),
                 }),
               ],
             }),
@@ -214,26 +242,25 @@ describe('getType', () => {
         }),
         t.object({
           properties: {
-            a: t.boolean(),
-          },
-        }),
-        t.object({
-          properties: {
-            b: t.string(),
+            a: t.number({
+              permission: ({ value }) => {
+                if (value > 5) {
+                  throw new Error('fail');
+                }
+              },
+              validator: v.number(),
+            }),
           },
         }),
       ],
     });
 
-    expect(type.getType(createSetContext('foo'))).toEqual(expect.objectContaining({
-      types: expect.arrayContaining([expect.any(t.AnyOfType)]),
+    expect(type.getType(createSetContext(0))).toEqual(expect.objectContaining({
+      types: expect.arrayContaining([expect.any(t.AllOfType)]),
     }));
-    expect(type.getType(createSetContext(false))).toEqual(expect.objectContaining({
-      types: expect.arrayContaining([expect.any(t.BooleanType)]),
+    expect(type.getType(createSetContext(5))).toEqual(expect.objectContaining({
+      types: expect.arrayContaining([expect.any(t.AllOfType)]),
     }));
-    expect(type.getType(createSetContext('foo', ['b']))).toEqual(expect.objectContaining({
-      types: expect.arrayContaining([expect.any(t.StringType)]),
-    }));
-    expect(type.getType(createSetContext('foo', ['c']))).toBe(undefined);
+    expect(type.getType(createSetContext(6))).toBe(undefined);
   });
 });

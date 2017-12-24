@@ -4,14 +4,14 @@ import Validator from '../validators/Validator';
 import TypeValidator from '../validators/TypeValidator';
 import MultipleValidator from '../validators/MultipleValidator';
 
-export interface AnyOfTypeConfig extends AnyTypeConfig {
+export interface AllOfTypeConfig extends AnyTypeConfig {
   types: AnyType[];
 }
 
-export default class AnyOfType extends AnyType {
+export default class AllOfType extends AnyType {
   private types: AnyType[];
 
-  constructor(config: AnyOfTypeConfig) {
+  constructor(config: AllOfTypeConfig) {
     super(config);
 
     this.types = config.types;
@@ -22,17 +22,15 @@ export default class AnyOfType extends AnyType {
    * @throws {Error}
    */
   setCheck(setContext: SetContext) {
-    if (!this.types.some((type) => type.canSet(setContext))) {
-      throw new Error('AnyOfType::setCheck - there are no suitable types detected.');
+    if (this.types.some((type) => !type.canSet(setContext))) {
+      throw new Error('AllOfType::setCheck - there are exists at least one not suitable type.');
     }
   }
 
   protected setImpl(setContext: SetContext) {
-    // из всех типов, хотя бы к одному должна быть применима set() операция
+    // из всех типов, ко всем должна быть применима set() операция
     this.types.map((type) => {
-      try {
-        type.set(setContext);
-      } catch (e) {}
+      type.set(setContext);
     });
   }
 
@@ -41,17 +39,15 @@ export default class AnyOfType extends AnyType {
    * @throws {Error}
    */
   applyCheck(setContext: SetContext) {
-    if (!this.types.some((type) => type.canApply(setContext))) {
-      throw new Error('AnyOfType::applyCheck - there are no suitable types detected.');
+    if (this.types.some((type) => !type.canApply(setContext))) {
+      throw new Error('AllOfType::applyCheck - there are exists at least one not suitable type.');
     }
   }
 
   protected applyImpl(setContext: SetContext) {
-    // из всех типов, хотя бы к одному должна быть применима apply() операция
+    // из всех типов, ко всем должна быть применима apply() операция
     this.types.map((type) => {
-      try {
-        type.apply(setContext);
-      } catch (e) {}
+      type.apply(setContext);
     });
   }
 
@@ -59,24 +55,24 @@ export default class AnyOfType extends AnyType {
     const types: AnyType[] = [];
 
     this.types.map((type) => {
-      try {
-        const t = type.getType(setContext);
+      const t = type.getType(setContext);
 
-        if (t) {
-          types.push(t);
-        }
-      } catch (e) {}
+      if (t) {
+        types.push(t);
+      }
     });
 
     if (types.length) {
-      return new AnyOfType({ types });
+      return new AllOfType({ types });
     }
   }
 
   getValidator(setContext: SetContext): Validator | void {
-    const types = this.types.filter((type) => type.canApply(setContext));
+    if (!this.canApply(setContext)) {
+      return;
+    }
 
-    const validators = types
+    const validators = this.types
       .map((type) => type.getValidator(setContext))
       .filter((v) => v) as Validator[];
 

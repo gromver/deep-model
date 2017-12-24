@@ -40,10 +40,10 @@ describe('applyCheck', () => {
     expect(() => type.applyCheck(createSetContext('foo'))).not.toThrow();
     expect(() => type.applyCheck(createSetContext(2))).not.toThrow();
     expect(() => type.applyCheck(createSetContext(true))).toThrow(
-      'AnyOfType::applyCheck - there is no one suitable type detected.',
+      'OneOfType::applyCheck - there is no one suitable type detected.',
     );
     expect(() => type.applyCheck(createSetContext(11))).toThrow(
-      'AnyOfType::applyCheck - there is no one suitable type detected.',
+      'OneOfType::applyCheck - there is no one suitable type detected.',
     );
   });
 });

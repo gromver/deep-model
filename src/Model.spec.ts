@@ -10,7 +10,7 @@ import ArrayType from './types/ArrayType';
 import StringType from './types/StringType';
 import NumberType from './types/NumberType';
 import BooleanType from './types/BooleanType';
-import OneOfType from './types/OneOfType';
+import AnyOfType from './types/AnyOfType';
 import * as t from './types';
 
 import PresenceValidator from './validators/PresenceValidator';
@@ -151,7 +151,7 @@ describe('set()', () => {
 
     expect(() => {
       model.set('mixed', 123);
-    }).toThrow(new Error('BooleanType:typeCheck - the value must be a boolean'));
+    }).toThrow(new Error('AnyOfType::applyCheck - there are no suitable types detected.'));
   });
 });
 
@@ -242,7 +242,7 @@ describe('getType', () => {
     expect(model.getType(['object', 'number'])).toBeInstanceOf(NumberType);
     expect(model.getType('array')).toBeInstanceOf(ArrayType);
     expect(model.getType(['array', 1])).toBeInstanceOf(NumberType);
-    expect(model.getType(['mixed'])).toBeInstanceOf(OneOfType);
+    expect(model.getType(['mixed'])).toBeInstanceOf(AnyOfType);
   });
 
   it('Should return null.', async () => {

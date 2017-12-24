@@ -1,5 +1,5 @@
 import AnyType, { AnyTypeConfig } from './AnyType';
-import OneOfType from './OneOfType';
+import AnyOfType from './AnyOfType';
 import SetContext from '../SetContext';
 import ValueContext from '../ValueContext';
 import Validator from '../validators/Validator';
@@ -45,7 +45,7 @@ export default class ArrayType extends AnyType {
     } else if (Array.isArray(type)) {
       const types = [...type].map(this.normalizeType);
 
-      return new OneOfType({ types });
+      return new AnyOfType({ types });
     } else if (type instanceof AnyType) {
       return type;
     }

@@ -46,7 +46,7 @@ export default class OneOfType extends AnyType {
 
   applyCheck(setContext: SetContext) {
     if (!this.types.some((type) => type.canApply(setContext))) {
-      throw new Error('AnyOfType::applyCheck - there is no one suitable type detected.');
+      throw new Error('OneOfType::applyCheck - there is no one suitable type detected.');
     }
   }
 

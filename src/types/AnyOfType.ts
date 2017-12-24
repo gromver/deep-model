@@ -76,10 +76,6 @@ export default class AnyOfType extends AnyType {
   getValidator(setContext: SetContext): Validator | void {
     const types = this.types.filter((type) => type.canApply(setContext));
 
-    if (!types.length) {
-      return;
-    }
-
     const validators = types
       .map((type) => type.getValidator(setContext))
       .filter((v) => v) as Validator[];

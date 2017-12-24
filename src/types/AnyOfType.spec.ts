@@ -10,33 +10,6 @@ import ValueContext from '../ValueContext';
 import * as t from '../types';
 import * as v from '../validators';
 
-function getTestModel(attributes?) {
-  return Model.object(
-    {
-      case1: t.anyOf({
-        types: [
-          t.string({
-            validator: [v.presence(), v.string()],
-          }),
-          t.number(),
-        ],
-      }),
-      case2: t.anyOf({
-        types: [
-          t.string({
-            validator: [v.presence(), v.string()],
-          }),
-          t.string({
-            validator: [v.presence(), v.string()],
-          }),
-        ],
-      }),
-
-    },
-    attributes,
-  );
-}
-
 const model = Model.object({});
 
 function createSetContext(value, path = ['a']) {
@@ -75,7 +48,7 @@ describe('applyCheck', () => {
   });
 });
 
-describe('applyCheck', () => {
+describe('setCheck', () => {
   it('Should check set value properly', () => {
     const type = t.anyOf({
       types: [

@@ -1,14 +1,14 @@
 import AnyType from './AnyType';
-import ValueContext from '../ValueContext';
+import SetContext from '../SetContext';
 
 export default class StringType extends AnyType {
   /**
    * Проверка типа
-   * @param valueContext ValueContext
+   * @param {SetContext} setContext
    * @throws {Error}
    */
-  protected typeCheck(valueContext: ValueContext) {
-    const value = valueContext.value;
+  protected typeCheck(setContext: SetContext) {
+    const { value } = setContext.get();
 
     if (value !== undefined && typeof value !== 'string') {
       throw new Error('StringType:typeCheck - the value must be a string');

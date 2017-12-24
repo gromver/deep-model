@@ -1,16 +1,17 @@
 import AnyType, { AnyTypeConfig } from './AnyType';
 import SetContext from '../SetContext';
 import Validator from '../validators/Validator';
+import TypeValidator from '../validators/TypeValidator';
 import MultipleValidator from '../validators/MultipleValidator';
 
-export interface OneOfTypeConfig extends AnyTypeConfig {
+export interface AnyOfTypeConfig extends AnyTypeConfig {
   types: AnyType[];
 }
 
-export default class OneOfType extends AnyType {
+export default class AnyOfType extends AnyType {
   private types: AnyType[];
 
-  constructor(config: OneOfTypeConfig) {
+  constructor(config: AnyOfTypeConfig) {
     super(config);
 
     this.types = config.types;
@@ -22,20 +23,16 @@ export default class OneOfType extends AnyType {
    */
   setCheck(setContext: SetContext) {
     if (!this.types.some((type) => type.canSet(setContext))) {
-      throw new Error('OneOfType::setCheck - there is no one suitable type detected.');
+      throw new Error('AnyOfType::setCheck - there are no suitable types detected.');
     }
   }
 
   protected setImpl(setContext: SetContext) {
-    // из всех типов, к первому подходящему должна быть применима set() операция
+    // из всех типов, хотя бы к одному должна быть применима set() операция
     this.types.map((type) => {
       try {
         type.set(setContext);
-
-        return true;
-      } catch (e) {
-        return false;
-      }
+      } catch (e) {}
     });
   }
 
@@ -43,50 +40,45 @@ export default class OneOfType extends AnyType {
    * @param {SetContext} setContext
    * @throws {Error}
    */
-
   applyCheck(setContext: SetContext) {
     if (!this.types.some((type) => type.canApply(setContext))) {
-      throw new Error('OneOfType::applyCheck - there is no one suitable type detected.');
+      throw new Error('AnyOfType::applyCheck - there are no suitable types detected.');
     }
   }
 
   protected applyImpl(setContext: SetContext) {
-    // из всех типов, к первому подходящему должна быть применима apply() операция
-    this.types.some((type) => {
+    // из всех типов, хотя бы к одному должна быть применима apply() операция
+    this.types.map((type) => {
       try {
         type.apply(setContext);
-
-        return true;
-      } catch (e) {
-        return false;
-      }
+      } catch (e) {}
     });
   }
 
   protected getTypeImpl(setContext: SetContext): AnyType | void {
-    let foundedType;
+    const types: AnyType[] = [];
 
-    this.types.some((type) => {
+    this.types.map((type) => {
       try {
-        foundedType = type.getType(setContext);
-      } catch (e) {}
+        const t = type.getType(setContext);
 
-      return !!foundedType;
+        if (t) {
+          types.push(t);
+        }
+      } catch (e) {}
     });
 
-    return foundedType;
+    if (types.length) {
+      return new AnyOfType({ types });
+    }
   }
 
   getValidator(setContext: SetContext): Validator | void {
-    const type = this.types.find((type) => type.canApply(setContext));
+    const types = this.types.filter((type) => type.canApply(setContext));
 
-    const validators: Validator[] = [];
-
-    const typeValidator = type && type.getValidator(setContext);
-
-    if (typeValidator) {
-      validators.push(typeValidator);
-    }
+    const validators = types
+      .map((type) => type.getValidator(setContext))
+      .filter((v) => v) as Validator[];
 
     if (this.validator) {
       validators.push(this.validator);

@@ -76,17 +76,17 @@ describe('validate', () => {
     });
   });
 
-  it('Model should reject because of type is undefined', async () => {
-    const model = getTestModel({
-      oneOfType: false,
-    });
-
-    await expect(model.validate()).rejects.toMatchObject({
-      bindings: { attribute: undefined },
-      message: '{attribute} - object has invalid fields',
-    });
-    expect(model.getErrors()).toHaveLength(2);
-  });
+  // it('Model should reject because of type is undefined', async () => {
+  //   const model = getTestModel({
+  //     oneOfType: false,
+  //   });
+  //
+  //   await expect(model.validate()).rejects.toMatchObject({
+  //     bindings: { attribute: undefined },
+  //     message: '{attribute} - object has invalid fields',
+  //   });
+  //   expect(model.getErrors()).toHaveLength(2);
+  // });
 
   it('Model should resolves', async () => {
     const model = getTestModel({

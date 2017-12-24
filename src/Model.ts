@@ -386,20 +386,14 @@ export default class Model {
     //   path: pathNormalized,
     //   cursor: pathNormalized.length - 1,
     // })) : Promise.reject('Validator not found.');
-    return type ? type.validate(new SetContext({
+
+    const setContext = new SetContext({
       model: this,
       path: pathNormalized,
       cursor: pathNormalized.length - 1,
-    })) : Promise.resolve();
-    // return type ? type.validate(new SetContext({
-    //   model: this,
-    //   path: pathNormalized,
-    //   cursor: pathNormalized.length - 1,
-    // })) : new AnyType().validate(new SetContext({
-    //   model: this,
-    //   path: pathNormalized,
-    //   cursor: pathNormalized.length - 1,
-    // }));
+    });
+
+    return type ? type.validate(setContext) : new AnyType().validate(setContext);
   }
 
   validateAttributes(attributes: (string | (string|number)[])[])
@@ -410,19 +404,17 @@ export default class Model {
       const pathNormalized: (string|number)[] = typeof path === 'string' ? [path] : path;
       const type = this.getType(pathNormalized);
 
+      const setContext = new SetContext({
+        model: this,
+        path: pathNormalized,
+        cursor: pathNormalized.length - 1,
+      });
+
       if (type) {
-        jobs.push(type.validate(new SetContext({
-          model: this,
-          path: pathNormalized,
-          cursor: pathNormalized.length - 1,
-        })));
-      }/* else {
-        jobs.push(new AnyType().validate(new SetContext({
-          model: this,
-          path: pathNormalized,
-          cursor: pathNormalized.length - 1,
-        })));
-      } */
+        jobs.push(type.validate(setContext));
+      } else {
+        jobs.push(new AnyType().validate(setContext));
+      }
     });
 
     return Promise.all(jobs);

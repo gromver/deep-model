@@ -13,6 +13,7 @@ export default class SetContext {
   public path: (string|number)[];
   private value: any;
   private cursor: number;
+  private valueContext: ValueContext;
 
   constructor(config: SetContextConfig) {
     this.model = config.model;
@@ -21,86 +22,32 @@ export default class SetContext {
     this.cursor = config.cursor !== undefined ? config.cursor : (this.path.length ? 0 : -1);
   }
 
-  // [Symbol.iterator] = function* () {
-  //   while (this.cursor < this.path.length) {
-  //     yield this.cursor += 1;
-  //   }
-  // };
-
-  // clone() {
-  //   return new SetContext(
-  //     this.model,
-  //     this.path,
-  //     this.cursor,
-  //   );
-  // }
-
   /**
    *
    * @returns ValueContext
    */
   get(): ValueContext {
-    if (this.cursor === this.path.length - 1) {
-      return new ValueContext({
-        attribute: this.path[this.cursor],
-        model: this.model,
-        path: this.path,
-        value: this.value,
-      });
-    } else {
-      const curPath = this.path.slice(0, this.cursor);
+    if (!this.valueContext) {
+      if (this.cursor === this.path.length - 1) {
+        this.valueContext = new ValueContext({
+          attribute: this.path[this.cursor],
+          model: this.model,
+          path: this.path,
+          value: this.value,
+        });
+      } else {
+        const curPath = this.path.slice(0, this.cursor);
 
-      return new ValueContext({
-        attribute: this.path[this.cursor],
-        model: this.model,
-        path: curPath,
-        value: this.model.get(curPath),
-      });
-
-      // const curPath = this.path.slice(0, this.cursor);
-      // const nextPath = this.path.slice(0, this.cursor + 1);
-      //
-      // return [
-      //   new ValueContext({
-      //     attribute: curPath[curPath.length - 1],
-      //     model: this.model,
-      //     path: curPath,
-      //     value: this.model.get(curPath),
-      //   }),
-      //   new ValueContext({
-      //     attribute: nextPath[nextPath.length - 1],
-      //     model: this.model,
-      //     path: nextPath,
-      //     value: this.model.get(nextPath),
-      //   }),
-      // ];
-    // } else {
-    //   const curPath = this.path.slice(0, this.cursor);
-    //
-    //   return new ValueContext({
-    //     attribute: this.path[this.cursor],
-    //     model: this.model,
-    //     path: curPath,
-    //     value: this.model.get(curPath),
-    //   });
-    //   // return [
-    //   //   new ValueContext({
-    //   //     attribute: this.path[this.path.length - 1],
-    //   //     model: this.model,
-    //   //     path: this.path,
-    //   //     value: this.model.get(this.path),
-    //   //   }),
-    //   //   null,
-    //   // ];
+        this.valueContext = new ValueContext({
+          attribute: this.path[this.cursor],
+          model: this.model,
+          path: curPath,
+          value: this.model.get(curPath),
+        });
+      }
     }
-    // const curPath = this.path.slice(0, this.cursor);
-    //
-    // return new ValueContext({
-    //   attribute: this.path[this.cursor],
-    //   model: this.model,
-    //   path: curPath,
-    //   value: this.model.get(curPath),
-    // });
+
+    return this.valueContext;
   }
 
   shift(): SetContext|false {
@@ -123,5 +70,9 @@ export default class SetContext {
       path: [...this.path, attribute],
       cursor: this.cursor + 1,
     });
+  }
+
+  mutate(newValue: any) {
+    this.get().value = newValue;
   }
 }

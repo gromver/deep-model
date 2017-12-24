@@ -1,5 +1,5 @@
 import AnyType, { AnyTypeConfig } from './AnyType';
-import OneOfType from './OneOfType';
+import AnyOfType from './AnyOfType';
 import SetContext from '../SetContext';
 import ValueContext from '../ValueContext';
 import Validator from '../validators/Validator';
@@ -36,7 +36,7 @@ export default class ArrayType extends AnyType {
     /**
      * Normalize type
      * todo: добавить возможность настраивать типы для индексов массивов, как в json schema спеке
-     * @param {AnyType | (AnyType | (() => AnyType))[] | (() => AnyType)} type
+     * @param {(AnyType | (AnyType | (() => AnyType))[] | (() => AnyType))} type
      * @returns {AnyType}
      */
   private normalizeType(type: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType)): AnyType {
@@ -45,7 +45,7 @@ export default class ArrayType extends AnyType {
     } else if (Array.isArray(type)) {
       const types = [...type].map(this.normalizeType);
 
-      return new OneOfType({ types });
+      return new AnyOfType({ types });
     } else if (type instanceof AnyType) {
       return type;
     }
@@ -53,9 +53,13 @@ export default class ArrayType extends AnyType {
     throw new Error('ArrayType:normalizeType - Invalid type description.');
   }
 
-  protected applyValue(setContext: SetContext) {
+  protected applyImpl(setContext: SetContext) {
     const type = this.normalizeType(this.items);
-    const { value } = setContext.get();
+    let { value } = setContext.get();
+
+    if (this.filter) {
+      value = this.filter(value);
+    }
 
     for (const k in value) {
       if (value.hasOwnProperty(k)) {
@@ -67,7 +71,7 @@ export default class ArrayType extends AnyType {
     }
   }
 
-  protected setValue(setContext: SetContext) {
+  protected setImpl(setContext: SetContext) {
     const type = this.normalizeType(this.items);
 
     const nextSetContext = setContext.shift();
@@ -81,28 +85,38 @@ export default class ArrayType extends AnyType {
 
   /**
    * Проверка типа для вложенного значения
-   * @param valueContext ValueContext
+   * @param {SetContext} setContext
    * @throws {Error}
    */
-  protected setCheck(valueContext: ValueContext) {
+  setCheck(setContext: SetContext) {
+    const valueContext = setContext.get();
     const { attribute } = valueContext;
 
     if (typeof attribute !== 'number') {
       throw new Error('ArrayType:setCheck - nested attribute key must be a number');
     }
-  }
-
-  protected canSetValue(setContext: SetContext): boolean {
-    const type = this.normalizeType(this.items);
 
     const nextSetContext = setContext.shift();
+    const type = this.normalizeType(this.items);
 
-    return nextSetContext
-      ? type.canSet(nextSetContext)
-      : type.canApply(setContext);
+    if (nextSetContext) {
+      type.setCheck(nextSetContext);
+    } else {
+      type.applyCheck(setContext);
+    }
   }
 
-  protected getTypeValue(setContext: SetContext): AnyType | void {
+  // protected canSetImpl(setContext: SetContext): boolean {
+  //   const type = this.normalizeType(this.items);
+  //
+  //   const nextSetContext = setContext.shift();
+  //
+  //   return nextSetContext
+  //     ? type.canSet(nextSetContext)
+  //     : type.canApply(setContext);
+  // }
+
+  protected getTypeImpl(setContext: SetContext): AnyType | void {
     const type = this.normalizeType(this.items);
 
     const nextSetContext = setContext.shift();
@@ -116,18 +130,18 @@ export default class ArrayType extends AnyType {
 
   /**
    * Проверка типа
-   * @param valueContext ValueContext
+   * @param {SetContext} setContext
    * @throws {Error}
    */
-  protected typeCheck(valueContext: ValueContext) {
-    const value = valueContext.value;
+  protected typeCheck(setContext: SetContext) {
+    const { value } = setContext.get();
 
     if (value !== undefined && !Array.isArray(value)) {
-      throw new Error('ObjectType:typeCheck - the value must be an array');
+      throw new Error('ArrayType:typeCheck - the value must be an array');
     }
   }
 
-  getValidator(setContext: SetContext) {
+  getValidator(setContext: SetContext): Validator | void {
     if (!this.canApply(setContext)) {
       return;
     }

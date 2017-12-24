@@ -1,87 +1,72 @@
 import AnyType, { AnyTypeConfig } from './AnyType';
 import SetContext from '../SetContext';
 import Validator from '../validators/Validator';
-// import OneOfTypeValidator from '../validators/OneOfTypeValidator';
-import TypeValidator from '../validators/TypeValidator';
 import MultipleValidator from '../validators/MultipleValidator';
-
-export interface ValidatorConfig {
-  strict?: boolean;
-  errorMessageRule?: string;
-}
 
 export interface OneOfTypeConfig extends AnyTypeConfig {
   types: AnyType[];
-  validatorConfig?: ValidatorConfig;
 }
 
 export default class OneOfType extends AnyType {
-  protected types: AnyType[];
-  protected validatorConfig?: ValidatorConfig;
+  private types: AnyType[];
 
   constructor(config: OneOfTypeConfig) {
     super(config);
 
     this.types = config.types;
-    this.validatorConfig = config.validatorConfig;
   }
 
-  private getTypes(): AnyType[] {
-    return this.types;
+  /**
+   * @param {SetContext} setContext
+   * @throws {Error}
+   */
+  setCheck(setContext: SetContext) {
+    if (!this.types.some((type) => type.canSet(setContext))) {
+      throw new Error('OneOfType::setCheck - there is no one suitable type detected.');
+    }
   }
 
-  set(setContext: SetContext) {
-    let error;
-
-    this.getTypes().some((type) => {
-      error = false;
-
+  protected setImpl(setContext: SetContext) {
+    // из всех типов, к первому подходящему должна быть применима set() операция
+    this.types.map((type) => {
       try {
         type.set(setContext);
+
+        return true;
       } catch (e) {
-        error = e;
+        return false;
       }
-
-      return error === false;
     });
+  }
 
-    if (error) {
-      throw error;
+  /**
+   * @param {SetContext} setContext
+   * @throws {Error}
+   */
+
+  applyCheck(setContext: SetContext) {
+    if (!this.types.some((type) => type.canApply(setContext))) {
+      throw new Error('AnyOfType::applyCheck - there is no one suitable type detected.');
     }
   }
 
-  canSet(setContext: SetContext): boolean {
-    return this.getTypes().some((type) => type.canSet(setContext));
-  }
-
-  apply(setContext: SetContext) {
-    let error;
-
-    this.getTypes().some((type) => {
-      error = false;
-
+  protected applyImpl(setContext: SetContext) {
+    // из всех типов, к первому подходящему должна быть применима apply() операция
+    this.types.some((type) => {
       try {
         type.apply(setContext);
+
+        return true;
       } catch (e) {
-        error = e;
+        return false;
       }
-
-      return error === false;
     });
-
-    if (error) {
-      throw error;
-    }
-  }
-
-  canApply(setContext: SetContext): boolean {
-    return this.getTypes().some((type) => type.canApply(setContext));
   }
 
   protected getTypeImpl(setContext: SetContext): AnyType | void {
     let foundedType;
 
-    this.getTypes().some((type) => {
+    this.types.some((type) => {
       try {
         foundedType = type.getType(setContext);
       } catch (e) {}
@@ -89,37 +74,28 @@ export default class OneOfType extends AnyType {
       return !!foundedType;
     });
 
-    return foundedType || null;
+    return foundedType;
   }
 
   getValidator(setContext: SetContext): Validator | void {
-    const type = this.getTypes().find((type) => type.canApply(setContext));
+    const type = this.types.find((type) => type.canApply(setContext));
 
-    if (!type) {
-      return;
+    const validators: Validator[] = [];
+
+    const typeValidator = type && type.getValidator(setContext);
+
+    if (typeValidator) {
+      validators.push(typeValidator);
     }
 
-    let validator = this.validator;
-
-    if (validator) {
-      validator = new MultipleValidator({
-        validators: [
-          new TypeValidator({
-            setContext,
-            type,
-            // ...this.validatorConfig,
-          }),
-          validator,
-        ],
-      });
-    } else {
-      validator = new TypeValidator({
-        setContext,
-        type,
-        // ...this.validatorConfig,
-      });
+    if (this.validator) {
+      validators.push(this.validator);
     }
 
-    return validator;
+    if (validators.length) {
+      return new MultipleValidator({
+        validators,
+      });
+    }
   }
 }

@@ -55,11 +55,15 @@ export default class ArrayType extends AnyType {
 
   protected applyImpl(setContext: SetContext) {
     const type = this.normalizeType(this.items);
-    let { value } = setContext.get();
+    const valueContext = setContext.get();
+    let { value } = valueContext;
+    const { model, path } = valueContext;
 
     if (this.filter) {
       value = this.filter(value);
     }
+
+    model.setValue(path, []);
 
     for (const k in value) {
       if (value.hasOwnProperty(k)) {
@@ -69,6 +73,9 @@ export default class ArrayType extends AnyType {
         type.apply(nextSetContext);
       }
     }
+
+    // значение установлено, сообщаем об этом
+    model.dispatchValue(path);
   }
 
   protected setImpl(setContext: SetContext) {

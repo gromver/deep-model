@@ -54,8 +54,6 @@ export default class AnyType {
 
   /* Set */
   set(setContext: SetContext) {
-    // const valueContext = setContext.get();
-
     this.setCheck(setContext);
 
     this.setImpl(setContext);
@@ -75,29 +73,16 @@ export default class AnyType {
 
   canSet(setContext: SetContext): boolean {
     try {
-      // const valueContext = setContext.get();
-
       this.setCheck(setContext);
 
-      return true;  // this.canSetImpl(setContext);
+      return true;
     } catch (error) {
       return false;
     }
   }
 
-  /**
-   * Кастомная релизация canSet для потомков
-   * @param {SetContext} setContext
-   * @returns {boolean}
-   */
-  // protected canSetImpl(setContext: SetContext): boolean {
-  //   return false;
-  // }
-
   /* Apply */
   apply(setContext: SetContext) {
-    // const valueContext = setContext.get();
-
     this.applyCheck(setContext);
 
     this.applyImpl(setContext);
@@ -110,10 +95,6 @@ export default class AnyType {
    * @throws {Error}
    */
   applyCheck(setContext: SetContext) {
-    // if (this.filter) {
-    //   valueContext.value = this.filter(valueContext.value);
-    // }
-
     this.typeCheck(setContext);
 
     this.permissionCheck(setContext);
@@ -127,12 +108,11 @@ export default class AnyType {
     }
 
     valueContext.model.setValue(valueContext.path, valueContext.value);
+    valueContext.model.dispatchValue(valueContext.path);
   }
 
   canApply(setContext: SetContext): boolean {
     try {
-      // const valueContext = setContext.get();
-
       this.applyCheck(setContext);
 
       return true;
@@ -148,14 +128,10 @@ export default class AnyType {
    */
   getType(setContext: SetContext): AnyType | void {
     try {
-      // const valueContext = setContext.get();
-
       this.setCheck(setContext);
 
       return this.getTypeImpl(setContext);
-    } catch (error) {
-      // return null;
-    }
+    } catch (error) { }
   }
 
   /**

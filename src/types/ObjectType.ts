@@ -58,11 +58,15 @@ export default class ObjectType extends AnyType {
   protected applyImpl(setContext: SetContext) {
     // смотрим правила и записываем по полям
     const rules = this.getProperties();
-    let { value } = setContext.get();
+    const valueContext = setContext.get();
+    let { value } = valueContext;
+    const { model, path } = valueContext;
 
     if (this.filter) {
       value = this.filter(value);
     }
+
+    model.setValue(path, {});
 
     for (const k in value) {
       if (value.hasOwnProperty(k)) {
@@ -75,6 +79,9 @@ export default class ObjectType extends AnyType {
         }
       }
     }
+
+    // значение установлено, сообщаем об этом
+    model.dispatchValue(path);
   }
 
   protected setImpl(setContext: SetContext) {

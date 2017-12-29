@@ -90,7 +90,7 @@ export default class Model {
   }
 
   /**
-   * Set value and emit the SetValueEvent
+   * Set value
    * @param {(string | number)[]} path
    * @param value
    */
@@ -100,10 +100,16 @@ export default class Model {
     } else {
       this.value = value;
     }
+  }
 
+  /**
+   * Emit the SetValueEvent and set pristine state
+   * @param {(string | number)[]} path
+   */
+  dispatchValue(path: (string | number)[]) {
     this.setValidationState(path, new PristineState());
 
-    this.dispatch(new SetValueEvent(path, value));
+    this.dispatch(new SetValueEvent(path, this.get(path)));
   }
 
   /**

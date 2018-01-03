@@ -28,6 +28,14 @@ function getTestModel(attributes?) {
         properties: {
           string: new StringType(),
           number: new NumberType(),
+          permissionReturnTest: new StringType({
+            permission: () => false,
+          }),
+          permissionThrowTest: new StringType({
+            permission: () => {
+              throw new Error('the permission test');
+            },
+          }),
         },
       }),
       array: new ArrayType({
@@ -447,5 +455,22 @@ describe('getValidationStates', () => {
       '["a","b"]': expect.any(SuccessState),
       '["a","c"]': expect.any(SuccessState),
     }));
+  });
+});
+
+describe('Permission test', () => {
+  it('Should throw default permissionCheck message', () => {
+    const model = getTestModel();
+    expect(() => {
+      model.set(['object', 'permissionReturnTest'], 'foo');
+      // tslint:disable-next-line:max-line-length
+    }).toThrow('AnyType:permissionCheck - you have no access to the attribute by ["object","permissionReturnTest"] path');
+  });
+
+  it('Should throw custom permissionCheck message', () => {
+    const model = getTestModel();
+    expect(() => {
+      model.set(['object', 'permissionThrowTest'], 'foo');
+    }).toThrow('the permission test');
   });
 });

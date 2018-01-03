@@ -20,7 +20,7 @@ export interface AnyTypeConfig {
 }
 
 export default class AnyType {
-  protected permission?: (context: ValueContext) => void;
+  protected permission?: (context: ValueContext) => boolean | void;
   protected validator?: Validator;
   protected filter?: (value: any) => any;
 
@@ -160,7 +160,11 @@ export default class AnyType {
    */
   protected permissionCheck(setContext: SetContext) {
     if (this.permission) {
-      this.permission(setContext.get());
+      const valueContext = setContext.get();
+      if (this.permission(valueContext) === false) {
+        // tslint:disable-next-line:max-line-length
+        throw new Error(`AnyType:permissionCheck - you have no access to the attribute by ${JSON.stringify(valueContext.path)} path`);
+      }
     }
   }
 

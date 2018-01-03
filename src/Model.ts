@@ -387,12 +387,6 @@ export default class Model {
     const pathNormalized = typeof path === 'string' ? [path] : path;
     const type = this.getType(pathNormalized);
 
-    // return type ? type.validate(new SetContext({
-    //   model: this,
-    //   path: pathNormalized,
-    //   cursor: pathNormalized.length - 1,
-    // })) : Promise.reject('Validator not found.');
-
     const setContext = new SetContext({
       model: this,
       path: pathNormalized,

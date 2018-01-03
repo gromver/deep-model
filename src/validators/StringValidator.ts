@@ -8,8 +8,8 @@ export interface StringValidatorConfig {
   messageMaxLength?: string;
   messageMinLength?: string;
   messagePattern?: string;
-  maxLength?: string;
-  minLength?: string;
+  maxLength?: number;
+  minLength?: number;
   pattern?: string | RegExp;
   flags?: string;
 }
@@ -24,8 +24,8 @@ export default class StringValidator extends Validator implements StringValidato
   public messageMaxLength?: string;
   public messageMinLength?: string;
   public messagePattern?: string;
-  public maxLength?: string;
-  public minLength?: string;
+  public maxLength?: number;
+  public minLength?: number;
   public pattern?: string | RegExp;
   public flags?: string;
 

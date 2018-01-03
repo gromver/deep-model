@@ -32,13 +32,13 @@
     "docs:json": "typedoc --mode file --json build/docs/typedoc.json src/index.ts",
     "docs:publish": "yarn docs:html && gh-pages -d build/docs",
     "changelog": "standard-version",
-    "release": "yarn reset && yarn jest && yarn build && yarn docs:publish && yarn changelog",
+    "release:default": "yarn reset && yarn jest && yarn build && yarn docs:publish && yarn changelog",
+    "release": "yarn jest && yarn build && yarn docs:publish && yarn changelog",
     "reset": "git clean -dfx && git reset --hard && yarn",
     "jest": "jest",
     "jest:watch": "npm run jest -- --watch",
     "jest:coverage": "npm run jest -- --coverage",
-    "release:git": "git push --follow-tags",
-    "release:npm": "npm publish"
+    "release:git": "git push --follow-tags && npm publish"
   },
   "scripts-info": {
     "info": "Display information about the scripts",

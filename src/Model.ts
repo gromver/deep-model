@@ -89,6 +89,10 @@ export default class Model {
     }
   }
 
+  normalizePath(path: any): (string|number)[] {
+    return Array.isArray(path) ? path : [path];
+  }
+
   /**
    * Set value
    * @param {(string | number)[]} path
@@ -137,14 +141,14 @@ export default class Model {
    * @returns {State}
    */
   getValidationState(path: string | (string | number)[]): State | undefined {
-    const pathNormalized = typeof path === 'string' ? [path] : path;
+    const pathNormalized = this.normalizePath(path);
 
     return this.states[JSON.stringify(pathNormalized)];
   }
 
   getValidationStates(path?: string | (string | number)[]): { [key: string]: State } {
     if (path) {
-      const pathNormalized = typeof path === 'string' ? [path] : path;
+      const pathNormalized = this.normalizePath(path);
       const pattern = JSON.stringify(pathNormalized).slice(0, -1);
       const states = {};
 
@@ -189,7 +193,7 @@ export default class Model {
     let valueNormalized;
 
     if (arguments.length > 1) {
-      pathNormalized = typeof path === 'string' ? [path] : path;
+      pathNormalized = this.normalizePath(path);
       valueNormalized = value;
     } else {
       pathNormalized = [];
@@ -221,7 +225,7 @@ export default class Model {
    */
   get(path?: string | (string|number)[]) {
     if (path) {
-      const pathNormalized = typeof path === 'string' ? [path] : path;
+      const pathNormalized = this.normalizePath(path);
 
       return path.length ? _.get(this.value, pathNormalized) : this.value;
     }
@@ -231,7 +235,7 @@ export default class Model {
 
   getInitial(path?: string | (string|number)[]) {
     if (path) {
-      const pathNormalized = typeof path === 'string' ? [path] : path;
+      const pathNormalized = this.normalizePath(path);
 
       return path.length ? _.get(this.initialValue, pathNormalized) : this.initialValue;
     }
@@ -254,7 +258,7 @@ export default class Model {
     let valueNormalized;
 
     if (arguments.length > 1) {
-      pathNormalized = typeof path === 'string' ? [path] : path;
+      pathNormalized = this.normalizePath(path);
       valueNormalized = value;
     } else {
       pathNormalized = [];
@@ -290,7 +294,7 @@ export default class Model {
   }
 
   getType(path: string | (string|number)[]): AnyType | void {
-    const pathNormalized = typeof path === 'string' ? [path] : path;
+    const pathNormalized = this.normalizePath(path);
 
     return path.length
       ? this.type.getType(new SetContext({
@@ -384,7 +388,7 @@ export default class Model {
   }
 
   validateAttribute(path: string | (string|number)[]): Promise<string | Message | void> {
-    const pathNormalized = typeof path === 'string' ? [path] : path;
+    const pathNormalized = this.normalizePath(path);
     const type = this.getType(pathNormalized);
 
     const setContext = new SetContext({
@@ -401,7 +405,7 @@ export default class Model {
     const jobs: Promise<any>[] = [];
 
     attributes.forEach((path) => {
-      const pathNormalized: (string|number)[] = typeof path === 'string' ? [path] : path;
+      const pathNormalized: (string|number)[] = this.normalizePath(path);
       const type = this.getType(pathNormalized);
 
       const setContext = new SetContext({
@@ -421,7 +425,7 @@ export default class Model {
   }
 
   getValidator(path: string | (string|number)[]): Validator | void {
-    const pathNormalized = typeof path === 'string' ? [path] : path;
+    const pathNormalized = this.normalizePath(path);
     const type = this.getType(pathNormalized);
 
     return type && type.getValidator(new SetContext({

@@ -14,6 +14,8 @@ export interface ValidatorConfig {
 
 export interface ObjectTypeConfig extends AnyTypeConfig {
   properties: { [key: string]: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType) };
+  additionalProperties?: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType);
+  // todo add patternProperties
   validatorConfig?: ValidatorConfig;
 }
 
@@ -22,11 +24,13 @@ export default class ObjectType extends AnyType {
     [key: string]: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType),
   };
   protected validatorConfig: ValidatorConfig;
+  protected additionalProperties?: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType);
 
   constructor(config: ObjectTypeConfig) {
     super(config);
 
     this.properties = config.properties;
+    this.additionalProperties = config.additionalProperties;
     this.validatorConfig = config.validatorConfig || {};
     this.normalizeType = this.normalizeType.bind(this);
   }
@@ -39,6 +43,10 @@ export default class ObjectType extends AnyType {
     }
 
     return rules;
+  }
+
+  private getAdditionalPropertiesType(): AnyType | undefined {
+    return this.additionalProperties && this.normalizeType(this.additionalProperties);
   }
 
   private normalizeType(type: AnyType | (AnyType | (() => AnyType))[] | (() => AnyType)): AnyType {
@@ -58,6 +66,7 @@ export default class ObjectType extends AnyType {
   protected applyImpl(setContext: SetContext) {
     // смотрим правила и записываем по полям
     const rules = this.getProperties();
+    const additionalPropertiesType = this.getAdditionalPropertiesType();
     const valueContext = setContext.get();
     let { value } = valueContext;
     const { model, path } = valueContext;
@@ -71,7 +80,7 @@ export default class ObjectType extends AnyType {
     for (const k in value) {
       if (value.hasOwnProperty(k)) {
         const v = value[k];
-        const rule = rules[k];
+        const rule = rules[k] || additionalPropertiesType;
 
         if (rule) {
           const nextSetContext = setContext.push(k, v);
@@ -86,7 +95,7 @@ export default class ObjectType extends AnyType {
 
   protected setImpl(setContext: SetContext) {
     const { attribute } = setContext.get();
-    const rule = this.getProperties()[attribute];
+    const rule = this.getProperties()[attribute] || this.getAdditionalPropertiesType();
 
     const nextSetContext = setContext.shift();
 
@@ -105,7 +114,7 @@ export default class ObjectType extends AnyType {
   setCheck(setContext: SetContext) {
     const valueContext = setContext.get();
     const { attribute } = valueContext;
-    const rule = this.getProperties()[attribute];
+    const rule = this.getProperties()[attribute] || this.getAdditionalPropertiesType();
 
     if (!rule) {
       throw new Error(`ObjectType:setCheck - unknown attribute "${attribute}"`);
@@ -133,7 +142,7 @@ export default class ObjectType extends AnyType {
 
   protected getTypeImpl(setContext: SetContext): AnyType | void {
     const { attribute } = setContext.get();
-    const rule = this.getProperties()[attribute];
+    const rule = this.getProperties()[attribute] || this.getAdditionalPropertiesType();
 
     const nextSetContext = setContext.shift();
 
@@ -169,6 +178,7 @@ export default class ObjectType extends AnyType {
         validators: [
           new ObjectValidator({
             setContext,
+            additionalProperties: this.getAdditionalPropertiesType(),
             properties: this.getProperties(),
             ...this.validatorConfig,
           }),
@@ -178,6 +188,7 @@ export default class ObjectType extends AnyType {
     } else {
       validator = new ObjectValidator({
         setContext,
+        additionalProperties: this.getAdditionalPropertiesType(),
         properties: this.getProperties(),
         ...this.validatorConfig,
       });

@@ -113,16 +113,6 @@ export default class ArrayType extends AnyType {
     }
   }
 
-  // protected canSetImpl(setContext: SetContext): boolean {
-  //   const type = this.normalizeType(this.items);
-  //
-  //   const nextSetContext = setContext.shift();
-  //
-  //   return nextSetContext
-  //     ? type.canSet(nextSetContext)
-  //     : type.canApply(setContext);
-  // }
-
   protected getTypeImpl(setContext: SetContext): AnyType | void {
     const type = this.normalizeType(this.items);
 

@@ -12,6 +12,7 @@ import NumberType from './types/NumberType';
 import BooleanType from './types/BooleanType';
 import AnyOfType from './types/AnyOfType';
 import * as t from './types';
+import * as v from './validators';
 
 import PresenceValidator from './validators/PresenceValidator';
 import MultipleValidator from './validators/MultipleValidator';
@@ -89,7 +90,7 @@ describe('set()', () => {
         number: 456,
         boolean: false,
       },
-      array: [1,2,3],
+      array: [1, 2, 3],
     });
 
     expect(model.get()).toEqual({
@@ -100,7 +101,7 @@ describe('set()', () => {
         string: 'substring',
         number: 456,
       },
-      array: [1,2,3],
+      array: [1, 2, 3],
     });
   });
 
@@ -185,7 +186,7 @@ describe('canSet()', () => {
     expect(model.canSet([])).toBe(false);
     expect(model.canSet(2)).toBe(false);
     expect(model.canSet('foo')).toBe(false);
-    expect(model.canSet('foo','some value')).toBe(false);
+    expect(model.canSet('foo', 'some value')).toBe(false);
     expect(model.canSet(['bar'], 'some value')).toBe(false);
     expect(model.canSet(['object', 'foo'], 'some value')).toBe(false);
     expect(model.canSet(['a', 'b'], 'some value')).toBe(false);
@@ -397,14 +398,14 @@ describe('Test Model with array types', () => {
       type: t.array({
         items: t.number(),
       }),
-      value: [1,2,3],
+      value: [1, 2, 3],
     });
-    expect(model.get()).toEqual([1,2,3]);
+    expect(model.get()).toEqual([1, 2, 3]);
 
-    model.set([3,2,1]);
-    expect(model.get()).toEqual([3,2,1]);
+    model.set([3, 2, 1]);
+    expect(model.get()).toEqual([3, 2, 1]);
     model.set([1], 10);
-    expect(model.get()).toEqual([3,10,1]);
+    expect(model.get()).toEqual([3, 10, 1]);
     expect(model.get([1])).toEqual(10);
   });
 
@@ -472,5 +473,117 @@ describe('Permission test', () => {
     expect(() => {
       model.set(['object', 'permissionThrowTest'], 'foo');
     }).toThrow('the permission test');
+  });
+});
+
+describe('Validation test', () => {
+  it('First error should be "e"', async () => {
+    const model = Model.object(
+      {
+        o: t.object({
+          properties: {
+            e: t.string({
+              validator: v.presence(),
+            }),
+          },
+        }),
+        a: t.string({
+          validator: [
+            v.presence(),
+            v.email(),
+          ],
+        }),
+        b: t.string({
+          validator: v.presence(),
+        }),
+        c: t.string({
+          validator: [
+            v.presence(),
+          ],
+        }),
+      },
+      {
+        o: {
+          e: '',
+        },
+        a: 'notEmail',
+        b: '',
+        c: '',
+      },
+    );
+
+    await model.validate().catch(() => {});
+
+    expect(model.getFirstError()!.path).toEqual(['o', 'e']);
+  });
+
+  it('First error should be "a[1]"', async () => {
+    const model = Model.object(
+      {
+        a: t.array({
+          items: t.string({
+            validator: ({ value }) => new Promise((res, rej) => setTimeout(
+              () => {
+                if (value) {
+                  res();
+                } else {
+                  rej();
+                }
+              },
+              10,
+            )),
+          }),
+        }),
+        b: t.string({
+          validator: [
+            v.presence(),
+            v.email(),
+          ],
+        }),
+        c: t.string({
+          validator: v.presence(),
+        }),
+      },
+      {
+        a: ['v', '', 'v'],
+        b: 'notEmail',
+        c: '',
+      },
+    );
+
+    await model.validate().catch(() => {});
+
+    expect(model.getFirstError()!.path).toEqual(['a', 1]);
+  });
+
+
+  it('First error should be "a"', async () => {
+    const model = Model.object(
+      {
+        a: t.string({
+          validator: [
+            v.presence(),
+            v.email(),
+          ],
+        }),
+        b: t.string({
+          validator: v.presence(),
+        }),
+        c: t.string({
+          validator: [
+            v.presence(),
+          ],
+        }),
+      },
+      {
+        a: 'notEmail',
+        b: '',
+        c: '',
+      },
+    );
+
+    await model.validate().catch(() => {});
+
+    expect(model.getFirstError()!.path).toEqual(['a']);
   });
 });

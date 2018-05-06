@@ -3,6 +3,7 @@ import Validator from './Validator';
 import Message from './utils/Message';
 import ValueContext from '../ValueContext';
 import SetContext from '../SetContext';
+import ValidationResult from './utils/ValidationResult';
 import utils from './utils/utils';
 
 export interface ObjectValidatorConfig {
@@ -54,7 +55,7 @@ export default class ObjectValidator extends Validator {
     const { properties, setContext } = this;
 
     return new Promise((resolve, reject) => {
-      const jobs: Promise<string | Message | void>[] = [];
+      const jobs: Promise<ValidationResult>[] = [];
 
       for (const k in properties) {
         const v = value[k];
@@ -62,14 +63,22 @@ export default class ObjectValidator extends Validator {
 
         if (type) {
           const nextSetContext = setContext.push(k, v);
-          jobs.push(type.validate(nextSetContext));
+          jobs.push(
+            type.validate(nextSetContext)
+              .then((warning) => warning ? ValidationResult.warning : ValidationResult.success)
+              .catch(() => ValidationResult.error),
+          );
         }
       }
 
-      Promise.all(jobs).then((warnings) => {
-        const warning = warnings.find((i) => !!i);
-
-        if (warning) {
+      Promise.all(jobs).then((results) => {
+        if (results.indexOf(ValidationResult.error) !== -1) {
+          reject(
+            utils.createMessage(this.errorMessageFields || ObjectValidator.ERROR_MESSAGE_FIELDS, {
+              attribute: valueContext.attribute,
+            }),
+          );
+        } else if (results.indexOf(ValidationResult.warning) !== -1) {
           resolve(
             utils.createMessage(this.warningMessage || ObjectValidator.WARNING_MESSAGE, {
               attribute: valueContext.attribute,
@@ -78,12 +87,6 @@ export default class ObjectValidator extends Validator {
         } else {
           resolve();
         }
-      }).catch(() => {
-        reject(
-          utils.createMessage(this.errorMessageFields || ObjectValidator.ERROR_MESSAGE_FIELDS, {
-            attribute: valueContext.attribute,
-          }),
-        );
       });
     });
   }

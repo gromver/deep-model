@@ -184,23 +184,14 @@ export default class AnyType {
           : new SuccessState();
 
         valueContext.model.setValidationState(valueContext.path, state);
-
-        return state;
       })
       .catch((errorMessage) => {
         const state = new ErrorState(errorMessage);
 
         valueContext.model.setValidationState(valueContext.path, state);
-
-        return state;
       });
 
-    Promise.race([jobState, new Promise((r) => setTimeout(() => r(new PendingState()), 0))])
-      .then((state) => {
-        if (state instanceof PendingState) {
-          valueContext.model.setValidationState(valueContext.path, state);
-        }
-      });
+    valueContext.model.setValidationState(valueContext.path, new PendingState());
 
     return job;
   }

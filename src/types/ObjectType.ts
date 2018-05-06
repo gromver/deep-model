@@ -120,17 +120,6 @@ export default class ObjectType extends AnyType {
     }
   }
 
-  // protected canSetImpl(setContext: SetContext): boolean {
-  //   const { attribute } = setContext.get();
-  //   const rule = this.getProperties()[attribute];
-  //
-  //   const nextSetContext = setContext.shift();
-  //
-  //   return nextSetContext
-  //     ? rule.canSet(nextSetContext)
-  //     : rule.canApply(setContext);
-  // }
-
   protected getTypeImpl(setContext: SetContext): AnyType | void {
     const { attribute } = setContext.get();
     const rule = this.getProperties()[attribute];
